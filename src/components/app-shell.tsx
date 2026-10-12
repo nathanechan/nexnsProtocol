@@ -2,25 +2,42 @@
 import { useLocale } from "../i18n/locale";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { type ReactNode } from "react";
-import { Bell, ArrowUpRight } from "lucide-react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { ArrowUpRight, Layers, Activity, Wallet } from "lucide-react";
 import { GlobalSearch } from "./global-search";
 import { Button, Container, EmptyState, Modal } from "./ui";
 import { useSimulation } from "../simulation/store";
-import { OutcomeEvents } from "./result-views";
 const navigation = [
-  { href: "/network", label: "网络", en: "Network" },
-  { href: "/explore", label: "探索", en: "Explore" },
-  { href: "/my-nexus", label: "资产", en: "Portfolio" },
-  { href: "/p-ecosystem", label: "NEXNS", en: "NEXNS" },
-  { href: "/protocol", label: "协议", en: "Protocol" },
+  { href: "/launch", label: "发行", en: "Launch", icon: Layers },
+  { href: "/live", label: "运行", en: "Live", icon: Activity },
+  { href: "/portfolio", label: "资产", en: "Portfolio", icon: Wallet },
 ];
 export function AppShell({ children }: { children: ReactNode }) {
   const { t, locale, setLocale } = useLocale();
 
   const pathname = usePathname();
-  const activities = useSimulation((s) => s.activities);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuTrigger = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (!menuOpen) return;
+    document.querySelector<HTMLAnchorElement>("#product-menu a")?.focus();
+    const dismiss = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setMenuOpen(false);
+        menuTrigger.current?.focus();
+      }
+    };
+    document.addEventListener("keydown", dismiss);
+    return () => document.removeEventListener("keydown", dismiss);
+  }, [menuOpen]);
+  const navLabel = (n: (typeof navigation)[number]) =>
+    locale === "zh-CN" ? n.label : n.en;
+  const projects = useSimulation((s) => s.projects);
+
   const wallet = useSimulation((s) => s.currentUser.wallet);
+  const ownProjects = Object.values(projects).filter(
+    (p) => p.creatorWallet.toLowerCase() === wallet.toLowerCase(),
+  );
   return (
     <>
       <a className="skip-link" href="#main-content">
@@ -28,26 +45,85 @@ export function AppShell({ children }: { children: ReactNode }) {
       </a>
       <header className="app-header">
         <div className="topbar">
-          <Link className="brand" href="/network">
-            <span className="brand-mark">N</span>
-            {t("NEXNS")}
-          </Link>
-          <nav aria-label={t("主导航")}>
-            {t(
-              navigation.map((n) => (
-                <Link
-                  key={n.href}
-                  href={n.href}
-                  aria-current={pathname === n.href ? "page" : undefined}
+          <div className="logo-menu">
+            <button
+              ref={menuTrigger}
+              className="brand"
+              type="button"
+              aria-label={locale === "zh-CN" ? "产品菜单" : "Product menu"}
+              aria-expanded={menuOpen}
+              aria-controls="product-menu"
+              onClick={() => setMenuOpen((v) => !v)}
+            >
+              <span className="brand-mark">N</span>NEXNS
+            </button>
+            {menuOpen && (
+              <>
+                <button
+                  className="menu-dismiss"
+                  aria-label={locale === "zh-CN" ? "关闭菜单" : "Close menu"}
+                  onClick={() => setMenuOpen(false)}
+                />
+                <div
+                  id="product-menu"
+                  className="product-menu"
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape") setMenuOpen(false);
+                  }}
                 >
-                  <span>{t(n.label)}</span>
-                </Link>
-              )),
+                  <Link href="/nexns" onClick={() => setMenuOpen(false)}>
+                    NEXNS
+                  </Link>
+                  <Link href="/protocol" onClick={() => setMenuOpen(false)}>
+                    {t("协议")}
+                  </Link>
+                  <Link href="/create" onClick={() => setMenuOpen(false)}>
+                    {t("创建项目")}
+                  </Link>
+                  <Link
+                    href={
+                      ownProjects[0]
+                        ? `/studio/${ownProjects[0].projectId}`
+                        : "/portfolio?tab=projects"
+                    }
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    {locale === "zh-CN" ? "创建者工作室" : "Creator Studio"}
+                  </Link>
+                  <label>
+                    {locale === "zh-CN" ? "语言" : "Language"}
+                    <select
+                      aria-label={
+                        locale === "zh-CN" ? "菜单语言" : "Menu language"
+                      }
+                      value={locale}
+                      onChange={(e) =>
+                        setLocale(e.target.value as "zh-CN" | "en")
+                      }
+                    >
+                      <option value="zh-CN">简体中文</option>
+                      <option value="en">English</option>
+                    </select>
+                  </label>
+                </div>
+              </>
             )}
+          </div>
+          <nav className="desktop-primary" aria-label={t("主导航")}>
+            {navigation.map((n) => (
+              <Link
+                key={n.href}
+                href={n.href}
+                aria-current={pathname === n.href ? "page" : undefined}
+              >
+                {navLabel(n)}
+              </Link>
+            ))}
           </nav>
           <div className="header-actions">
+            <GlobalSearch />
             <select
-              className="language-switch"
+              className="language-switch desktop-language"
               aria-label={locale === "zh-CN" ? "语言" : "Language"}
               value={locale}
               onChange={(e) => setLocale(e.target.value as "zh-CN" | "en")}
@@ -55,30 +131,9 @@ export function AppShell({ children }: { children: ReactNode }) {
               <option value="zh-CN">简体中文</option>
               <option value="en">English</option>
             </select>
-            <GlobalSearch />
-            <Modal
-              title={t("通知")}
-              description={t("最近操作结果。")}
-              trigger={
-                <Button variant="ghost" aria-label={t("通知")}>
-                  <Bell size={18} />
-                </Button>
-              }
-            >
-              <OutcomeEvents
-                events={activities
-                  .filter(
-                    (a) =>
-                      a.wallet === wallet &&
-                      [
-                        "REWARD_SETTLED",
-                        "CLAIM",
-                        "POSITION_COMPLETED",
-                      ].includes(a.type),
-                  )
-                  .slice(0, 5)}
-              />
-            </Modal>
+            <Link href="/create" className="button secondary desktop-create">
+              {locale === "zh-CN" ? "+ 创建项目" : "+ Create Project"}
+            </Link>
             <Modal
               title={t("钱包")}
               description={t("查看当前钱包与资产。")}
@@ -92,6 +147,21 @@ export function AppShell({ children }: { children: ReactNode }) {
       <main id="main-content">
         <Container>{t(children)}</Container>
       </main>
+      <nav
+        className="mobile-primary"
+        aria-label={locale === "zh-CN" ? "底部导航" : "Bottom navigation"}
+      >
+        {navigation.map((n) => (
+          <Link
+            key={n.href}
+            href={n.href}
+            aria-current={pathname === n.href ? "page" : undefined}
+          >
+            <n.icon size={19} />
+            <span>{navLabel(n)}</span>
+          </Link>
+        ))}
+      </nav>
       <footer>
         <Container>
           <span>{t("NEXNS · 链上经济操作层")}</span>

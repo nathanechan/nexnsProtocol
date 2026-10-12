@@ -27,6 +27,16 @@ const text = async (p, value) =>
     .waitFor();
 const operate = async (p, button) => {
   await p.getByRole("button", { name: button, exact: true }).click();
+  const dialog = p.getByRole("dialog");
+  assert.equal(
+    await dialog.locator(".financial-identity").getAttribute("data-contract"),
+    contract,
+  );
+  const identity = await dialog.locator(".financial-identity").innerText();
+  assert(identity.includes("SEA") && identity.includes("操作"));
+  assert(
+    (await dialog.locator(".key-values").last().innerText()).match(/USDT|SEA/),
+  );
   await p.getByRole("button", { name: "确认操作", exact: true }).click();
   await text(p, "成功，资产与权益已更新");
 };
@@ -55,8 +65,9 @@ try {
   await page.goto(url);
   await page.getByRole("tab", { name: "参与", exact: true }).click();
   await page.getByLabel("参与金额 · USDT", { exact: true }).fill("2400");
-  await text(page, "不作为可赎回本金");
+  await text(page, "参与资金不支持本金赎回");
   await operate(page, "确认参与");
+  await page.getByRole("tab", { name: "头寸", exact: true }).click();
   await text(page, "独立头寸");
   const personal = await context.newPage();
   await personal.goto(base + "/my-nexus");
@@ -83,6 +94,7 @@ try {
     .click();
   await page.getByRole("tab", { name: "奖励", exact: true }).click();
   await text(page, "可领取");
+  await page.getByRole("tab", { name: "领取", exact: true }).click();
   await page.getByLabel("领取数量 · SEA", { exact: true }).fill("10");
   await text(page, "8.5 SEA");
   await consolePage
@@ -106,14 +118,13 @@ try {
       "质押",
       "贡献",
       "奖励",
-      "资产",
+      "头寸",
       "活动",
       "透明度",
-      "总览",
     ]) {
       await page.getByRole("tab", { name: label, exact: true }).first().click();
       await overflow(page, width, label);
-      if (["参与", "质押", "奖励", "总览"].includes(label))
+      if (["参与", "质押", "奖励", "交易"].includes(label))
         await page.screenshot({
           path: `test-results/step4-${width}-${label}.png`,
           fullPage: true,
@@ -137,6 +148,7 @@ try {
   await page.getByLabel("解除质押数量 · SEA", { exact: true }).fill("100");
   await operate(page, "确认解除质押");
   await page.getByRole("tab", { name: "奖励", exact: true }).click();
+  await page.getByRole("tab", { name: "领取", exact: true }).click();
   await page.getByLabel("领取数量 · SEA", { exact: true }).fill("1");
   await operate(page, "确认领取");
   assert.equal(

@@ -42,7 +42,6 @@ import {
   EmptyState,
   Input,
   KeyValueList,
-  LifecycleBadge,
   MetricCard,
   Modal,
   PriceStatusBadge,
@@ -94,9 +93,12 @@ export function PositionLots({ project }: { project: Project }) {
   const { member } = useOperating(project);
   return (
     <DetailCard title={t("独立头寸")}>
-      <p className="small-note">
-        {t("每次参与建立独立批次。容量为手续费前参考价值，不代表保证收益。")}
-      </p>
+      <details className="action-rules">
+        <summary>{t("了解规则")}</summary>
+        <p>
+          {t("每次参与建立独立批次。容量为手续费前参考价值，不代表保证收益。")}
+        </p>
+      </details>
       {t(
         member.lots.length ? (
           <div className="lot-list">
@@ -144,10 +146,7 @@ export function PositionLots({ project }: { project: Project }) {
             )}
           </div>
         ) : (
-          <EmptyState
-            title={t("暂无参与头寸")}
-            description={t("首次参与后，你的独立头寸和剩余容量会显示在这里。")}
-          />
+          <EmptyState title={t("暂无头寸")} description="" />
         ),
       )}
     </DetailCard>
@@ -234,12 +233,8 @@ export function OperatingActionForm({
         ...(kind === "participate"
           ? [
               {
-                label: "生命周期容量 · 2.5×",
+                label: "生命周期容量",
                 value: amount(quote.capacity, "USDT"),
-              },
-              {
-                label: "项目状态",
-                value: <LifecycleBadge state={project.lifecycle} />,
               },
               {
                 label: "推荐关系",
@@ -307,7 +302,6 @@ export function OperatingActionForm({
   };
   return (
     <DetailCard title={t(title)}>
-      <FinancialIdentity project={project} />
       <div className="operating-form">
         <label htmlFor={id}>
           {t(
@@ -359,13 +353,32 @@ export function OperatingActionForm({
         >
           {t(error)}
         </p>
-        {t(quote && <KeyValueList items={items} />)}
+        {t(
+          quote && (
+            <KeyValueList
+              items={items.filter(
+                (item) =>
+                  ![
+                    "参与金额",
+                    "本次数量",
+                    "推荐关系",
+                    "当前覆盖率",
+                    "当前档位",
+                  ].includes(item.label),
+              )}
+            />
+          ),
+        )}
         <p
-          className={kind === "participate" ? "principal-notice" : "small-note"}
+          className={
+            kind === "participate"
+              ? "principal-notice"
+              : "small-note action-extra-copy"
+          }
         >
           {t(
             kind === "participate"
-              ? "本次参与资金进入协议后不作为可赎回本金；用户获得的是对应的协议头寸与奖励容量。"
+              ? "参与资金不支持本金赎回"
               : kind === "unstake"
                 ? "解除质押后覆盖率与当前档位可能降低；历史已结算权益保留。"
                 : kind === "claim"
@@ -373,6 +386,20 @@ export function OperatingActionForm({
                   : "实际结算结果仍受协议容量、价格状态及发行条件影响。",
           )}
         </p>
+        <details className="action-rules">
+          <summary>{t("了解规则")}</summary>
+          <p>
+            {t(
+              kind === "participate"
+                ? "本次参与资金进入协议后不作为可赎回本金；用户获得的是对应的协议头寸与奖励容量。"
+                : kind === "unstake"
+                  ? "解除质押后覆盖率与当前档位可能降低；历史已结算权益保留。"
+                  : kind === "claim"
+                    ? "已结算奖励可随时领取，实际到账按协议扣除相关费用。"
+                    : "实际结算结果仍受协议容量、价格状态及发行条件影响。",
+            )}
+          </p>
+        </details>
         <Modal
           open={open}
           onOpenChange={(v) => {
@@ -440,10 +467,6 @@ export function ParticipatePanel({ project }: { project: Project }) {
                   "首次参与时绑定项目根关系"
                 ),
               },
-              {
-                label: "项目状态",
-                value: <LifecycleBadge state={project.lifecycle} />,
-              },
             ]}
           />
         </DetailCard>
@@ -452,7 +475,13 @@ export function ParticipatePanel({ project }: { project: Project }) {
     </>
   );
 }
-export function StakePanel({ project }: { project: Project }) {
+export function StakePanel({
+  project,
+  compact = false,
+}: {
+  project: Project;
+  compact?: boolean;
+}) {
   const { t } = useLocale();
 
   const s = useOperating(project);
@@ -526,7 +555,13 @@ export function StakePanel({ project }: { project: Project }) {
                     ? "N/A"
                     : "0",
               },
-            ]}
+            ].filter(
+              (item) =>
+                !compact ||
+                ["当前档位", "下一档覆盖率", "达到下一档还需"].includes(
+                  item.label,
+                ),
+            )}
           />
           {t(
             !s.prices && (
@@ -537,31 +572,35 @@ export function StakePanel({ project }: { project: Project }) {
               </p>
             ),
           )}
-          <p className="small-note">
-            {t("实际结算结果仍受协议容量、价格状态及发行条件影响。")}
-          </p>
+          {!compact && (
+            <p className="small-note">
+              {t("实际结算结果仍受协议容量、价格状态及发行条件影响。")}
+            </p>
+          )}
         </DetailCard>
       </div>
-      <DetailCard title={t("覆盖率档位")}>
-        <div className="tier-grid">
-          {t(
-            ["低于 5%", "5% – <15%", "15% – <30%", "30% – <50%", "≥50%"].map(
-              (label, i) => (
-                <div
-                  key={label}
-                  className={s.level.index === i ? "selected" : ""}
-                >
-                  <strong>{t(label)}</strong>
-                  <span>
-                    {t("理论日率")}
-                    {t(["0%", "0.2%", "0.4%", "0.6%", "0.8%"][i])}
-                  </span>
-                </div>
+      {!compact && (
+        <DetailCard title={t("覆盖率档位")}>
+          <div className="tier-grid">
+            {t(
+              ["低于 5%", "5% – <15%", "15% – <30%", "30% – <50%", "≥50%"].map(
+                (label, i) => (
+                  <div
+                    key={label}
+                    className={s.level.index === i ? "selected" : ""}
+                  >
+                    <strong>{t(label)}</strong>
+                    <span>
+                      {t("理论日率")}
+                      {t(["0%", "0.2%", "0.4%", "0.6%", "0.8%"][i])}
+                    </span>
+                  </div>
+                ),
               ),
-            ),
-          )}
-        </div>
-      </DetailCard>
+            )}
+          </div>
+        </DetailCard>
+      )}
     </>
   );
 }
@@ -648,7 +687,13 @@ export function ContributionPanel({ project }: { project: Project }) {
     </>
   );
 }
-export function RewardsPanel({ project }: { project: Project }) {
+export function RewardsPanel({
+  project,
+  resultOnly = false,
+}: {
+  project: Project;
+  resultOnly?: boolean;
+}) {
   const { t } = useLocale();
 
   const s = useOperating(project);
@@ -719,7 +764,7 @@ export function RewardsPanel({ project }: { project: Project }) {
         )}
       </p>
       <div className="operating-layout">
-        <OperatingActionForm project={project} kind="claim" />
+        {!resultOnly && <OperatingActionForm project={project} kind="claim" />}
         <DetailCard title={t("收益与容量")}>
           <KeyValueList
             items={[

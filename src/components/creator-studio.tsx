@@ -1,4 +1,5 @@
 "use client";
+import { projectName } from "../product/metadata";
 import { useLocale } from "../i18n/locale";
 import { useMemo, useState } from "react";
 import { simulationStore, useSimulation } from "../simulation/store";
@@ -24,7 +25,6 @@ import { date, money, price, number, percent } from "../product/format";
 import {
   Button,
   ContractAddress,
-  DataTable,
   DetailCard,
   EmptyState,
   Input,
@@ -38,6 +38,7 @@ import {
 } from "./ui";
 import { ProductTabs } from "./product-tabs";
 import { LiquidityResults, OutcomeEvents, ResultTrend } from "./result-views";
+import { CompactResults } from "./compact-results";
 import { ProjectLogo } from "./project-logo";
 import Link from "next/link";
 const modules = [
@@ -125,30 +126,33 @@ function MetadataEditor({ p }: { p: Project }) {
         </label>
         <label>
           {t("Logo 图片")}
-          <input
-            aria-label={t("Logo 图片")}
-            type="file"
-            accept="image/png,image/jpeg,image/webp"
-            disabled={busy}
-            onChange={(e) => {
-              const f = e.target.files?.[0];
-              if (!f) return;
-              if (
-                f.size > 250000 ||
-                !["image/png", "image/jpeg", "image/webp"].includes(f.type)
-              ) {
-                setMessage("请选择不超过 250 KB 的 PNG、JPEG 或 WebP 图片");
-                return;
-              }
-              const reader = new FileReader();
-              reader.onload = () => {
-                setLogo(String(reader.result));
-                setMessage("");
-              };
-              reader.onerror = () => setMessage("图片读取失败");
-              reader.readAsDataURL(f);
-            }}
-          />
+          <span className="file-upload-control">
+            <span>{t("选择图片")}</span>
+            <input
+              aria-label={t("Logo 图片")}
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              disabled={busy}
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (!f) return;
+                if (
+                  f.size > 250000 ||
+                  !["image/png", "image/jpeg", "image/webp"].includes(f.type)
+                ) {
+                  setMessage("请选择不超过 250 KB 的 PNG、JPEG 或 WebP 图片");
+                  return;
+                }
+                const reader = new FileReader();
+                reader.onload = () => {
+                  setLogo(String(reader.result));
+                  setMessage("");
+                };
+                reader.onerror = () => setMessage("图片读取失败");
+                reader.readAsDataURL(f);
+              }}
+            />
+          </span>
         </label>
         <div className="project-logo">
           <ProjectLogo logo={logo} />
@@ -195,7 +199,7 @@ function MetadataEditor({ p }: { p: Project }) {
 function LinkEditor({ p, logo }: { p: Project; logo: string }) {
   const { t } = useLocale();
 
-  const [label, setLabel] = useState("社区"),
+  const [label, setLabel] = useState(""),
     [url, setUrl] = useState(""),
     [message, setMessage] = useState("");
   return (
@@ -244,7 +248,7 @@ function LinkEditor({ p, logo }: { p: Project; logo: string }) {
   );
 }
 export function CreatorStudio({ projectId }: { projectId: string }) {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
 
   const projects = useSimulation((s) => s.projects),
     books = useSimulation((s) => s.operatingBooks),
@@ -356,10 +360,10 @@ export function CreatorStudio({ projectId }: { projectId: string }) {
     </>
   );
   return (
-    <>
+    <div className="secondary-page studio-page">
       <PageHeader
         eyebrow={t("CREATOR STUDIO")}
-        title={t(`${p.name} · 工作室`)}
+        title={t(`${projectName(p, locale)} · 工作室`)}
         description={t(
           "项目运营与公开分析。创建者可更新标识和链接，协议参数保持固定。",
         )}
@@ -447,6 +451,14 @@ export function CreatorStudio({ projectId }: { projectId: string }) {
                         value: <PriceStatusBadge status={p.priceStatus} />,
                       },
                       { label: "有效贡献者", value: contributors.length },
+                      {
+                        label: "总贡献值 · 有效用户",
+                        value: prices
+                          ? displayAmount(
+                              contributors.reduce((n, c) => n + c.value, 0n),
+                            )
+                          : "N/A",
+                      },
                       { label: "领取记录", value: b?.claims.length ?? 0 },
                       {
                         label: "成交量 · 24H",
@@ -489,12 +501,13 @@ export function CreatorStudio({ projectId }: { projectId: string }) {
             <>
               {t(
                 members.length ? (
-                  <DataTable
+                  <CompactResults
                     caption={t("运行阶段参与者")}
                     columns={[
                       "钱包",
                       "活跃本金 · USDT",
                       "活跃头寸",
+                      "质押数量",
                       "质押价值 · USDT",
                       "覆盖率",
                       "贡献值",
@@ -511,6 +524,7 @@ export function CreatorStudio({ projectId }: { projectId: string }) {
                         <WalletAddress key={m.wallet} address={m.wallet} />,
                         displayAmount(activePrincipal(m)),
                         m.lots.filter((l) => l.status === "ACTIVE").length,
+                        `${displayAmount(BigInt(m.staked))} ${p.symbol}`,
                         prices
                           ? displayAmount(
                               (BigInt(m.staked) * prices.stake) / UNIT,
@@ -531,7 +545,7 @@ export function CreatorStudio({ projectId }: { projectId: string }) {
                     })}
                   />
                 ) : (
-                  <DataTable
+                  <CompactResults
                     caption={t("曲线参与钱包 · 已记录")}
                     columns={["钱包", "最后交易"]}
                     rows={[
@@ -629,7 +643,7 @@ export function CreatorStudio({ projectId }: { projectId: string }) {
                   value={`${displayAmount(members.reduce((n, m) => n + BigInt(m.networkEarned), 0n))} ${p.symbol}`}
                 />
               </div>
-              <DataTable
+              <CompactResults
                 caption={t("贡献钱包 · 无竞争排名")}
                 columns={["钱包", "贡献值", "有效网络", "网络奖励"]}
                 rows={members.map((m) => [
@@ -664,7 +678,7 @@ export function CreatorStudio({ projectId }: { projectId: string }) {
                 />
               </DetailCard>
               <DetailCard title={t("财库公开结果历史")}>
-                <DataTable
+                <CompactResults
                   caption={t("财库结果历史")}
                   columns={[
                     "时间",
@@ -689,6 +703,7 @@ export function CreatorStudio({ projectId }: { projectId: string }) {
             <DetailCard title={t("代币身份与供应")}>
               <KeyValueList
                 items={[
+                  { label: "代币名称", value: projectName(p, locale) },
                   { label: "符号", value: p.symbol },
                   {
                     label: "代币合约",
@@ -760,7 +775,7 @@ export function CreatorStudio({ projectId }: { projectId: string }) {
                   />
                 </DetailCard>
                 <DetailCard title={t("收入历史")}>
-                  <DataTable
+                  <CompactResults
                     caption={t("创建者已记录收入")}
                     columns={["时间", "来源", "收入"]}
                     rows={creatorRevenueHistory(
@@ -829,6 +844,6 @@ export function CreatorStudio({ projectId }: { projectId: string }) {
           ),
         )}
       </ProductTabs>
-    </>
+    </div>
   );
 }

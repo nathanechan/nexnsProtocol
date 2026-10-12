@@ -6,10 +6,12 @@ import {
   render,
   screen,
   within,
+  waitFor,
 } from "@testing-library/react";
 import { LocaleProvider, LOCALE_KEY, translateText } from "../i18n/locale";
 import NotFound from "../app/not-found";
 import { AppShell } from "../components/app-shell";
+import { MarketPage } from "../components/market-page";
 import { ExplorePage } from "../components/explore-page";
 import { MyNexus } from "../components/my-nexus";
 import { CreatorStudio } from "../components/creator-studio";
@@ -47,8 +49,8 @@ function operating() {
 }
 describe("production locale", () => {
   it.each([
-    ["zh-CN", ["网络", "探索", "资产", "NEXNS", "协议"]],
-    ["en", ["Network", "Explore", "Portfolio", "NEXNS", "Protocol"]],
+    ["zh-CN", ["发行", "运行", "资产"]],
+    ["en", ["Launch", "Live", "Portfolio"]],
   ] as const)("separates %s navigation", (locale, labels) => {
     localized(
       <AppShell>
@@ -57,7 +59,11 @@ describe("production locale", () => {
       locale,
     );
     expect(
-      within(screen.getByRole("navigation"))
+      within(
+        screen.getByRole("navigation", {
+          name: locale === "zh-CN" ? "主导航" : "Primary navigation",
+        }),
+      )
         .getAllByRole("link")
         .map((n) => n.textContent),
     ).toEqual(labels);
@@ -74,7 +80,10 @@ describe("production locale", () => {
       target: { value: "en" },
     });
     expect(localStorage.getItem(LOCALE_KEY)).toBe("en");
-    expect(screen.getByRole("navigation").textContent).toContain("Portfolio");
+    expect(
+      screen.getByRole("navigation", { name: "Primary navigation" })
+        .textContent,
+    ).toContain("Portfolio");
     r.unmount();
     localized(
       <AppShell>
@@ -216,7 +225,7 @@ describe("platform hierarchy", () => {
         ),
     ).toBe(true);
     const { container } = localized(<ProjectCard project={p} rank={1} />);
-    expect(screen.getByText("NEXNS · Platform Token")).toBeDefined();
+    expect(screen.queryByText("NEXNS · Platform Token")).toBeNull();
     expect(container.querySelector(".rank")).toBeNull();
   });
   it("moves the platform from Curve into permanently first Operating position", () => {
@@ -291,8 +300,8 @@ describe("project identity preservation", () => {
 it("localizes the not-found action and preserves safe recovery", () => {
   localized(<NotFound />);
   expect(
-    screen.getByRole("link", { name: "Back to Explore" }).getAttribute("href"),
-  ).toBe("/explore");
+    screen.getByRole("link", { name: "Back to Markets" }).getAttribute("href"),
+  ).toBe("/markets");
   expect(document.body.textContent).not.toMatch(/[\u4e00-\u9fff]|模拟/);
 });
 
@@ -320,4 +329,55 @@ it("cleans legacy generated project metadata while preserving its exact balances
       .map((a) => a.displayValues.summary)
       .join(" "),
   ).not.toContain("DEMO");
+});
+
+describe("four-section information architecture", () => {
+  it.each(["markets", "launch", "live"] as const)(
+    "maps %s to unchanged project lifecycles",
+    async (section) => {
+      localized(<MarketPage section={section} />);
+      await waitFor(() =>
+        expect(
+          document.querySelectorAll("a.market-row").length,
+        ).toBeGreaterThan(0),
+      );
+      const actual = Array.from(document.querySelectorAll("a.market-row")).map(
+        (a) => a.getAttribute("href"),
+      );
+      const expected = Object.values(
+        simulationStore.getState().projects,
+      ).filter((p) =>
+        section === "markets"
+          ? ["CURVE_OPEN", "OPERATING"].includes(p.lifecycle)
+          : p.lifecycle === (section === "launch" ? "CURVE_OPEN" : "OPERATING"),
+      );
+      expect(actual.sort()).toEqual(
+        expected.map((p) => `/economy/${p.chainId}/${p.tokenContract}`).sort(),
+      );
+      expect(document.querySelector(".explore-search")).toBeNull();
+    },
+  );
+  it("keeps secondary destinations in the logo menu and three bottom links", () => {
+    localized(
+      <AppShell>
+        <div />
+      </AppShell>,
+    );
+    expect(
+      within(
+        screen.getByRole("navigation", { name: "Bottom navigation" }),
+      ).getAllByRole("link"),
+    ).toHaveLength(3);
+    fireEvent.click(screen.getByRole("button", { name: "Product menu" }));
+    expect(
+      screen.getByRole("link", { name: "NEXNS" }).getAttribute("href"),
+    ).toBe("/nexns");
+    expect(screen.getByRole("link", { name: "Protocol" })).toBeDefined();
+    expect(screen.getByRole("link", { name: "Creator Studio" })).toBeDefined();
+    expect(
+      screen
+        .getByRole("button", { name: "Product menu" })
+        .getAttribute("aria-expanded"),
+    ).toBe("true");
+  });
 });

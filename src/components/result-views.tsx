@@ -1,4 +1,5 @@
 "use client";
+import { projectName } from "../product/metadata";
 import { useLocale } from "../i18n/locale";
 import Link from "next/link";
 import type { Activity, Project } from "../domain/models";
@@ -16,12 +17,13 @@ import {
   WalletAddress,
 } from "./ui";
 export function EconomyLink({ p, tab }: { p: Project; tab?: string }) {
+  const { locale } = useLocale();
   return (
     <Link
       className="text-link"
       href={projectRoute(p) + (tab ? `?tab=${tab}` : "")}
     >
-      {p.name} · {p.symbol} ↗
+      {projectName(p, locale)} · {p.symbol} ↗
     </Link>
   );
 }

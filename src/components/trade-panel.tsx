@@ -47,7 +47,7 @@ export function CurveHoldings({ project }: { project: Project }) {
           },
         ]}
       />
-      <p className="small-note">{t("曲线阶段持有的是项目代币。")}</p>
+
       <ol className="activity-feed">
         {t(
           activities
@@ -216,7 +216,17 @@ export function TradePanel({ project }: { project: Project }) {
           </p>
           {t(
             quote ? (
-              <KeyValueList items={values(quote)} />
+              <KeyValueList
+                items={values(quote).filter((v) =>
+                  [
+                    "预计获得",
+                    "实际到账",
+                    "交易手续费 · 1%",
+                    "实际支付",
+                    "未使用金额",
+                  ].includes(v.label),
+                )}
+              />
             ) : (
               <p className="small-note">{t("输入金额，查看预计成交结果。")}</p>
             ),

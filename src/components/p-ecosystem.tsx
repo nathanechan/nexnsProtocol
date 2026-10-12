@@ -2,7 +2,7 @@
 import { useLocale } from "../i18n/locale";
 import { useSimulation } from "../simulation/store";
 import { projectKey, projectRoute } from "../domain/identity";
-import { price, percent } from "../product/format";
+import { price, money } from "../product/format";
 import {
   ContractAddress,
   DetailCard,
@@ -12,7 +12,7 @@ import {
   PageHeader,
   PriceStatusBadge,
 } from "./ui";
-import { EconomyLink, LiquidityResults } from "./result-views";
+import { EconomyLink } from "./result-views";
 import { supplyResult } from "../product/read-model";
 import { displayAmount } from "../domain/economics/amount";
 import Link from "next/link";
@@ -23,7 +23,7 @@ export function PEcosystem() {
   const books = useSimulation((s) => s.operatingBooks);
   const p = Object.values(projects).find((p) => p.isPlatformToken);
   return (
-    <>
+    <div className="secondary-page core-asset-page">
       <PageHeader
         eyebrow={t("NEXNS")}
         title={t("NEXNS")}
@@ -41,13 +41,25 @@ export function PEcosystem() {
               <DetailCard title={t("NEXNS 代币")}>
                 <div className="inline">
                   <LifecycleBadge state={p.lifecycle} />
-                  <PriceStatusBadge status={p.priceStatus} />
+                  {p.priceStatus !== "VALID" && (
+                    <PriceStatusBadge status={p.priceStatus} />
+                  )}
                 </div>
                 <KeyValueList
                   items={[
                     {
                       label: "当前总供应",
                       value: `${displayAmount(supplyResult({ operatingBooks: books }, p).total)} NEXNS`,
+                    },
+                    {
+                      label: "已销毁",
+                      value: `${displayAmount(supplyResult({ operatingBooks: books }, p).burned)} NEXNS`,
+                    },
+                    {
+                      label: "总流动性",
+                      value: p.operating
+                        ? money(p.operating.liquidity)
+                        : "尚未建立",
                     },
                     { label: "交易对", value: "NEXNS/USDT" },
                     { label: "项目 ID", value: p.projectId },
@@ -56,15 +68,6 @@ export function PEcosystem() {
                       value: <ContractAddress address={p.tokenContract} />,
                     },
                     { label: "网络", value: `BSC · ${p.chainId}` },
-                    {
-                      label: "当前状态",
-                      value:
-                        p.lifecycle === "CURVE_OPEN"
-                          ? `曲线进度 ${percent(p.curve.progress)}`
-                          : p.lifecycle === "OPERATING"
-                            ? "项目运行中"
-                            : "流动性迁移中",
-                    },
                     {
                       label: "参考价",
                       value:
@@ -78,7 +81,7 @@ export function PEcosystem() {
                   ]}
                 />
                 <Link className="button primary" href={projectRoute(p)}>
-                  {t("进入 NEXNS 项目 ↗")}
+                  {t("进入 NEXNS 终端 ↗")}
                 </Link>
               </DetailCard>
               <DetailCard title={t("生态角色")}>
@@ -89,7 +92,6 @@ export function PEcosystem() {
                 </p>
                 <p>{t("普通项目可通过项目代币 / NEXNS 交易池连接NEXNS。")}</p>
               </DetailCard>
-              <LiquidityResults p={p} />
             </div>
             <DetailCard title={t("已建立生态连接")}>
               {t(
@@ -105,7 +107,6 @@ export function PEcosystem() {
                   .map((q) => (
                     <div className="ecosystem-row" key={q.projectId}>
                       <EconomyLink p={q} />
-                      <LifecycleBadge state={q.lifecycle} />
                       <ContractAddress address={q.tokenContract} />
                     </div>
                   )),
@@ -114,6 +115,6 @@ export function PEcosystem() {
           </>
         ),
       )}
-    </>
+    </div>
   );
 }

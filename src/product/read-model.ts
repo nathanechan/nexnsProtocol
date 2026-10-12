@@ -75,7 +75,10 @@ export function personalRows(
       .filter(
         (a) =>
           a.wallet === wallet &&
-          userActionTypes.includes(a.type as (typeof userActionTypes)[number]),
+          (a.type === "CREATE" ||
+            userActionTypes.includes(
+              a.type as (typeof userActionTypes)[number],
+            )),
       )
       .map((a) => a.projectKey),
   );

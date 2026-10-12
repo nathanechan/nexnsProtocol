@@ -31,6 +31,7 @@ const routing = vi.hoisted(() => ({
   query: "stage=curve&sort=progress",
 }));
 vi.mock("next/navigation", () => ({
+  usePathname: () => "/launch",
   useRouter: () => ({ push: routing.push, replace: routing.replace }),
   useSearchParams: () => new URLSearchParams(routing.query),
 }));
@@ -169,7 +170,7 @@ describe("public presentation", () => {
     ["CURVE_OPEN", "曲线交易"],
     ["MIGRATION_READY", "曲线已完成，等待迁移"],
     ["MIGRATING", "迁移处理中"],
-    ["OPERATING", "金库结果"],
+    ["OPERATING", "独立头寸"],
   ] as const)("renders %s shell", (state, label) => {
     render(
       <ProjectShell
@@ -181,14 +182,25 @@ describe("public presentation", () => {
   it("Operating tabs expose connected ARIA semantics and structured previews", () => {
     render(<ProjectShell initialProject={mockProjects[3]} />);
     const tabs = screen.getAllByRole("tab");
-    expect(tabs).toHaveLength(8);
+    expect(
+      within(screen.getByRole("tablist", { name: "终端操作" })).getAllByRole(
+        "tab",
+      ),
+    ).toHaveLength(3);
+    expect(tabs.length).toBeGreaterThan(4);
     fireEvent.click(screen.getByRole("tab", { name: "贡献" }));
     expect(
       screen.getByRole("tab", { name: "贡献" }).getAttribute("aria-selected"),
     ).toBe("true");
-    expect(screen.getByRole("tabpanel").getAttribute("aria-labelledby")).toBe(
-      screen.getByRole("tab", { name: "贡献" }).id,
-    );
+    expect(
+      document
+        .getElementById(
+          screen
+            .getByRole("tab", { name: "贡献" })
+            .getAttribute("aria-controls")!,
+        )
+        ?.getAttribute("aria-labelledby"),
+    ).toBe(screen.getByRole("tab", { name: "贡献" }).id);
     expect(screen.getByText("网络权重")).toBeDefined();
   });
   it("cards expose readable mobile identity and full-contract copy", async () => {

@@ -19,13 +19,17 @@ import {
 } from "./ui";
 import { ProjectLogo } from "./project-logo";
 export function CreateEconomy() {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
 
   const router = useRouter();
   const user = useSimulation((s) => s.currentUser);
   const [step, setStep] = useState(0);
   const [input, setInput] = useState<CreateInput>({
     name: "",
+    nameZh: "",
+    nameEn: "",
+    descriptionZh: "",
+    descriptionEn: "",
     symbol: "",
     description: "",
     logo: "N",
@@ -50,7 +54,12 @@ export function CreateEconomy() {
     setStatus("processing");
     try {
       await new Promise((r) => setTimeout(r, 300));
-      const key = simulationStore.getState().createProject(input);
+      const key = simulationStore.getState().createProject({
+        ...input,
+        name: input.nameEn?.trim() || input.nameZh?.trim() || input.name,
+        description:
+          input.descriptionZh || input.descriptionEn || input.description,
+      });
       setStatus("success");
       await new Promise((r) => setTimeout(r, 200));
       router.push(projectRoute(simulationStore.getState().projects[key]));
@@ -60,9 +69,9 @@ export function CreateEconomy() {
     }
   };
   return (
-    <>
+    <div className="secondary-page create-page">
       <PageHeader
-        eyebrow={t("CREATE ECONOMY")}
+        eyebrow={t("创建项目")}
         title={t("创建项目")}
         description={t("从一个清晰的身份开始，让你的项目进入曲线发行。")}
       />
@@ -94,48 +103,69 @@ export function CreateEconomy() {
           </p>
           {t(
             step === 0 ? (
-              <div className="wizard-fields">
-                {t(
+              <div className="wizard-fields identity-fields">
+                {(
                   [
-                    ["name", "项目名称", "最多 64 个字符"],
-                    ["symbol", "代币符号", "最多 12 个 ASCII 字符"],
-                  ].map(([field, label, hint]) => (
-                    <label key={field} htmlFor={`create-${field}`}>
-                      {t(label)}
-                      <Input
-                        id={`create-${field}`}
-                        aria-label={t(label)}
-                        value={input[field as "name" | "symbol"]}
-                        onChange={(e) =>
-                          change(field as keyof CreateInput, e.target.value)
-                        }
-                        placeholder={t(hint)}
-                        aria-invalid={!!errors[field]}
-                        aria-describedby={`error-${field}`}
-                      />
-                      <small id={`error-${field}`} className="field-error">
-                        {t(errors[field])}
-                      </small>
-                    </label>
-                  )),
-                )}
-                <label htmlFor="create-description">
-                  {t("项目描述")}
-                  <textarea
-                    id="create-description"
-                    rows={4}
-                    value={input.description}
-                    onChange={(e) => change("description", e.target.value)}
-                    placeholder={t(
-                      "描述你的项目与愿景（最多 2,048 UTF-8 字节）",
-                    )}
-                    aria-invalid={!!errors.description}
-                    aria-describedby="error-description"
-                  />
-                  <small id="error-description" className="field-error">
-                    {errors.description}
-                  </small>
-                </label>
+                    [
+                      "nameZh",
+                      locale === "zh-CN" ? "中文名称" : "Chinese Name",
+                    ],
+                    [
+                      "nameEn",
+                      locale === "zh-CN" ? "英文名称" : "English Name",
+                    ],
+                    ["symbol", t("代币符号")],
+                  ] as const
+                ).map(([field, label]) => (
+                  <label key={field} htmlFor={`create-${field}`}>
+                    {label}
+                    <Input
+                      id={`create-${field}`}
+                      aria-label={label}
+                      value={input[field] ?? ""}
+                      onChange={(e) => change(field, e.target.value)}
+                      aria-invalid={
+                        !!(field === "symbol" ? errors.symbol : errors.name)
+                      }
+                      aria-describedby={`error-${field}`}
+                    />
+                    <small className="field-error" id={`error-${field}`}>
+                      {t(field === "symbol" ? errors.symbol : errors.name)}
+                    </small>
+                  </label>
+                ))}
+                <p className="small-note">
+                  {locale === "zh-CN"
+                    ? "至少填写一种名称；建议同时填写英文名称。名称不会自动翻译。"
+                    : "Provide at least one name. An English name is recommended. Names are never auto-translated."}
+                </p>
+                {(
+                  [
+                    [
+                      "descriptionZh",
+                      locale === "zh-CN" ? "中文描述" : "Chinese Description",
+                    ],
+                    [
+                      "descriptionEn",
+                      locale === "zh-CN" ? "英文描述" : "English Description",
+                    ],
+                  ] as const
+                ).map(([field, label]) => (
+                  <label key={field} htmlFor={`create-${field}`}>
+                    {label}
+                    <textarea
+                      id={`create-${field}`}
+                      rows={3}
+                      value={input[field] ?? ""}
+                      onChange={(e) => change(field, e.target.value)}
+                      aria-invalid={!!errors.description}
+                      aria-describedby={`error-${field}`}
+                    />
+                    <small id={`error-${field}`} className="field-error">
+                      {t(errors.description)}
+                    </small>
+                  </label>
+                ))}
                 <div className="logo-upload">
                   <div className="project-logo">
                     <ProjectLogo logo={input.logo} />
@@ -146,39 +176,42 @@ export function CreateEconomy() {
                     <span className="small-note">
                       {t("默认字标，或上传 PNG / JPEG / WebP · 最大 2 MB")}
                     </span>
-                    <input
-                      id="create-logo"
-                      type="file"
-                      accept="image/png,image/jpeg,image/webp"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (!file) return;
-                        if (
-                          !["image/png", "image/jpeg", "image/webp"].includes(
-                            file.type,
-                          ) ||
-                          file.size > 2097152
-                        ) {
-                          setErrors((s) => ({
-                            ...s,
-                            logo: "请选择不超过 2 MB 的 PNG、JPEG 或 WebP 图片",
-                          }));
-                          return;
-                        }
-                        const reader = new FileReader();
-                        reader.onload = () =>
-                          change("logo", String(reader.result));
-                        reader.onerror = () =>
-                          setErrors((s) => ({
-                            ...s,
-                            logo: "无法读取图片，请重新选择",
-                          }));
-                        reader.readAsDataURL(file);
-                      }}
-                      aria-describedby="error-logo"
-                    />
+                    <span className="file-upload-control">
+                      <span>{t("选择图片")}</span>
+                      <input
+                        id="create-logo"
+                        type="file"
+                        accept="image/png,image/jpeg,image/webp"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          if (
+                            !["image/png", "image/jpeg", "image/webp"].includes(
+                              file.type,
+                            ) ||
+                            file.size > 2097152
+                          ) {
+                            setErrors((s) => ({
+                              ...s,
+                              logo: "请选择不超过 2 MB 的 PNG、JPEG 或 WebP 图片",
+                            }));
+                            return;
+                          }
+                          const reader = new FileReader();
+                          reader.onload = () =>
+                            change("logo", String(reader.result));
+                          reader.onerror = () =>
+                            setErrors((s) => ({
+                              ...s,
+                              logo: "无法读取图片，请重新选择",
+                            }));
+                          reader.readAsDataURL(file);
+                        }}
+                        aria-describedby="error-logo"
+                      />
+                    </span>
                     <small id="error-logo" className="field-error">
-                      {errors.logo}
+                      {t(errors.logo)}
                     </small>
                   </label>
                 </div>
@@ -220,13 +253,26 @@ export function CreateEconomy() {
                     <ProjectLogo logo={input.logo} />
                   </div>
                   <div>
-                    <h3>{input.name}</h3>
+                    <h3>
+                      {(locale === "zh-CN" ? input.nameZh : input.nameEn) ||
+                        input.nameEn ||
+                        input.nameZh ||
+                        input.name}
+                    </h3>
                     <span>
                       {input.symbol} {t("· BSC")}
                     </span>
                   </div>
                 </div>
-                <p>{t(input.description || "暂无描述")}</p>
+                <p>
+                  {(locale === "zh-CN"
+                    ? input.descriptionZh
+                    : input.descriptionEn) ||
+                    input.descriptionZh ||
+                    input.descriptionEn ||
+                    input.description ||
+                    t("暂无描述")}
+                </p>
                 <KeyValueList
                   items={[
                     {
@@ -302,6 +348,6 @@ export function CreateEconomy() {
           </DetailCard>
         </aside>
       </div>
-    </>
+    </div>
   );
 }

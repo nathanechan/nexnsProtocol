@@ -1,5 +1,9 @@
 export interface CreateInput {
   name: string;
+  nameZh?: string;
+  nameEn?: string;
+  descriptionZh?: string;
+  descriptionEn?: string;
   symbol: string;
   description: string;
   logo: string;
@@ -7,11 +11,22 @@ export interface CreateInput {
 }
 export function validateIdentity(input: CreateInput): Record<string, string> {
   const errors: Record<string, string> = {};
-  if (!input.name.trim() || [...input.name.trim()].length > 64)
+  if (
+    !(input.nameZh?.trim() || input.nameEn?.trim() || input.name.trim()) ||
+    [input.name, input.nameZh ?? "", input.nameEn ?? ""].some(
+      (value) => [...value.trim()].length > 64,
+    )
+  )
     errors.name = "名称必填，最多64个字符";
   if (!input.symbol.trim() || !/^[\x21-\x7E]{1,12}$/.test(input.symbol.trim()))
     errors.symbol = "符号必填，最多12个ASCII字符，不含空格";
-  if (new TextEncoder().encode(input.description).length > 2048)
+  if (
+    [
+      input.description,
+      input.descriptionZh ?? "",
+      input.descriptionEn ?? "",
+    ].some((value) => new TextEncoder().encode(value).length > 2048)
+  )
     errors.description = "简介最多2048字节";
   if (!input.logo.trim()) errors.logo = "请选择或填写项目标识";
   return errors;

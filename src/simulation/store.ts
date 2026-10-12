@@ -294,7 +294,15 @@ export function createSimulationStore() {
         projectId: id,
         chainId: 56,
         tokenContract: contract,
-        name: input.name.trim(),
+        name:
+          input.name.trim() ||
+          input.nameEn?.trim() ||
+          input.nameZh?.trim() ||
+          "",
+        nameZh: input.nameZh?.trim(),
+        nameEn: input.nameEn?.trim(),
+        descriptionZh: input.descriptionZh,
+        descriptionEn: input.descriptionEn,
         symbol: input.symbol.trim(),
         logo: input.logo,
         description: input.description,
@@ -747,6 +755,22 @@ export function createSimulationStore() {
           };
           const renamedPresetKeys = new Set<string>();
           for (const project of Object.values(data.projects)) {
+            const catalog = mockProjects.find(
+              (p) =>
+                p.chainId === project.chainId &&
+                p.tokenContract.toLowerCase() ===
+                  project.tokenContract.toLowerCase(),
+            );
+            if (
+              catalog &&
+              [catalog.name, catalog.nameZh].includes(project.name)
+            ) {
+              project.nameZh ??= catalog.nameZh;
+              project.nameEn ??= catalog.nameEn;
+              project.descriptionZh ??= catalog.descriptionZh;
+              project.descriptionEn ??= catalog.descriptionEn;
+            }
+
             if (
               ["演示新经济体", "新项目"].includes(project.name) &&
               project.symbol === "DEMO" &&

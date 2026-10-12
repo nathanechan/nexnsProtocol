@@ -1,4 +1,5 @@
 "use client";
+import { projectName } from "../product/metadata";
 import { useLocale } from "../i18n/locale";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
@@ -40,7 +41,7 @@ export function ProjectCard({
   project: Project;
   rank?: number;
 }) {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
 
   const curve = project.lifecycle === "CURVE_OPEN";
   const op = project.operating;
@@ -50,7 +51,7 @@ export function ProjectCard({
         className="card-open"
         href={projectRoute(project)}
         aria-label={t(
-          `查看 ${project.name} ${project.symbol} BSC ${project.tokenContract}`,
+          `查看 ${projectName(project, locale)} ${project.symbol} BSC ${project.tokenContract}`,
         )}
       />
       <div className="economy-card-header">
@@ -59,7 +60,7 @@ export function ProjectCard({
         </div>
         <div className="identity-body">
           <h3>
-            {project.name} <small>{project.symbol}</small>
+            {projectName(project, locale)} <small>{project.symbol}</small>
           </h3>
           <div className="identity-meta">
             <span>{t("BSC")}</span>
@@ -74,11 +75,6 @@ export function ProjectCard({
       </div>
       <div className="card-stage">
         <LifecycleBadge state={project.lifecycle} />
-        {t(
-          project.isPlatformToken && (
-            <span className="badge platform-badge">{t("NEXNS｜平台币")}</span>
-          ),
-        )}
         <ArrowUpRight size={15} aria-hidden />
       </div>
       {t(

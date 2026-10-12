@@ -1,4 +1,5 @@
 "use client";
+import { projectName } from "../product/metadata";
 import { useLocale } from "../i18n/locale";
 import { useEffect, useId, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -37,7 +38,7 @@ export function SearchPanel({
   service?: ProjectSearchService;
   compact?: boolean;
 }) {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
 
   const revision = useSimulation((s) => s.revision);
   const id = useId();
@@ -80,7 +81,7 @@ export function SearchPanel({
   return (
     <div className={`economy-search ${compact ? "compact" : ""}`}>
       <label className="search-label" htmlFor={id}>
-        {t("搜索项目")}
+        {t("搜索")}
       </label>
       <div className="search-input-wrap">
         <Search size={19} />
@@ -164,7 +165,8 @@ export function SearchPanel({
                             }
                           }}
                         >
-                          {r.project.name} <small>{r.project.symbol}</small>
+                          {projectName(r.project, locale)}{" "}
+                          <small>{r.project.symbol}</small>
                           <span className="sr-only">
                             {t(" ")}
                             {t("· BSC ·")}

@@ -91,18 +91,21 @@ export function CurveChart({ project }: { project: Project }) {
           </AreaChart>
         </ResponsiveContainer>
       </div>
-      <p>
-        {t(
-          "起始价格 0.03125 USDT · 发行完成价格 0.50000 USDT。横轴：净储备 · 当前",
-        )}
-        {t(" ")}
-        {t(project.curve.netReserve.toLocaleString("zh-CN"))}
-        {t(" ")}
-        {t("USDT；纵轴：曲线参考价格 · 当前")}{" "}
-        {t(project.curve.curvePrice.toFixed(5))}
-        {t(" ")}
-        {t("USDT。")}
-      </p>
+      <details className="action-rules">
+        <summary>{t("图表说明")}</summary>
+        <p>
+          {t(
+            "起始价格 0.03125 USDT · 发行完成价格 0.50000 USDT。横轴：净储备 · 当前",
+          )}
+          {t(" ")}
+          {t(project.curve.netReserve.toLocaleString("zh-CN"))}
+          {t(" ")}
+          {t("USDT；纵轴：曲线参考价格 · 当前")}{" "}
+          {t(project.curve.curvePrice.toFixed(5))}
+          {t(" ")}
+          {t("USDT。")}
+        </p>
+      </details>
     </figure>
   );
 }

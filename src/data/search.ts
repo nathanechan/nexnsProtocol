@@ -26,7 +26,9 @@ export function searchProjects(
             ? "PROJECT_ID"
             : p.symbol.toLowerCase() === q
               ? "SYMBOL"
-              : p.name.toLowerCase().includes(q)
+              : [p.name, p.nameZh, p.nameEn].some((name) =>
+                    name?.toLowerCase().includes(q),
+                  )
                 ? "NAME"
                 : p.creatorWallet.toLowerCase() === q
                   ? "CREATOR"

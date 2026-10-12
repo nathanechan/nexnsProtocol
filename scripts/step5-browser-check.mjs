@@ -93,8 +93,9 @@ try {
   await second.getByRole("tab", { name: "头寸", exact: true }).click();
   await second.getByLabel("头寸状态筛选").selectOption("COMPLETED");
   await second
-    .locator("summary")
+    .getByRole("row")
     .filter({ hasText: /头寸.*已完成/ })
+    .first()
     .waitFor();
   await page
     .getByRole("button", { name: "07 · 奖励就绪", exact: true })
@@ -159,13 +160,10 @@ try {
     await page.goto(base + "/protocol");
     for (const label of [
       "总览",
-      "网络状态",
       "供应",
       "合约",
       "结算",
       "价格状态",
-      "协议流动性",
-      "销毁",
       "公开事件",
     ]) {
       await page.getByRole("tab", { name: label, exact: true }).click();
@@ -184,7 +182,7 @@ try {
   await page.keyboard.press("ArrowRight");
   assert.equal(
     await page
-      .getByRole("tab", { name: "网络状态", exact: true })
+      .getByRole("tab", { name: "合约", exact: true })
       .getAttribute("aria-selected"),
     "true",
   );

@@ -1,4 +1,17 @@
 export const messages: Record<string, string> = {
+  协议流动性结果已建立: "Protocol liquidity established",
+  选择图片: "Choose image",
+  代币资产估值: "Token assets value",
+  可领取估值: "Claimable value",
+  活跃项目: "Active projects",
+  去领取: "Go to Claim",
+  "项目 / 代币": "Project / token",
+  我的奖励: "My rewards",
+  供应结果: "Supply results",
+  代币名称: "Token name",
+  "进入 NEXNS 终端 ↗": "Open NEXNS Terminal ↗",
+  "资产估值按可用参考价展示，不同代币数量不相加。":
+    "Values use available reference prices. Different token quantities are not added together.",
   "曲线发行中，完成发行后进入下一阶段":
     "Curve projects progress to the next stage after issuance.",
   已完成发行与迁移的运行项目:
@@ -233,6 +246,11 @@ export const messages: Record<string, string> = {
   "可切换阶段，或通过搜索定位项目。": "Switch stage or search for a project.",
   切换阶段: "Switch stage",
   协议透明度: "Protocol transparency",
+  搜索: "Search",
+  图表说明: "Chart details",
+  了解规则: "View rules",
+  暂无头寸: "No positions",
+  参与资金不支持本金赎回: "Participation funds cannot be redeemed",
   搜索项目: "Search projects",
   "搜索覆盖全部项目，包括发现池之外的项目。":
     "Search projects by contract, ID, symbol, name or creator.",

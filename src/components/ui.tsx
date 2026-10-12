@@ -432,7 +432,7 @@ export function Modal({
       <DialogPrimitive.Trigger asChild>{t(trigger)}</DialogPrimitive.Trigger>
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay className="dialog-overlay" />
-        <DialogPrimitive.Content className="dialog">
+        <DialogPrimitive.Content className="dialog" aria-modal="true">
           <DialogPrimitive.Title>{t(title)}</DialogPrimitive.Title>
           <DialogPrimitive.Description>
             {t(description)}

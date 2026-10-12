@@ -19,6 +19,7 @@ try {
     .getByRole("button", { name: "07 · 奖励就绪", exact: true })
     .click();
   await page.goto(base + "/economy/56/0x" + "1".repeat(40) + "?tab=rewards");
+  await page.getByRole("tab", { name: "领取", exact: true }).click();
   await page.getByLabel("领取数量 · SEA", { exact: true }).fill("10");
   await page.getByRole("button", { name: "确认领取", exact: true }).click();
   await page.getByRole("button", { name: "确认操作", exact: true }).click();
@@ -49,19 +50,30 @@ try {
         fullPage: true,
       });
       if (width === 390 && tab === "财库") {
-        const region = page.getByRole("region", {
+        const table = page.getByRole("table", {
           name: "财库结果历史",
           exact: true,
         });
-        await region.focus();
+        assert.equal(await table.count(), 1);
+        assert(
+          await table.evaluate(
+            (e) => e.parentElement.scrollWidth <= e.parentElement.clientWidth,
+          ),
+        );
+        await page.getByRole("tab", { name: "财库", exact: true }).focus();
         await page.keyboard.press("ArrowRight");
-        await page.waitForTimeout(150);
-        assert(await region.evaluate((e) => e.scrollLeft > 0));
+        assert.equal(
+          await page
+            .getByRole("tab", { name: "代币", exact: true })
+            .getAttribute("aria-selected"),
+          "true",
+        );
       }
       checked.push(`${width} ${route}`);
     }
   }
   await page.goto(base + "/my-nexus");
+  await page.locator(".summary-strip dt").first().waitFor();
   const contrast = await page.evaluate(() => {
     const rgb = (t) =>
       t
@@ -76,10 +88,13 @@ try {
         })
         .reduce((n, v, i) => n + v * [0.2126, 0.7152, 0.0722][i], 0);
     const foreground = lum(
-      rgb(getComputedStyle(document.querySelector(".metric > span")).color),
+      rgb(getComputedStyle(document.querySelector(".summary-strip dt")).color),
     );
     const background = lum(
-      rgb(getComputedStyle(document.querySelector(".card")).backgroundColor),
+      rgb(
+        getComputedStyle(document.querySelector(".summary-strip"))
+          .backgroundColor,
+      ),
     );
     return (background + 0.05) / (foreground + 0.05);
   });

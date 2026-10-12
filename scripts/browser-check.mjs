@@ -37,7 +37,7 @@ const { chromium } = await import(
       path: `test-results/network-${width}.png`,
       fullPage: true,
     });
-    await page.getByRole("button", { name: "全局搜索", exact: true }).click();
+    await page.getByRole("button", { name: "搜索", exact: true }).click();
     await page.getByRole("searchbox").fill("SEA");
     if ((await page.locator(".search-result").count()) !== 2)
       throw new Error("Duplicate search results missing");

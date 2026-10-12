@@ -54,6 +54,8 @@ export function translateText(
   locale: Locale,
   identities: string[] = mockProjects.flatMap((p) => [
     p.name,
+    p.nameZh ?? "",
+    p.nameEn ?? "",
     ...(p.isPlatformToken ? [] : [p.symbol]),
   ]),
 ): string {
@@ -128,6 +130,10 @@ export function LocaleProvider({
     () =>
       Object.values(projects).flatMap((p) => [
         p.name,
+        p.nameZh ?? "",
+        p.nameEn ?? "",
+        p.nameZh ?? "",
+        p.nameEn ?? "",
         ...(p.isPlatformToken ? [] : [p.symbol]),
       ]),
     [projects],

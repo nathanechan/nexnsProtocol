@@ -49,6 +49,10 @@ export interface Project {
   chainId: number;
   tokenContract: Address;
   name: string;
+  nameZh?: string;
+  nameEn?: string;
+  descriptionZh?: string;
+  descriptionEn?: string;
   symbol: string;
   logo: string;
   description: string;

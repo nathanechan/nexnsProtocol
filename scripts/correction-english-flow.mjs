@@ -33,10 +33,10 @@ try {
   await page.locator(".language-switch").selectOption("en");
   await page.getByRole("button", { name: "Next" }).click();
   await text(page, "Name is required");
-  await page.getByLabel("Project name", { exact: true }).fill("澄海经济");
+  await page.getByLabel("English Name", { exact: true }).fill("澄海经济");
   await page.getByLabel("Token symbol", { exact: true }).fill("SEA");
   await page
-    .getByLabel("Project description", { exact: true })
+    .getByLabel("English Description", { exact: true })
     .fill("连接参与者与长期价值的链上项目。");
   await page.getByRole("button", { name: "Next" }).click();
   await page.getByLabel("Website", { exact: true }).fill("https://example.com");
@@ -63,7 +63,7 @@ try {
     .click();
   await text(page, "Trade completed");
   await page.reload();
-  await text(page, "My curve holdings");
+  await text(page, "Curve trade");
   await page.getByRole("tab", { name: "Buy", exact: true }).click();
   const consolePage = await context.newPage();
   await consolePage.goto(base + "/simulation-console");
@@ -101,18 +101,23 @@ try {
   await consolePage
     .getByRole("button", { name: "完成迁移", exact: true })
     .click();
+  await page.getByRole("tab", { name: "Transparency", exact: true }).click();
   await text(page, "Operating · Migration completed");
   assert.equal(page.url(), projectUrl);
   await text(page, "SEA/NEXNS");
   await page.reload();
+  await page.getByRole("tab", { name: "Transparency", exact: true }).click();
   await text(page, "Operating · Migration completed");
   await page.goto(base + "/explore?stage=operating&sort=tvl");
-  await page.locator(".economy-card").first().waitFor();
+  await page.locator(".market-row").first().waitFor();
   assert((await page.locator(`a[href='/economy/56/${contract}']`).count()) > 0);
-  await page.getByLabel("Search projects", { exact: true }).fill(contract);
+  await page.getByRole("button", { name: "Search", exact: true }).click();
+  await page
+    .getByRole("searchbox", { name: "Search", exact: true })
+    .fill(contract);
   await text(page, "Exact contract match");
   await page.goto(base + "/network");
-  await page.locator(".leader-row").first().waitFor();
+  await page.locator(".market-row").first().waitFor();
   assert((await page.locator(`a[href='/economy/56/${contract}']`).count()) > 0);
   for (const width of [1440, 768, 390]) {
     await page.setViewportSize({ width, height: 1000 });
@@ -126,9 +131,9 @@ try {
       await page.goto(base + url);
       await page.locator("h1").waitFor();
       if (label === "explore")
-        await page.locator(".economy-card").first().waitFor();
+        await page.locator(".market-row").first().waitFor();
       if (label === "network")
-        await page.locator(".leader-row").first().waitFor();
+        await page.locator(".market-row").first().waitFor();
       await overflow(page, width, label);
       await page.screenshot({
         path: `test-results/step3-${width}-${label}.png`,
@@ -174,6 +179,7 @@ try {
     .getByRole("button", { name: "结算当日", exact: true })
     .click();
   await page.getByRole("tab", { name: "Rewards", exact: true }).click();
+  await page.getByRole("tab", { name: "Claim", exact: true }).click();
   await page.getByLabel("Claim amount · SEA", { exact: true }).fill("1");
   await text(page, "You receive");
   await act("Confirm claim");

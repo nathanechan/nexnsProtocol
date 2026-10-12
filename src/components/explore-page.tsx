@@ -160,7 +160,7 @@ export function ExplorePage({
                       ?.focus()
                   }
                 >
-                  {t("搜索项目 ↑")}
+                  {t("搜索")}
                 </Button>
               </div>
             </>

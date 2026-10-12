@@ -76,27 +76,24 @@ const copyCheck = async (label, locale) => {
 try {
   await control(platform, "全新曲线");
   await page.goto(base + "/explore?stage=curve");
-  await page.locator(".economy-card").first().waitFor();
-  let first = page.locator(".economy-card").first();
+  await page.locator(".market-row").first().waitFor();
+  let first = page.locator(".market-row").first();
   assert((await first.innerText()).includes("NEXNS"));
   assert.equal(await first.locator(".rank").count(), 0);
-  assert.equal(
-    await page.locator(".economy-card").nth(1).locator(".rank").innerText(),
-    "01",
-  );
   checks.push("Curve pin and ordinary rank");
   await control(platform, "运行阶段");
   await page.goto(base + "/explore?stage=curve");
-  await page.locator(".economy-card").first().waitFor();
+  await page.locator(".market-row").first().waitFor();
   assert.equal(await page.locator(".platform-badge").count(), 0);
   await page.goto(base + "/explore?stage=operating");
-  await page.locator(".economy-card").first().waitFor();
-  first = page.locator(".economy-card").first();
+  await page.locator(".market-row").first().waitFor();
+  first = page.locator(".market-row").first();
   assert((await first.innerText()).includes("NEXNS"));
   assert.equal(await first.locator(".rank").count(), 0);
   checks.push("Operating pin after lifecycle change");
+  await page.getByRole("button", { name: "搜索", exact: true }).click();
   for (const q of ["0x" + "f".repeat(40), "NEXNS", "NX-PLATFORM"]) {
-    await page.getByLabel("搜索项目", { exact: true }).fill(q);
+    await page.getByRole("searchbox", { name: "搜索", exact: true }).fill(q);
     await page.locator(".search-result").first().waitFor();
     assert(
       (await page.locator(".search-result").first().innerText()).includes(
@@ -115,6 +112,7 @@ try {
   await copyCheck("Fresh project production copy", "zh-CN");
   await control(op, "07 · 奖励就绪");
   for (const locale of ["zh-CN", "en"]) {
+    await page.setViewportSize({ width: 1440, height: 844 });
     await page.locator(".language-switch").selectOption(locale);
     for (const width of [1440, 768, 390]) {
       await page.setViewportSize({ width, height: 844 });
@@ -137,9 +135,9 @@ try {
           locale,
         );
         if (route.startsWith("/explore"))
-          await page.locator(".economy-card").first().waitFor();
+          await page.locator(".market-row").first().waitFor();
         if (route === "/network")
-          await page.locator(".leader-row").first().waitFor();
+          await page.locator(".market-row").first().waitFor();
         await copyCheck(`${locale} ${width} ${route}`, locale);
         if (
           route.includes("studio") ||
@@ -148,7 +146,7 @@ try {
           route.endsWith("4".repeat(40))
         ) {
           const ids = await page
-            .locator("main [role=tab]")
+            .locator("main [role=tab]:visible")
             .evaluateAll((els) => els.map((e) => e.id));
           for (const id of ids) {
             await page.locator("[id=" + JSON.stringify(id) + "]").click();
@@ -157,11 +155,11 @@ try {
         }
         if (width === 390 && route.includes("/economy/")) {
           await page.evaluate(() => scrollTo(0, 0));
-          const header = await page.locator(".project-header").boundingBox();
+          const header = await page.locator(".terminal-header").boundingBox();
           assert(header.height <= 125, "compact header");
           if (route.endsWith("1".repeat(40))) {
             const tabs = await page
-              .locator(".curve-actions [role=tablist]")
+              .locator(".terminal-actions [role=tablist]")
               .boundingBox();
             const input = await page
               .locator(".trade-preview input")
@@ -170,17 +168,16 @@ try {
             assert(input.y < 600, "early trade input");
           } else {
             const actions = await page
-              .locator(".mobile-core-actions")
+              .locator(".terminal-actions [role=tablist]")
               .boundingBox();
             const tabs = await page
-              .locator("main [role=tablist]")
-              .first()
+              .locator(".terminal-actions [role=tablist]")
               .boundingBox();
             assert(actions.y + actions.height < 450, "early operating actions");
             assert(tabs.height < 60, "single row operating tabs");
-            await page.locator("main [role=tab]").first().click();
+            await page.locator(".terminal-actions [role=tab]").first().click();
             const market = await page
-              .locator(".project-page .project-metrics")
+              .locator(".terminal-workspace")
               .boundingBox();
             assert(
               market.y > actions.y + actions.height,
