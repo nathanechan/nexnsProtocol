@@ -124,8 +124,8 @@ describe("secondary product boundaries", () => {
       },
     });
     render(<MyNexus />);
-    tab("头寸");
-    fireEvent.change(screen.getByLabelText("头寸状态筛选"), {
+    tab("仓位");
+    fireEvent.change(screen.getByLabelText("仓位状态筛选"), {
       target: { value: "COMPLETED" },
     });
     expect(

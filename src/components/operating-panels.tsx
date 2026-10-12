@@ -1,6 +1,7 @@
 "use client";
+import { localTime } from "../product/format";
 import { useLocale } from "../i18n/locale";
-import { useId, useMemo, useState, useEffect } from "react";
+import { useId, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import type { Project } from "../domain/models";
 import { projectKey, shortAddress } from "../domain/identity";
@@ -18,7 +19,6 @@ import {
   activePrincipal,
   contributions,
   coverage,
-  displayProgress,
   nextTier,
   tier,
   validPrices,
@@ -92,9 +92,9 @@ export function PositionLots({ project }: { project: Project }) {
 
   const { member } = useOperating(project);
   return (
-    <DetailCard title={t("独立头寸")}>
+    <DetailCard title={t("仓位记录")}>
       <details className="action-rules">
-        <summary>{t("了解规则")}</summary>
+        <summary>{t("查看规则")}</summary>
         <p>
           {t("每次参与建立独立批次。容量为手续费前参考价值，不代表保证收益。")}
         </p>
@@ -107,7 +107,7 @@ export function PositionLots({ project }: { project: Project }) {
                 <details key={l.id}>
                   <summary>
                     <span>
-                      {t("头寸")} {l.id.replace(/^DEMO-LOT-/, "")}
+                      {t("仓位")} {l.id.replace(/^DEMO-LOT-/, "")}
                     </span>
                     <span>
                       {t(amount(l.principal, "USDT"))} ·{t(" ")}
@@ -122,12 +122,12 @@ export function PositionLots({ project }: { project: Project }) {
                       },
                       { label: "参与资金", value: amount(l.principal, "USDT") },
                       {
-                        label: "生命周期容量",
+                        label: "收益额度",
                         value: amount(l.capacity, "USDT"),
                       },
-                      { label: "已使用容量", value: amount(l.used, "USDT") },
+                      { label: "已使用额度", value: amount(l.used, "USDT") },
                       {
-                        label: "剩余容量",
+                        label: "剩余额度",
                         value: amount(
                           BigInt(l.capacity) - BigInt(l.used),
                           "USDT",
@@ -146,7 +146,7 @@ export function PositionLots({ project }: { project: Project }) {
             )}
           </div>
         ) : (
-          <EmptyState title={t("暂无头寸")} description="" />
+          <EmptyState title={t("暂无仓位")} description="" />
         ),
       )}
     </DetailCard>
@@ -159,7 +159,7 @@ export function OperatingActionForm({
   project: Project;
   kind: OperatingAction;
 }) {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
 
   const state = useOperating(project);
   const params = useSearchParams();
@@ -233,11 +233,11 @@ export function OperatingActionForm({
         ...(kind === "participate"
           ? [
               {
-                label: "生命周期容量",
+                label: "收益额度",
                 value: amount(quote.capacity, "USDT"),
               },
               {
-                label: "推荐关系",
+                label: "推荐人",
                 value:
                   state.user.wallet === state.book.root
                     ? "创建者根身份"
@@ -262,7 +262,7 @@ export function OperatingActionForm({
                 },
               ]
             : [
-                { label: "当前覆盖率", value: coverageText(quote.current) },
+                { label: "覆盖率", value: coverageText(quote.current) },
                 { label: "预计新覆盖率", value: coverageText(quote.next) },
                 { label: "当前档位", value: tierText(quote.currentTier.index) },
                 { label: "预计新档位", value: tierText(quote.nextTier.index) },
@@ -290,7 +290,24 @@ export function OperatingActionForm({
         s.participate(state.key, review.input, referral);
       else if (kind === "claim") s.claimReward(state.key, review.input);
       else s.stakeTokens(state.key, review.input, kind === "unstake");
-      setStatus(`${title}成功，资产与权益已更新`);
+      const received =
+        simulationStore.getState().activities[0]?.displayValues.received ??
+        review.input;
+      const zh = {
+        participate: "参与成功 · 已参与",
+        stake: "质押成功 · 已质押",
+        unstake: "解除质押成功 · 已解除质押",
+        claim: "领取成功 · 实际到账",
+      };
+      const en = {
+        participate: "Participation complete · Participated",
+        stake: "Stake complete · Staked",
+        unstake: "Unstake complete · Unstaked",
+        claim: "Claim complete · Received",
+      };
+      setStatus(
+        `${(locale === "en" ? en : zh)[kind]} ${kind === "claim" ? received : review.input} ${asset}`,
+      );
       setInput("");
       setOpen(false);
     } catch (e) {
@@ -329,15 +346,11 @@ export function OperatingActionForm({
           />
         </label>
         <div className="trade-available">
-          {t(
-            kind === "claim"
-              ? "可领取"
-              : kind === "unstake"
-                ? "已质押"
-                : "可用",
+          {(kind === "participate" || kind === "stake") && (
+            <>
+              {t("可用")} {t(amount(available, asset))}
+            </>
           )}
-          {t(" ")}
-          {t(amount(available, asset))}
           <Button
             variant="ghost"
             onClick={() => setInput(decimal(available))}
@@ -361,45 +374,14 @@ export function OperatingActionForm({
                   ![
                     "参与金额",
                     "本次数量",
-                    "推荐关系",
-                    "当前覆盖率",
+                    "推荐人",
+                    "覆盖率",
                     "当前档位",
                   ].includes(item.label),
               )}
             />
           ),
         )}
-        <p
-          className={
-            kind === "participate"
-              ? "principal-notice"
-              : "small-note action-extra-copy"
-          }
-        >
-          {t(
-            kind === "participate"
-              ? "参与资金不支持本金赎回"
-              : kind === "unstake"
-                ? "解除质押后覆盖率与当前档位可能降低；历史已结算权益保留。"
-                : kind === "claim"
-                  ? "已结算奖励可随时领取，实际到账按协议扣除相关费用。"
-                  : "实际结算结果仍受协议容量、价格状态及发行条件影响。",
-          )}
-        </p>
-        <details className="action-rules">
-          <summary>{t("了解规则")}</summary>
-          <p>
-            {t(
-              kind === "participate"
-                ? "本次参与资金进入协议后不作为可赎回本金；用户获得的是对应的协议头寸与奖励容量。"
-                : kind === "unstake"
-                  ? "解除质押后覆盖率与当前档位可能降低；历史已结算权益保留。"
-                  : kind === "claim"
-                    ? "已结算奖励可随时领取，实际到账按协议扣除相关费用。"
-                    : "实际结算结果仍受协议容量、价格状态及发行条件影响。",
-            )}
-          </p>
-        </details>
         <Modal
           open={open}
           onOpenChange={(v) => {
@@ -409,6 +391,7 @@ export function OperatingActionForm({
           description={t("请核对项目、金额与预计结果。")}
           trigger={
             <Button
+              className="operation-confirm"
               disabled={!quote || !!error || processing}
               onClick={() => {
                 setReview({ input, revision: state.book.revision });
@@ -424,7 +407,7 @@ export function OperatingActionForm({
           {t(
             kind === "participate" && (
               <p className="principal-notice">
-                {t("参与资金不作为可赎回本金。")}
+                {t("参与资金提交后不可作为本金赎回。")}
               </p>
             ),
           )}
@@ -435,7 +418,11 @@ export function OperatingActionForm({
             {t(processing ? "正在处理操作…" : "")}
           </p>
         </Modal>
-        <p role="status" aria-live="polite" className="trade-status">
+        <p
+          role="status"
+          aria-live="polite"
+          className={`trade-status ${status.includes("成功") || status.includes("complete ·") ? "operation-success" : ""}`}
+        >
           {t(status)}
         </p>
       </div>
@@ -453,10 +440,10 @@ export function ParticipatePanel({ project }: { project: Project }) {
         <DetailCard title={t("我的参与概览")}>
           <KeyValueList
             items={[
-              { label: "活跃头寸价值", value: amount(s.principal, "USDT") },
+              { label: "仓位价值", value: amount(s.principal, "USDT") },
               { label: "独立批次数量", value: s.member.lots.length },
               {
-                label: "推荐关系",
+                label: "推荐人",
                 value: s.member.bound ? (
                   s.member.sponsor ? (
                     <WalletAddress address={s.member.sponsor} />
@@ -511,73 +498,74 @@ export function StakePanel({
             />
           </ProductTabs>
         </DetailCard>
-        <DetailCard title={t("覆盖率与档位")}>
-          <KeyValueList
-            items={[
-              {
-                label: "钱包代币余额",
-                value: amount(s.tokenBalance, project.symbol),
-              },
-              {
-                label: "我的质押",
-                value: amount(s.member.staked, project.symbol),
-              },
-              {
-                label: "质押参考价值",
-                value: s.prices
-                  ? amount(
-                      (BigInt(s.member.staked) * s.prices.stake) / UNIT,
-                      "USDT",
-                    )
-                  : "N/A",
-              },
-              { label: "活跃头寸价值", value: amount(s.principal, "USDT") },
-              { label: "当前覆盖率", value: coverageText(s.coverage) },
-              { label: "当前档位", value: tierText(s.level.index) },
-              {
-                label: "当前理论日率",
-                value:
-                  s.coverage === null ? "N/A" : `${s.level.rateBps / 100}%`,
-              },
-              {
-                label: "下一档覆盖率",
-                value: next
-                  ? `${next.target}%`
-                  : s.coverage === null
-                    ? "N/A"
-                    : "已达最高档",
-              },
-              {
-                label: "达到下一档还需",
-                value: next
-                  ? amount(next.additional, project.symbol)
-                  : s.coverage === null
-                    ? "N/A"
-                    : "0",
-              },
-            ].filter(
-              (item) =>
-                !compact ||
-                ["当前档位", "下一档覆盖率", "达到下一档还需"].includes(
-                  item.label,
-                ),
+        <details className="action-rules stake-rules" open={!compact}>
+          <summary>{t("覆盖率与档位")}</summary>
+          <DetailCard title={t("覆盖率与档位")}>
+            <KeyValueList
+              items={[
+                {
+                  label: "钱包代币余额",
+                  value: amount(s.tokenBalance, project.symbol),
+                },
+                {
+                  label: "已质押",
+                  value: amount(s.member.staked, project.symbol),
+                },
+                {
+                  label: "质押参考价值",
+                  value: s.prices
+                    ? amount(
+                        (BigInt(s.member.staked) * s.prices.stake) / UNIT,
+                        "USDT",
+                      )
+                    : "N/A",
+                },
+                { label: "仓位价值", value: amount(s.principal, "USDT") },
+                { label: "覆盖率", value: coverageText(s.coverage) },
+                { label: "当前档位", value: tierText(s.level.index) },
+                {
+                  label: "当前日率",
+                  value:
+                    s.coverage === null ? "N/A" : `${s.level.rateBps / 100}%`,
+                },
+                {
+                  label: "下一档覆盖率",
+                  value: next
+                    ? `${next.target}%`
+                    : s.coverage === null
+                      ? "N/A"
+                      : "已达最高档",
+                },
+                {
+                  label: "距下一档",
+                  value: next
+                    ? amount(next.additional, project.symbol)
+                    : s.coverage === null
+                      ? "N/A"
+                      : "0",
+                },
+              ].filter(
+                (item) =>
+                  !compact ||
+                  ["当前档位", "下一档覆盖率", "距下一档"].includes(item.label),
+              )}
+            />
+            {t(
+              !s.prices && (
+                <p className="cap-notice">
+                  {t(
+                    "当前有效价格不可用，质押覆盖率暂不可计算。解除质押仍可操作。",
+                  )}
+                </p>
+              ),
             )}
-          />
-          {t(
-            !s.prices && (
-              <p className="cap-notice">
-                {t(
-                  "当前有效价格不可用，质押覆盖率暂不可计算。解除质押仍可操作。",
-                )}
+            {!compact && (
+              <p className="small-note">
+                {t("实际结算结果仍受协议容量、价格状态及发行条件影响。")}
               </p>
-            ),
-          )}
-          {!compact && (
-            <p className="small-note">
-              {t("实际结算结果仍受协议容量、价格状态及发行条件影响。")}
-            </p>
-          )}
-        </DetailCard>
+            )}
+          </DetailCard>
+        </details>
       </div>
       {!compact && (
         <DetailCard title={t("覆盖率档位")}>
@@ -621,7 +609,7 @@ export function ContributionPanel({ project }: { project: Project }) {
         />
         <MetricCard label={t("有效网络")} value={c?.activeNetwork ?? 0} />
         <MetricCard
-          label={t("网络奖励")}
+          label={t("网络收益")}
           value={amount(s.member.networkEarned, project.symbol)}
         />
       </div>
@@ -641,18 +629,10 @@ export function ContributionPanel({ project }: { project: Project }) {
                   "首次参与时确定"
                 ),
               },
-              {
-                label: "当前资格",
-                value:
-                  s.principal > 0n
-                    ? "有活跃容量"
-                    : "暂无活跃容量，历史权益保留",
-              },
             ]}
           />
         </DetailCard>
-        <DetailCard title={t("邀请参与")}>
-          <p>{t("邀请伙伴参与同一项目，让有效网络贡献持续累积。")}</p>
+        <DetailCard title={t("邀请")}>
           <Button
             disabled={!s.member.bound && s.user.wallet !== s.book.root}
             onClick={async () => {
@@ -666,7 +646,7 @@ export function ContributionPanel({ project }: { project: Project }) {
               }
             }}
           >
-            {t("复制推荐链接")}
+            {t("复制链接")}
           </Button>
           {t(
             (s.member.bound || s.user.wallet === s.book.root) && (
@@ -704,65 +684,27 @@ export function RewardsPanel({
         .toISOString()
         .slice(0, 10) === s.book.day,
   )?.members[s.user.wallet];
-  const [seconds, setSeconds] = useState(BigInt(s.book.hour * 3600));
-  useEffect(() => {
-    const start = s.book.displayStartedAt
-      ? Date.parse(s.book.displayStartedAt)
-      : Date.now();
-    setSeconds(
-      BigInt(
-        Math.min(
-          86400,
-          s.book.hour * 3600 +
-            Math.max(0, Math.floor((Date.now() - start) / 1000)),
-        ),
-      ),
-    );
-    const timer = setInterval(
-      () =>
-        setSeconds(
-          BigInt(
-            Math.min(
-              86400,
-              s.book.hour * 3600 +
-                Math.max(0, Math.floor((Date.now() - start) / 1000)),
-            ),
-          ),
-        ),
-      1000,
-    );
-    return () => clearInterval(timer);
-  }, [s.book.day, s.book.hour, s.book.displayStartedAt]);
   const used = s.member.lots.reduce((sum, l) => sum + BigInt(l.used), 0n),
     capacity = s.member.lots.reduce((sum, l) => sum + BigInt(l.capacity), 0n);
   return (
     <>
       <div className="project-metrics">
         <MetricCard
-          label={t("昨日已结算")}
+          label={t("昨日收益")}
           value={amount(yesterday?.gross ?? "0", project.symbol)}
         />
+        {!resultOnly && (
+          <MetricCard
+            label={t("可领取")}
+            value={amount(s.member.claimable, project.symbol)}
+          />
+        )}
         <MetricCard
-          label={t("可领取")}
-          value={amount(s.member.claimable, project.symbol)}
-        />
-        <MetricCard
-          label={t("累计毛收益")}
+          label={t("累计收益")}
           value={amount(s.member.lifetimeEarned, project.symbol)}
         />
-        <MetricCard
-          label={t("今日展示进度")}
-          value={amount(
-            displayProgress(BigInt(yesterday?.gross ?? "0"), seconds),
-            project.symbol,
-          )}
-        />
       </div>
-      <p className="small-note">
-        {t(
-          "今日进度仅展示昨日已确定的奖励，不产生新收益，也不影响可领取数量。",
-        )}
-      </p>
+
       <div className="operating-layout">
         {!resultOnly && <OperatingActionForm project={project} kind="claim" />}
         <DetailCard title={t("收益与容量")}>
@@ -773,19 +715,19 @@ export function RewardsPanel({
                 value: amount(latest?.participation ?? "0", project.symbol),
               },
               {
-                label: "最近网络奖励",
+                label: "最近网络收益",
                 value: amount(latest?.network ?? "0", project.symbol),
               },
-              { label: "已使用容量", value: amount(used, "USDT") },
-              { label: "剩余容量", value: amount(capacity - used, "USDT") },
+              { label: "已使用额度", value: amount(used, "USDT") },
+              { label: "剩余额度", value: amount(capacity - used, "USDT") },
               {
-                label: "累计毛领取",
+                label: "累计领取",
                 value: amount(s.member.lifetimeClaimed, project.symbol),
               },
               {
                 label: "状态",
                 value:
-                  BigInt(s.member.claimable) > 0n ? "可领取" : "暂无可领取奖励",
+                  BigInt(s.member.claimable) > 0n ? "可领取" : "暂无可领取",
               },
               {
                 label: "最近结算",
@@ -883,7 +825,7 @@ export function AssetsPanel({ project }: { project: Project }) {
                 label: "已质押",
                 value: amount(s.member.staked, project.symbol),
               },
-              { label: "活跃头寸价值", value: amount(s.principal, "USDT") },
+              { label: "仓位价值", value: amount(s.principal, "USDT") },
             ]}
           />
         </DetailCard>
@@ -895,11 +837,11 @@ export function AssetsPanel({ project }: { project: Project }) {
                 value: amount(s.member.claimable, project.symbol),
               },
               {
-                label: "累计毛收益",
+                label: "累计收益",
                 value: amount(s.member.lifetimeEarned, project.symbol),
               },
               {
-                label: "累计毛领取",
+                label: "累计领取",
                 value: amount(s.member.lifetimeClaimed, project.symbol),
               },
               {
@@ -915,7 +857,8 @@ export function AssetsPanel({ project }: { project: Project }) {
   );
 }
 export function OperatingActivity({ project }: { project: Project }) {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
+  const wallet = useSimulation((s) => s.currentUser.wallet);
 
   const key = projectKey(project.chainId, project.tokenContract);
   const activities = useSimulation((s) => s.activities);
@@ -927,13 +870,19 @@ export function OperatingActivity({ project }: { project: Project }) {
             {t(
               activities
                 .filter((a) => a.projectKey === key)
+                .sort(
+                  (a, b) =>
+                    Number(b.wallet === wallet) - Number(a.wallet === wallet) ||
+                    Date.parse(b.timestamp) - Date.parse(a.timestamp),
+                )
                 .slice(0, 100)
                 .map((a) => (
                   <li key={a.id}>
                     <div>
                       <strong>{t(a.displayValues.summary)}</strong>
                       <small>
-                        {t(shortAddress(a.wallet))} · {t(date(a.timestamp))}
+                        {t(shortAddress(a.wallet))} ·{" "}
+                        {localTime(a.timestamp, locale)}
                       </small>
                     </div>
                   </li>
@@ -1002,9 +951,9 @@ export function PersonalOverview({ project }: { project: Project }) {
       <DetailCard title={t("我的协议状态")}>
         <KeyValueList
           items={[
-            { label: "活跃头寸", value: amount(s.principal, "USDT") },
+            { label: "活跃仓位", value: amount(s.principal, "USDT") },
             {
-              label: "我的质押",
+              label: "已质押",
               value: amount(s.member.staked, project.symbol),
             },
             { label: "我的覆盖率", value: coverageText(s.coverage) },

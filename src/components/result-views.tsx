@@ -6,7 +6,7 @@ import type { Activity, Project } from "../domain/models";
 import { projectRoute } from "../domain/identity";
 import { displayAmount } from "../domain/economics/amount";
 import { chronological, actionLabels } from "../product/read-model";
-import { date, money, poolLabel } from "../product/format";
+import { date, localTime, money, poolLabel } from "../product/format";
 import {
   ContractAddress,
   DataTable,
@@ -16,6 +16,7 @@ import {
   LifecycleBadge,
   WalletAddress,
 } from "./ui";
+import { ProjectLogo } from "./project-logo";
 export function EconomyLink({ p, tab }: { p: Project; tab?: string }) {
   const { locale } = useLocale();
   return (
@@ -23,12 +24,22 @@ export function EconomyLink({ p, tab }: { p: Project; tab?: string }) {
       className="text-link"
       href={projectRoute(p) + (tab ? `?tab=${tab}` : "")}
     >
-      {projectName(p, locale)} · {p.symbol} ↗
+      <span className="portfolio-token-logo">
+        <ProjectLogo
+          logo={p.logo}
+          identity={`${p.chainId}:${p.tokenContract}`}
+          platform={p.isPlatformToken}
+        />
+      </span>
+      <span data-user-text>
+        {projectName(p, locale)} · {p.symbol}
+      </span>{" "}
+      ↗
     </Link>
   );
 }
 export function OutcomeEvents({ events }: { events: Activity[] }) {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
 
   return events.length ? (
     <ol className="activity-feed">
@@ -43,7 +54,7 @@ export function OutcomeEvents({ events }: { events: Activity[] }) {
                   {t(actionLabels[a.type])} · {t(a.displayValues.summary)}
                 </strong>
                 <small>
-                  {a.projectId} · {t(date(a.timestamp))}
+                  {a.projectId} · {localTime(a.timestamp, locale)}
                 </small>
                 <WalletAddress address={a.wallet} />
               </div>
@@ -169,7 +180,7 @@ export function RegistryTable({ projects }: { projects: Project[] }) {
         </span>,
         `BSC · ${p.chainId}`,
         <ContractAddress key={p.tokenContract} address={p.tokenContract} />,
-        <LifecycleBadge key={p.lifecycle} state={p.lifecycle} />,
+        <LifecycleBadge showHealthy key={p.lifecycle} state={p.lifecycle} />,
         "N/A",
       ])}
     />

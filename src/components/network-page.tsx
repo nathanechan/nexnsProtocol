@@ -72,7 +72,11 @@ function LeaderSection({
                     </span>
                   )}
                   <div className="project-logo" aria-hidden>
-                    <ProjectLogo logo={p.logo} />
+                    <ProjectLogo
+                      logo={p.logo}
+                      identity={`${p.chainId}:${p.tokenContract}`}
+                      platform={p.isPlatformToken}
+                    />
                   </div>
                   <div className="identity-body">
                     <Link href={projectRoute(p)} className="project-link">

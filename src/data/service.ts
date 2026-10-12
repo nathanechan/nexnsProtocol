@@ -1,3 +1,4 @@
+import { marketDataAdapter } from "../simulation/live-market";
 import { simulationStore } from "../simulation/store";
 import { discoverProjects, type Sort, type Stage } from "./discovery";
 import { createMockSearchService, type ProjectSearchService } from "./search";
@@ -98,7 +99,7 @@ export function createEconomyDataService(
   };
 }
 const liveService = () => {
-  const s = simulationStore.getState();
+  const s = marketDataAdapter(simulationStore.getState());
   return createEconomyDataService(Object.values(s.projects), s.activities);
 };
 export const economyService: EconomyDataService = {

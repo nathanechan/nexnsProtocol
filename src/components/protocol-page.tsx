@@ -165,7 +165,7 @@ export function ProtocolPage() {
                   key={p.tokenContract}
                   address={p.tokenContract}
                 />,
-                <LifecycleBadge key="stage" state={p.lifecycle} />,
+                <LifecycleBadge showHealthy key="stage" state={p.lifecycle} />,
                 "N/A",
               ])}
             />
@@ -266,8 +266,12 @@ export function ProtocolPage() {
               ]}
               rows={current.map((p) => [
                 <EconomyLink key={p.projectId} p={p} />,
-                <LifecycleBadge key="stage" state={p.lifecycle} />,
-                <PriceStatusBadge key="price" status={p.priceStatus} />,
+                <LifecycleBadge showHealthy key="stage" state={p.lifecycle} />,
+                <PriceStatusBadge
+                  showHealthy
+                  key="price"
+                  status={p.priceStatus}
+                />,
                 p.lifecycle === "CURVE_OPEN"
                   ? price(p.curve.curvePrice)
                   : p.lifecycle === "OPERATING" &&

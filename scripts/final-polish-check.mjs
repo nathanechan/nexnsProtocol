@@ -23,7 +23,7 @@ try {
   await page.getByLabel("领取数量 · SEA", { exact: true }).fill("10");
   await page.getByRole("button", { name: "确认领取", exact: true }).click();
   await page.getByRole("button", { name: "确认操作", exact: true }).click();
-  await page.getByText("成功，资产与权益已更新", { exact: false }).waitFor();
+  await page.locator(".operation-success").waitFor();
   for (const width of [1440, 768, 390]) {
     await page.setViewportSize({ width, height: 1000 });
     for (const [route, tab] of [

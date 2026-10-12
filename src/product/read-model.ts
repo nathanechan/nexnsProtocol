@@ -98,7 +98,11 @@ export function personalRows(
     const principal = member ? activePrincipal(member) : 0n;
     const prices = book ? validPrices(book.prices) : null;
     const staked = BigInt(member?.staked ?? "0");
-    const stakeValue = prices ? (staked * prices.stake) / UNIT : null;
+    const reference = p.operating?.tokenPrice;
+    const stakeValue =
+      reference == null
+        ? null
+        : (staked * parseAmount(reference.toFixed(18))) / UNIT;
     const c = coverage(principal, staked, prices?.stake ?? null);
     const graph = book
       ? contributions(book.members, prices?.stake ?? null)

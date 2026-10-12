@@ -92,7 +92,7 @@ describe("presentation and simulation integrity", () => {
     ["MIGRATING", "迁移中"],
     ["OPERATING", "运行中"],
   ] as const)("renders %s badge", (state, label) => {
-    render(<LifecycleBadge state={state} />);
+    render(<LifecycleBadge state={state} showHealthy />);
     expect(screen.getByText(label)).toBeDefined();
   });
   it("updates one canonical project without aliasing duplicate names", () => {

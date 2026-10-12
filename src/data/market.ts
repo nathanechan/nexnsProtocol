@@ -1,16 +1,22 @@
+import { marketDataAdapter, stakedValue } from "../simulation/live-market";
 import type { Project, ProjectKey } from "../domain/models";
 import { projectKey, projectRoute } from "../domain/identity";
-import { discoverProjects, type Sort } from "./discovery";
+import { type Sort } from "./discovery";
 import { simulationStore } from "../simulation/store";
 export type MarketSection = "markets" | "launch" | "live";
-export type MarketSort = Sort | "change" | "stage";
+export type MarketSort =
+  Sort | "change" | "stage" | "price" | "staked" | "value" | "users";
 export const marketSorts: Record<MarketSection, readonly MarketSort[]> = {
   markets: ["volume", "change", "stage", "newest"],
-  launch: ["progress", "volume", "participants", "newest"],
-  live: ["tvl", "volume", "liquidity", "participants", "marketCap"],
+  launch: ["progress", "price", "volume", "participants", "newest"],
+  live: ["staked", "value", "liquidity", "users"],
 };
 export const defaultMarketSort = (section: MarketSection): MarketSort =>
-  section === "markets" ? "volume" : section === "launch" ? "progress" : "tvl";
+  section === "markets"
+    ? "volume"
+    : section === "launch"
+      ? "progress"
+      : "staked";
 export interface MarketRow {
   key: ProjectKey;
   href: string;
@@ -26,6 +32,8 @@ export interface MarketRow {
   change: number | null;
   progress: number | null;
   remaining: number | null;
+  totalStaked?: number | null;
+  value: number | null;
   tvl: number | null;
   volume: number | null;
   participants: number | null;
@@ -53,6 +61,13 @@ export function marketRow(project: Project): MarketRow {
     remaining: curve
       ? Math.max(0, project.curve.targetReserve - project.curve.netReserve)
       : null,
+    totalStaked: curve ? null : (project.operating?.totalStaked ?? null),
+    value: curve
+      ? null
+      : stakedValue(
+          project.operating?.totalStaked ?? 0,
+          project.operating?.tokenPrice ?? null,
+        ),
     tvl: curve ? null : (project.operating?.tvl ?? null),
     volume: curve
       ? project.curve.volume24h
@@ -74,12 +89,38 @@ export function marketRows(
   const sort = marketSorts[section].includes(requested as MarketSort)
     ? (requested as MarketSort)
     : defaultMarketSort(section);
-  if (section !== "markets")
-    return discoverProjects(
-      projects,
-      section === "launch" ? "curve" : "operating",
-      sort as Sort,
-    ).map(marketRow);
+  if (section !== "markets") {
+    const rows = projects
+      .filter(
+        (p) =>
+          p.lifecycle === (section === "launch" ? "CURVE_OPEN" : "OPERATING"),
+      )
+      .map(marketRow);
+    const metric = (r: MarketRow) =>
+      sort === "staked"
+        ? (r.totalStaked ?? null)
+        : sort === "value"
+          ? r.value
+          : sort === "users" || sort === "participants"
+            ? r.participants
+            : sort === "price"
+              ? r.price
+              : sort === "progress"
+                ? r.progress
+                : sort === "volume"
+                  ? r.volume
+                  : sort === "liquidity"
+                    ? r.liquidity
+                    : Date.parse(r.createdAt);
+    return rows
+      .sort(
+        (a, b) =>
+          Number(b.platform) - Number(a.platform) ||
+          descending(metric(a), metric(b)) ||
+          a.key.localeCompare(b.key),
+      )
+      .slice(0, 100);
+  }
   const metric = (p: Project) =>
     sort === "volume"
       ? p.lifecycle === "CURVE_OPEN"
@@ -119,7 +160,7 @@ export const createMarketDataService = (
 export const marketService: MarketDataService = {
   list: async (section, sort) =>
     marketRows(
-      Object.values(simulationStore.getState().projects),
+      Object.values(marketDataAdapter(simulationStore.getState()).projects),
       section,
       sort,
     ),

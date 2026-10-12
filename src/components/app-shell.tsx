@@ -3,7 +3,17 @@ import { useLocale } from "../i18n/locale";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { ArrowUpRight, Layers, Activity, Wallet } from "lucide-react";
+import {
+  Layers,
+  Activity,
+  Wallet,
+  Network,
+  FileText,
+  Plus,
+  Settings2,
+  Languages,
+} from "lucide-react";
+import { ProjectLogo } from "./project-logo";
 import { GlobalSearch } from "./global-search";
 import { Button, Container, EmptyState, Modal } from "./ui";
 import { useSimulation } from "../simulation/store";
@@ -55,7 +65,10 @@ export function AppShell({ children }: { children: ReactNode }) {
               aria-controls="product-menu"
               onClick={() => setMenuOpen((v) => !v)}
             >
-              <span className="brand-mark">N</span>NEXNS
+              <span className="brand-mark">
+                <ProjectLogo logo="N" identity="56:nexns" platform />
+              </span>
+              NEXNS
             </button>
             {menuOpen && (
               <>
@@ -72,13 +85,16 @@ export function AppShell({ children }: { children: ReactNode }) {
                   }}
                 >
                   <Link href="/nexns" onClick={() => setMenuOpen(false)}>
+                    <Network size={16} />
                     NEXNS
                   </Link>
                   <Link href="/protocol" onClick={() => setMenuOpen(false)}>
+                    <FileText size={16} />
                     {t("协议")}
                   </Link>
                   <Link href="/create" onClick={() => setMenuOpen(false)}>
-                    {t("创建项目")}
+                    <Plus size={16} />
+                    {t("创建")}
                   </Link>
                   <Link
                     href={
@@ -88,9 +104,11 @@ export function AppShell({ children }: { children: ReactNode }) {
                     }
                     onClick={() => setMenuOpen(false)}
                   >
-                    {locale === "zh-CN" ? "创建者工作室" : "Creator Studio"}
+                    <Settings2 size={16} />
+                    {locale === "zh-CN" ? "管理" : "Manage"}
                   </Link>
                   <label>
+                    <Languages size={16} />
                     {locale === "zh-CN" ? "语言" : "Language"}
                     <select
                       aria-label={
@@ -132,7 +150,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <option value="en">English</option>
             </select>
             <Link href="/create" className="button secondary desktop-create">
-              {locale === "zh-CN" ? "+ 创建项目" : "+ Create Project"}
+              {locale === "zh-CN" ? "+ 创建" : "+ Create"}
             </Link>
             <Modal
               title={t("钱包")}
@@ -162,15 +180,6 @@ export function AppShell({ children }: { children: ReactNode }) {
           </Link>
         ))}
       </nav>
-      <footer>
-        <Container>
-          <span>{t("NEXNS · 链上经济操作层")}</span>
-          <Link href="/create">
-            {t("创建项目")}
-            <ArrowUpRight size={14} />
-          </Link>
-        </Container>
-      </footer>
     </>
   );
 }

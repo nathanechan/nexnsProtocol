@@ -54,6 +54,22 @@ export function SimulationConsole() {
         title="模拟控制台"
         description="独立的演示工具，仅用于本地模拟情景。正常产品界面不提供这些控制。"
       />
+      <DetailCard title="行情时间">
+        <Button
+          onClick={() =>
+            run(() =>
+              simulationStore
+                .getState()
+                .advanceMarket(
+                  (simulationStore.getState().liveMarket?.now ?? Date.now()) +
+                    3600000,
+                ),
+            )
+          }
+        >
+          行情前进 1 小时
+        </Button>
+      </DetailCard>
       <DetailCard title="一键演示情景">
         <p className="small-note">
           全新发行会创建新的模拟经济体；其余预设会替换所选项目的演示状态。项目资金不会与其他经济体混合。

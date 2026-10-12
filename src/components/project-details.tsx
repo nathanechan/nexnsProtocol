@@ -39,7 +39,7 @@ export function PublicInfo({ project }: { project: Project }) {
         ]}
       />
       <Link className="text-link" href={`/studio/${project.projectId}`}>
-        {t("创建者工作室 ↗")}
+        {t("管理 ↗")}
       </Link>
       <div className="public-links">
         {t(

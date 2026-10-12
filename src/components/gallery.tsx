@@ -59,7 +59,7 @@ export function Gallery() {
                 "OPERATING",
               ] as const
             ).map((s) => (
-              <LifecycleBadge key={s} state={s} />
+              <LifecycleBadge showHealthy key={s} state={s} />
             ))}
           </InlineGroup>
           <InlineGroup>
@@ -71,7 +71,7 @@ export function Gallery() {
                 "PRICE_INVALID",
               ] as const
             ).map((s) => (
-              <PriceStatusBadge key={s} status={s} />
+              <PriceStatusBadge showHealthy key={s} status={s} />
             ))}
           </InlineGroup>
           <DataFreshness timestamp={null} />

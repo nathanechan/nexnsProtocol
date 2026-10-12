@@ -17,9 +17,9 @@ export const lifecycleLabels: Record<Lifecycle, string> = {
 };
 export const priceLabels: Record<PriceStatus, string> = {
   VALID: "价格有效",
-  PROTECTED: "价格保护",
+  PROTECTED: "价格保护中",
   PRICE_DISCOVERY: "价格建立中",
-  PRICE_INVALID: "价格无效",
+  PRICE_INVALID: "价格不可用",
 };
 export function Button({
   variant = "primary",
@@ -259,18 +259,33 @@ export function DataTable({
     </div>
   );
 }
-export function LifecycleBadge({ state }: { state: Lifecycle }) {
+export function LifecycleBadge({
+  state,
+  showHealthy = false,
+}: {
+  state: Lifecycle;
+  showHealthy?: boolean;
+}) {
   const { t } = useLocale();
 
+  if (!showHealthy && (state === "CURVE_OPEN" || state === "OPERATING"))
+    return null;
   return (
     <span className={`badge lifecycle ${state.toLowerCase()}`}>
       {t(lifecycleLabels[state])}
     </span>
   );
 }
-export function PriceStatusBadge({ status }: { status: PriceStatus }) {
+export function PriceStatusBadge({
+  status,
+  showHealthy = false,
+}: {
+  status: PriceStatus;
+  showHealthy?: boolean;
+}) {
   const { t } = useLocale();
 
+  if (!showHealthy && status === "VALID") return null;
   return (
     <span className={`badge neutral price-${status.toLowerCase()}`}>
       {t(priceLabels[status])}

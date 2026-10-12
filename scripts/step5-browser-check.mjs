@@ -88,13 +88,13 @@ try {
   await second.getByRole("tab", { name: "奖励", exact: true }).click();
   await second.getByText("80 SEA", { exact: true }).first().waitFor();
   await page
-    .getByRole("button", { name: "08 · 已完成头寸", exact: true })
+    .getByRole("button", { name: "08 · 已完成仓位", exact: true })
     .click();
-  await second.getByRole("tab", { name: "头寸", exact: true }).click();
-  await second.getByLabel("头寸状态筛选").selectOption("COMPLETED");
+  await second.getByRole("tab", { name: "仓位", exact: true }).click();
+  await second.getByLabel("仓位状态筛选").selectOption("COMPLETED");
   await second
     .getByRole("row")
-    .filter({ hasText: /头寸.*已完成/ })
+    .filter({ hasText: /仓位.*已完成/ })
     .first()
     .waitFor();
   await page
@@ -120,7 +120,7 @@ try {
     for (const label of [
       "总览",
       "项目",
-      "头寸",
+      "仓位",
       "质押",
       "奖励",
       "网络",

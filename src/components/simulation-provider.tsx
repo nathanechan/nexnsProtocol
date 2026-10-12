@@ -21,15 +21,18 @@ export function SimulationProvider({
     try {
       simulationStore.getState().hydrate(localStorage);
       simulationStore.getState().refreshVolumes();
+      simulationStore.getState().advanceMarket();
       index();
+      persistSnapshot(simulationStore.getState(), localStorage);
     } catch {
       simulationStore.setState({ hydrated: true });
     }
     const stop = simulationStore.subscribe((state, previous) => {
       if (state === previous || remote) return;
       try {
+        if (!state.liveMarket) simulationStore.getState().advanceMarket();
         index();
-        persistSnapshot(state, localStorage);
+        persistSnapshot(simulationStore.getState(), localStorage);
       } catch {
         /* Storage restrictions leave the in-memory demo usable. */
       }
@@ -46,11 +49,17 @@ export function SimulationProvider({
       }
     };
     window.addEventListener("storage", onStorage);
-    const timer = window.setInterval(
-      () => simulationStore.getState().refreshVolumes(),
-      60000,
-    );
+    const timer = window.setInterval(() => {
+      simulationStore.getState().advanceMarket();
+      simulationStore.getState().refreshVolumes();
+    }, 30000);
+    const resume = () => {
+      if (document.visibilityState === "visible")
+        simulationStore.getState().advanceMarket();
+    };
+    document.addEventListener("visibilitychange", resume);
     return () => {
+      document.removeEventListener("visibilitychange", resume);
       stop();
       window.clearInterval(timer);
       window.removeEventListener("storage", onStorage);

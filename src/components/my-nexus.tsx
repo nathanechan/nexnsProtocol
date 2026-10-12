@@ -1,4 +1,5 @@
 "use client";
+import { ProjectLogo } from "./project-logo";
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useLocale } from "../i18n/locale";
@@ -10,10 +11,11 @@ import {
   userActionTypes,
   actionLabels,
 } from "../product/read-model";
+import { compactUsdtValue } from "../product/market-format";
 import { portfolioSummary } from "../product/portfolio";
 import { projectName } from "../product/metadata";
 import { projectRoute } from "../domain/identity";
-import { date } from "../product/format";
+import { localTime } from "../product/format";
 import { ProductTabs } from "./product-tabs";
 import { EconomyLink, OutcomeEvents } from "./result-views";
 import { CompactResults, SummaryStrip } from "./compact-results";
@@ -27,6 +29,8 @@ import {
 const amount = (v: bigint, s = "USDT") => `${displayAmount(v)} ${s}`;
 export function MyNexus() {
   const { t, locale } = useLocale();
+  const date = (value: string | null | undefined) =>
+    value ? localTime(value, locale) : "N/A";
   const projects = useSimulation((s) => s.projects),
     books = useSimulation((s) => s.operatingBooks),
     user = useSimulation((s) => s.currentUser),
@@ -53,7 +57,7 @@ export function MyNexus() {
     [projectFilter, setProjectFilter] = useState("all"),
     [actionFilter, setActionFilter] = useState("all");
   const summary = portfolioSummary(rows),
-    value = (n: bigint | null) => (n === null ? "N/A" : amount(n));
+    value = compactUsdtValue;
   const claimRows = rows.filter((r) => BigInt(r.member?.claimable ?? "0") > 0n);
   const lots = rows.flatMap((r) =>
     (r.member?.lots ?? [])
@@ -78,17 +82,12 @@ export function MyNexus() {
     <div className="portfolio-project-rows">
       <CompactResults
         caption={t("我的项目")}
-        columns={[
-          "项目 / 代币",
-          "生命周期",
-          "钱包代币",
-          "活跃头寸价值",
-          "我的质押",
-          "可领取",
-        ]}
+        columns={["项目 / 代币", "钱包代币", "仓位", "已质押", "可领取"]}
         rows={rows.map((r) => [
-          <EconomyLink key={r.key} p={r.p} />,
-          <LifecycleBadge key="stage" state={r.p.lifecycle} />,
+          <span key={r.key}>
+            <EconomyLink p={r.p} />
+            <LifecycleBadge state={r.p.lifecycle} />
+          </span>,
           amount(r.balance, r.p.symbol),
           amount(r.principal),
           amount(r.staked, r.p.symbol),
@@ -109,42 +108,38 @@ export function MyNexus() {
   );
   return (
     <div className="secondary-page portfolio-page">
-      <PageHeader
-        eyebrow={t("资产")}
-        title={t("资产")}
-        description={t("跨项目查看持仓、头寸、质押与已结算权益。")}
-      />
+      <PageHeader eyebrow={t("资产")} title={t("资产")} description="" />
       <SummaryStrip
         items={[
           {
-            label: "可领取估值",
+            label: "可领取",
             value: value(summary.claimable),
             className: "summary-claimable",
           },
           {
-            label: "活跃头寸价值",
+            label: "仓位",
             value: amount(summary.principal),
             className: "summary-position",
           },
           {
-            label: "总质押价值",
+            label: "质押",
             value: value(summary.staked),
             className: "summary-stake",
           },
           {
-            label: "代币资产估值",
+            label: "Token 资产",
             value: value(summary.tokens),
             className: "summary-tokens",
           },
           {
-            label: "活跃项目",
+            label: "项目",
             value: summary.activeProjects,
             className: "summary-projects",
           },
         ]}
       />
       <div className="portfolio-claimable">
-        <strong>{t("可领取奖励")}</strong>
+        <strong>{t("领取")}</strong>
         <div className="portfolio-reward-list">
           {claimRows.length ? (
             claimRows.map((r) => (
@@ -153,12 +148,21 @@ export function MyNexus() {
                 key={r.key}
                 href={projectRoute(r.p) + "?tab=claim"}
               >
-                <span data-user-text>{projectName(r.p, locale)}</span> ·{" "}
-                {t("去领取")}
+                <span className="portfolio-token-logo">
+                  <ProjectLogo
+                    logo={r.p.logo}
+                    identity={r.key}
+                    platform={r.p.isPlatformToken}
+                  />
+                </span>
+                <span data-user-text>
+                  {projectName(r.p, locale)} · {r.p.symbol}
+                </span>{" "}
+                · {t("去领取")}
               </Link>
             ))
           ) : (
-            <span>{t("暂无可领取奖励")}</span>
+            <span>{t("暂无可领取")}</span>
           )}
         </div>
       </div>
@@ -167,7 +171,7 @@ export function MyNexus() {
         items={[
           { value: "overview", label: "总览" },
           { value: "projects", label: "Projects" },
-          { value: "positions", label: "头寸" },
+          { value: "positions", label: "Positions" },
           { value: "stakes", label: "Stakes" },
           { value: "rewards", label: "奖励" },
           { value: "contribution", label: "网络" },
@@ -211,10 +215,8 @@ export function MyNexus() {
           </section>
         ) : !rows.length ? (
           <EmptyState
-            title={t("开始你的协议参与")}
-            description={t(
-              "买入曲线代币或参与运行中的项目后，你的资产与权益会同步到这里。",
-            )}
+            title={t("暂无资产")}
+            description={t("买入或参与项目后，资产会显示在这里。")}
           />
         ) : tab === "overview" || tab === "projects" ? (
           <>
@@ -234,23 +236,24 @@ export function MyNexus() {
           <>
             <div className="filter-row">
               <Select
-                label={t("头寸状态筛选")}
+                label={t("仓位状态筛选")}
                 value={status}
                 onChange={setStatus}
                 options={[
-                  { value: "all", label: "全部头寸" },
+                  { value: "all", label: "全部仓位" },
                   { value: "ACTIVE", label: "活跃" },
                   { value: "COMPLETED", label: "已完成" },
                 ]}
               />
             </div>
             <CompactResults
-              caption={t("我的头寸")}
+              caption={t("我的仓位")}
+              emptyLabel="暂无仓位"
               columns={[
                 "项目",
-                "头寸",
+                "仓位",
                 "参与资金",
-                "生命周期容量",
+                "收益额度",
                 "已使用",
                 "剩余",
                 "状态",
@@ -259,7 +262,7 @@ export function MyNexus() {
                 <EconomyLink key={r.key} p={r.p} tab="positions" />,
                 <details key={l.id} className="personal-lot">
                   <summary>
-                    {t("头寸")} {l.id.replace(/^DEMO-LOT-/, "")}
+                    {t("仓位")} {l.id.replace(/^DEMO-LOT-/, "")}
                   </summary>
                   <KeyValueList
                     items={[
@@ -275,17 +278,14 @@ export function MyNexus() {
                 t(l.status === "ACTIVE" ? "活跃" : "已完成"),
               ])}
             />
-            {!lots.length && <p>{t("此项目没有符合筛选的头寸。")}</p>}
-            <p className="small-note">
-              {t("参与资金不可赎回；生命周期容量不代表保证收益。")}
-            </p>
           </>
         ) : tab === "stakes" ? (
           <CompactResults
-            caption={t("我的质押")}
+            caption={t("已质押")}
+            emptyLabel="暂无质押"
             columns={[
               "项目",
-              "我的质押",
+              "已质押",
               "质押价值",
               "覆盖率",
               "当前档位",
@@ -311,7 +311,7 @@ export function MyNexus() {
         ) : tab === "contribution" ? (
           <CompactResults
             caption={t("我的网络")}
-            columns={["项目", "贡献值", "网络权重", "有效网络", "网络奖励"]}
+            columns={["项目", "贡献值", "网络权重", "有效网络", "网络收益"]}
             rows={rows.map((r) => [
               <EconomyLink key={r.key} p={r.p} tab="contribution" />,
               r.book && validPrices(r.book.prices)
@@ -340,13 +340,7 @@ export function MyNexus() {
             </div>
             <CompactResults
               caption={t("我的奖励")}
-              columns={[
-                "项目",
-                "可领取",
-                "最近结算",
-                "累计毛收益",
-                "累计毛领取",
-              ]}
+              columns={["项目", "可领取", "最近结算", "累计收益", "累计领取"]}
               rows={rewards.map((r) => [
                 <EconomyLink key={r.key} p={r.p} tab="claim" />,
                 BigInt(r.member?.claimable ?? "0") > 0n ? (

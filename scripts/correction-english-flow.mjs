@@ -33,10 +33,10 @@ try {
   await page.locator(".language-switch").selectOption("en");
   await page.getByRole("button", { name: "Next" }).click();
   await text(page, "Name is required");
-  await page.getByLabel("English Name", { exact: true }).fill("澄海经济");
-  await page.getByLabel("Token symbol", { exact: true }).fill("SEA");
+  await page.getByLabel("Project Name", { exact: true }).fill("澄海经济");
+  await page.getByLabel("Token Symbol", { exact: true }).fill("SEA");
   await page
-    .getByLabel("English Description", { exact: true })
+    .getByLabel("Description", { exact: true })
     .fill("连接参与者与长期价值的链上项目。");
   await page.getByRole("button", { name: "Next" }).click();
   await page.getByLabel("Website", { exact: true }).fill("https://example.com");
@@ -50,14 +50,14 @@ try {
   const contract = projectUrl.split("/").at(-1);
   results.push({ creation: projectUrl });
   await page.getByLabel("Pay amount · USDT", { exact: true }).fill("1000");
-  await page.getByRole("button", { name: "Buy SEA", exact: true }).click();
+  await page.getByRole("button", { name: "Confirm buy", exact: true }).click();
   await page
     .getByRole("button", { name: "Confirm trade", exact: true })
     .click();
   await text(page, "Trade completed");
   await page.getByRole("tab", { name: "Sell", exact: true }).click();
   await page.getByLabel("Sell amount · SEA", { exact: true }).fill("100");
-  await page.getByRole("button", { name: "Sell SEA", exact: true }).click();
+  await page.getByRole("button", { name: "Confirm sell", exact: true }).click();
   await page
     .getByRole("button", { name: "Confirm trade", exact: true })
     .click();
@@ -77,14 +77,16 @@ try {
   await text(page, "99,990 USDT");
   await page.getByLabel("Pay amount · USDT", { exact: true }).fill("1000");
   await text(page, "Unused amount");
-  await page.getByRole("button", { name: "Buy SEA", exact: true }).click();
+  await page.getByRole("button", { name: "Confirm buy", exact: true }).click();
   await page
     .getByRole("button", { name: "Confirm trade", exact: true })
     .click();
   await text(page, "Curve completed. Awaiting migration.");
   assert.equal(page.url(), projectUrl);
   assert.equal(
-    await page.getByRole("button", { name: "Buy SEA", exact: true }).count(),
+    await page
+      .getByRole("button", { name: "Confirm buy", exact: true })
+      .count(),
     0,
   );
   await consolePage
@@ -160,7 +162,7 @@ try {
     await page
       .getByRole("button", { name: "Confirm action", exact: true })
       .click();
-    await text(page, "completed. Assets and rewards updated.");
+    await page.locator(".operation-success").waitFor();
   };
   await page.getByRole("tab", { name: "Participate", exact: true }).click();
   await page

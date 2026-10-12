@@ -249,11 +249,46 @@ export const platformProject: Project = {
     resultingPools: [{ pair: "NEXUS/USDT", liquidity: 196000 }],
   },
 };
+const fixtureBrands = [
+  "Velqen",
+  "Orvyn",
+  "Kynera",
+  "Velqen",
+  "Solven",
+  "Auralis",
+  "Elyra",
+  "Nivora",
+  "Orynt",
+  "Talven",
+  "Ceryn",
+  "Rovelle",
+  "Lumaris",
+  "Evrin",
+  "Kovra",
+  "Sylune",
+  "Avenor",
+  "Teryn",
+  "Mireva",
+  "Zoralis",
+];
+export const fixtureLegacyNames: Record<string, string> = {};
 export const mockProjects: Project[] = [
   ...foundationProjects,
   ...expanded,
   platformProject,
-];
+].map((p, i) => {
+  fixtureLegacyNames[projectKey(p.chainId, p.tokenContract)] = p.name;
+  if (p.isPlatformToken) return p;
+  const name = fixtureBrands[i < 5 ? i : 5 + ((i - 5) % 15)];
+  return {
+    ...p,
+    name,
+    nameEn: name,
+    description: "A shared economy for independent communities.",
+    descriptionEn: "A shared economy for independent communities.",
+    descriptionZh: "面向独立社区的共享经济。",
+  };
+});
 export const mockActivities: Activity[] = Array.from({ length: 8 }, (_, i) => {
   const p = mockProjects[[5, 0, 1, 3, 4, 3, 3, 3][i]];
   const types = [

@@ -170,7 +170,7 @@ describe("public presentation", () => {
     ["CURVE_OPEN", "曲线交易"],
     ["MIGRATION_READY", "曲线已完成，等待迁移"],
     ["MIGRATING", "迁移处理中"],
-    ["OPERATING", "独立头寸"],
+    ["OPERATING", "仓位记录"],
   ] as const)("renders %s shell", (state, label) => {
     render(
       <ProjectShell

@@ -120,11 +120,14 @@ describe("market presentation", () => {
       expect(link.tabIndex).toBe(0);
       expect(screen.getByRole("combobox", { name: "Sort by" })).toBeDefined();
       fireEvent.change(screen.getByRole("combobox"), {
-        target: { value: "volume" },
+        target: { value: section === "live" ? "value" : "volume" },
       });
-      expect(routing.replace).toHaveBeenCalledWith(`/${section}?sort=volume`, {
-        scroll: false,
-      });
+      expect(routing.replace).toHaveBeenCalledWith(
+        `/${section}?sort=${section === "live" ? "value" : "volume"}`,
+        {
+          scroll: false,
+        },
+      );
       expect(document.querySelector("input[type=search]")).toBeNull();
     },
   );

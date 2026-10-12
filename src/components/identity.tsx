@@ -11,7 +11,11 @@ export function ProjectIdentity({ project }: { project: Project }) {
   return (
     <div className="project-identity">
       <div className="project-logo" aria-hidden>
-        <ProjectLogo logo={project.logo} />
+        <ProjectLogo
+          logo={project.logo}
+          identity={`${project.chainId}:${project.tokenContract}`}
+          platform={project.isPlatformToken}
+        />
       </div>
       <div className="identity-body">
         <Link className="project-link" href={projectRoute(project)}>

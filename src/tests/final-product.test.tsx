@@ -65,13 +65,13 @@ describe("final personal center", () => {
     active();
     simulationStore.getState().seedOperating(key, "multi");
     render(<MyNexus />);
-    tab("头寸");
-    expect(screen.getAllByText(/头寸 0000/)).toHaveLength(3);
-    fireEvent.change(screen.getByLabelText("头寸状态筛选"), {
+    tab("仓位");
+    expect(screen.getAllByText(/仓位 0000/)).toHaveLength(3);
+    fireEvent.change(screen.getByLabelText("仓位状态筛选"), {
       target: { value: "COMPLETED" },
     });
-    expect(screen.queryByText(/头寸 0000/)).toBeNull();
-    expect(screen.getByText("此项目没有符合筛选的头寸。")).toBeDefined();
+    expect(screen.queryByText(/仓位 0000/)).toBeNull();
+    expect(screen.getByText("暂无仓位")).toBeDefined();
   });
   it("summarizes stake with a link to the existing execution page", () => {
     active();
@@ -79,7 +79,7 @@ describe("final personal center", () => {
     tab("质押");
     expect(screen.getByText("完整覆盖")).toBeDefined();
     expect(
-      screen.getByRole("link", { name: /澄海经济/ }).getAttribute("href"),
+      screen.getByRole("link", { name: /Velqen/ }).getAttribute("href"),
     ).toContain("?tab=stake");
     expect(screen.queryByRole("button", { name: "确认质押" })).toBeNull();
   });
@@ -89,7 +89,7 @@ describe("final personal center", () => {
     simulationStore.getState().claimReward(key, "1");
     render(<MyNexus />);
     tab("奖励");
-    expect(screen.getByText("累计毛领取")).toBeDefined();
+    expect(screen.getByText("累计领取")).toBeDefined();
     expect(screen.getByText("历史结算")).toBeDefined();
     expect(screen.getByText("领取历史")).toBeDefined();
     expect(screen.getByText("0.85 SEA")).toBeDefined();
@@ -103,7 +103,7 @@ describe("final personal center", () => {
     fireEvent.change(screen.getByLabelText("活动类型筛选"), {
       target: { value: "PARTICIPATE" },
     });
-    expect(screen.getByText(/参与.*新头寸已建立/)).toBeDefined();
+    expect(screen.getByText(/参与.*新仓位已建立/)).toBeDefined();
     expect(screen.queryByText(/演示用户情景已加载/)).toBeNull();
   });
 });
@@ -114,7 +114,7 @@ describe("creator studio permissions and outcomes", () => {
     expect(screen.getByText("净储备")).toBeDefined();
     expect(
       screen.getByText(
-        "当前为公开分析视图。仅创建者钱包可以更新 标志 与链接。",
+        "当前为公开分析视图。仅创建者钱包可以更新 Logo 与链接。",
       ),
     ).toBeDefined();
   });
@@ -122,7 +122,7 @@ describe("creator studio permissions and outcomes", () => {
     active();
     render(<CreatorStudio projectId="NX-0001" />);
     expect(screen.getAllByRole("tab")).toHaveLength(10);
-    expect(screen.getAllByText("活跃头寸价值").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("仓位价值").length).toBeGreaterThan(0);
     expect(screen.queryByText("净储备")).toBeNull();
   });
   it("permits only creator Logo/links updates", () => {

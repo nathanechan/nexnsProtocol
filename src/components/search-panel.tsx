@@ -1,4 +1,6 @@
 "use client";
+import { ProjectLogo } from "./project-logo";
+import { marketPrice, compactMarketNumber } from "../product/market-format";
 import { projectName } from "../product/metadata";
 import { useLocale } from "../i18n/locale";
 import { useEffect, useId, useRef, useState } from "react";
@@ -41,6 +43,7 @@ export function SearchPanel({
   const { t, locale } = useLocale();
 
   const revision = useSimulation((s) => s.revision);
+  const projects = useSimulation((s) => s.projects);
   const id = useId();
   const router = useRouter();
   const refs = useRef<(HTMLAnchorElement | null)[]>([]);
@@ -134,68 +137,103 @@ export function SearchPanel({
           ) : state.results.length > 0 ? (
             <ul className="result-list">
               {t(
-                state.results.map((r, i) => (
-                  <li
-                    className="search-result"
-                    key={projectKey(r.project.chainId, r.project.tokenContract)}
-                  >
-                    <div className="result-main">
-                      <div className="project-logo" aria-hidden>
-                        {r.project.logo}
-                      </div>
-                      <div className="identity-body">
-                        <Link
-                          ref={(el) => {
-                            refs.current[i] = el;
-                          }}
-                          href={projectRoute(r.project)}
-                          className="result-link"
-                          onClick={onNavigate}
-                          onKeyDown={(e) => {
-                            if (e.key === "ArrowDown" || e.key === "ArrowUp") {
-                              e.preventDefault();
-                              const next =
-                                e.key === "ArrowDown" ? i + 1 : i - 1;
-                              if (next < 0)
-                                document.getElementById(id)?.focus();
-                              else
-                                refs.current[
-                                  next % state.results.length
-                                ]?.focus();
-                            }
-                          }}
-                        >
-                          {projectName(r.project, locale)}{" "}
-                          <small>{r.project.symbol}</small>
-                          <span className="sr-only">
-                            {t(" ")}
-                            {t("· BSC ·")}
-                            {r.project.tokenContract}
-                          </span>
-                        </Link>
-                        <div className="identity-meta">
-                          <span>
-                            {t("BSC · ")}
-                            {t(r.project.chainId)}
-                          </span>
-                          <ContractAddress address={r.project.tokenContract} />
+                state.results
+                  .map((r) => ({
+                    ...r,
+                    project:
+                      projects[
+                        projectKey(r.project.chainId, r.project.tokenContract)
+                      ] ?? r.project,
+                  }))
+                  .map((r, i) => (
+                    <li
+                      className="search-result"
+                      key={projectKey(
+                        r.project.chainId,
+                        r.project.tokenContract,
+                      )}
+                    >
+                      <div className="result-main">
+                        <div className="project-logo" aria-hidden>
+                          <ProjectLogo
+                            logo={r.project.logo}
+                            identity={projectKey(
+                              r.project.chainId,
+                              r.project.tokenContract,
+                            )}
+                            platform={r.project.isPlatformToken}
+                          />
                         </div>
+                        <div className="identity-body">
+                          <Link
+                            ref={(el) => {
+                              refs.current[i] = el;
+                            }}
+                            href={projectRoute(r.project)}
+                            className="result-link"
+                            onClick={onNavigate}
+                            onKeyDown={(e) => {
+                              if (
+                                e.key === "ArrowDown" ||
+                                e.key === "ArrowUp"
+                              ) {
+                                e.preventDefault();
+                                const next =
+                                  e.key === "ArrowDown" ? i + 1 : i - 1;
+                                if (next < 0)
+                                  document.getElementById(id)?.focus();
+                                else
+                                  refs.current[
+                                    next % state.results.length
+                                  ]?.focus();
+                              }
+                            }}
+                          >
+                            {projectName(r.project, locale)}{" "}
+                            <small>{r.project.symbol}</small>
+                            <span className="sr-only">
+                              {t(" ")}
+                              {t("· BSC ·")}
+                              {r.project.tokenContract}
+                            </span>
+                          </Link>
+                          <div className="identity-meta">
+                            <span>
+                              {t("BSC · ")}
+                              {t(r.project.chainId)}
+                            </span>
+                            <ContractAddress
+                              address={r.project.tokenContract}
+                            />
+                          </div>
+                        </div>
+                        <LifecycleBadge state={r.project.lifecycle} />
                       </div>
-                      <LifecycleBadge state={r.project.lifecycle} />
-                    </div>
-                    <div className="result-detail">
-                      <span
-                        className={r.match === "CONTRACT" ? "exact-match" : ""}
-                      >
-                        {t(matches[r.match])}
-                      </span>
-                      <span>
-                        {t("创建者")}{" "}
-                        <WalletAddress address={r.project.creatorWallet} />
-                      </span>
-                    </div>
-                  </li>
-                )),
+                      <div className="result-detail">
+                        <span>
+                          {marketPrice(
+                            r.project.lifecycle === "CURVE_OPEN"
+                              ? r.project.curve.curvePrice
+                              : (r.project.operating?.tokenPrice ?? null),
+                          )}
+                          {r.project.lifecycle === "OPERATING"
+                            ? ` · ${compactMarketNumber(r.project.operating?.totalStaked ?? null)} ${r.project.symbol}`
+                            : ""}
+                        </span>
+                        <span
+                          className={
+                            r.match === "CONTRACT" ? "exact-match" : ""
+                          }
+                        >
+                          {t(matches[r.match])}
+                        </span>
+                        <span>
+                          {t("创建者")}{" "}
+                          <WalletAddress address={r.project.creatorWallet} />
+                        </span>
+                      </div>
+                    </li>
+                  )),
               )}
             </ul>
           ) : !compact ? (

@@ -163,7 +163,7 @@ try {
     checks.push("NEXNS lifecycle " + button);
   }
   await page.goto(base + "/portfolio");
-  await page.getByRole("tab", { name: /Positions|头寸/, exact: true }).click();
+  await page.getByRole("tab", { name: /Positions|仓位/, exact: true }).click();
   await page
     .locator('.compact-results a[href$="?tab=positions"]')
     .first()
@@ -171,7 +171,7 @@ try {
   await page.waitForURL("**/economy/**?tab=positions");
   assert.equal(
     await page
-      .getByRole("tab", { name: /Positions|头寸/, exact: true })
+      .getByRole("tab", { name: /Positions|仓位/, exact: true })
       .getAttribute("aria-selected"),
     "true",
   );

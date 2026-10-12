@@ -28,6 +28,10 @@ const text = async (p, value) =>
 const operate = async (p, button) => {
   await p.getByRole("button", { name: button, exact: true }).click();
   const dialog = p.getByRole("dialog");
+  if (button === "确认参与")
+    assert(
+      (await dialog.innerText()).includes("参与资金提交后不可作为本金赎回。"),
+    );
   assert.equal(
     await dialog.locator(".financial-identity").getAttribute("data-contract"),
     contract,
@@ -38,7 +42,13 @@ const operate = async (p, button) => {
     (await dialog.locator(".key-values").last().innerText()).match(/USDT|SEA/),
   );
   await p.getByRole("button", { name: "确认操作", exact: true }).click();
-  await text(p, "成功，资产与权益已更新");
+  await p.locator(".operation-success").waitFor();
+  assert.equal(
+    await p
+      .locator(".terminal-actions .trade-status.operation-success")
+      .count(),
+    1,
+  );
 };
 const overflow = async (p, width, label) => {
   assert.equal(
@@ -65,10 +75,13 @@ try {
   await page.goto(url);
   await page.getByRole("tab", { name: "参与", exact: true }).click();
   await page.getByLabel("参与金额 · USDT", { exact: true }).fill("2400");
-  await text(page, "参与资金不支持本金赎回");
+  assert.equal(
+    await page.locator(".terminal-actions .principal-notice").count(),
+    0,
+  );
   await operate(page, "确认参与");
-  await page.getByRole("tab", { name: "头寸", exact: true }).click();
-  await text(page, "独立头寸");
+  await page.getByRole("tab", { name: "仓位", exact: true }).click();
+  await text(page, "仓位记录");
   const personal = await context.newPage();
   await personal.goto(base + "/my-nexus");
   await text(personal, "2,400 USDT");
@@ -87,7 +100,7 @@ try {
     .click();
   await page.getByRole("tab", { name: "贡献", exact: true }).click();
   await text(page, "1,000");
-  await page.getByRole("button", { name: "复制推荐链接", exact: true }).click();
+  await page.getByRole("button", { name: "复制链接", exact: true }).click();
   await text(page, "推荐链接已复制");
   await consolePage
     .getByRole("button", { name: "结算当日", exact: true })
@@ -103,10 +116,16 @@ try {
   await page.getByRole("button", { name: "确认领取", exact: true }).click();
   await page.getByRole("button", { name: "确认操作", exact: true }).click();
   await text(page, "处理失败");
+  assert.equal(
+    await page
+      .locator(".terminal-actions .trade-status.operation-success")
+      .count(),
+    0,
+  );
   await operate(page, "确认领取");
   await text(page, "本次领取 10 SEA");
   await personal.getByRole("tab", { name: "奖励", exact: true }).click();
-  await text(personal, "累计毛领取");
+  await text(personal, "累计领取");
   assert((await personal.locator("main").innerText()).includes("10 SEA"));
   await page.reload();
   await page.getByRole("tab", { name: "奖励", exact: true }).click();
@@ -118,7 +137,7 @@ try {
       "质押",
       "贡献",
       "奖励",
-      "头寸",
+      "仓位",
       "活动",
       "透明度",
     ]) {

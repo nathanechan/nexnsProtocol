@@ -1,12 +1,15 @@
 "use client";
+import { AnimatedAmount } from "./animated-amount";
 import Link from "next/link";
 import { useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useSimulation } from "../simulation/store";
+import { simulationStore, useSimulation } from "../simulation/store";
 import {
   defaultMarketSort,
   marketSorts,
   marketService,
+  marketRow,
+  marketRows,
   type MarketDataService,
   type MarketRow,
   type MarketSection,
@@ -23,6 +26,8 @@ import { shortAddress } from "../domain/identity";
 import { projectName } from "../product/metadata";
 import { useLocale } from "../i18n/locale";
 import { marketCopy } from "../i18n/market";
+import { StakeSparkline } from "./staking-chart";
+import { liveStakeHistory, marketDataAdapter } from "../simulation/live-market";
 import { ProjectLogo } from "./project-logo";
 
 type Copy = typeof marketCopy.en;
@@ -36,6 +41,10 @@ function MarketItem({
   c: Copy;
 }) {
   const { locale } = useLocale();
+  const project = useSimulation((s) => s.projects[row.key]);
+  const activities = useSimulation((s) => s.activities);
+  const live = useSimulation((s) => s.liveMarket);
+  if (project) row = marketRow(project);
   const launch = row.stage === "CURVE_OPEN";
   const cell = (kind: string, label: string, value: React.ReactNode) => (
     <span className={`market-cell ${kind}`}>
@@ -52,7 +61,11 @@ function MarketItem({
       >
         <span className="market-identity">
           <span className="market-logo" aria-hidden="true">
-            <ProjectLogo logo={row.logo} />
+            <ProjectLogo
+              logo={row.logo}
+              identity={row.key}
+              platform={row.platform}
+            />
           </span>
           <span className="market-token">
             <span className="market-token-line">
@@ -77,8 +90,9 @@ function MarketItem({
             </span>
           </span>
         </span>
-        {cell("market-price", c.price, marketPrice(row.price))}
-        {section !== "launch" &&
+        {section !== "live" &&
+          cell("market-price", c.price, marketPrice(row.price))}
+        {section === "markets" &&
           cell(
             `market-change ${row.change !== null && row.change > 0 ? "positive" : row.change !== null && row.change < 0 ? "negative" : ""}`,
             c.change,
@@ -94,9 +108,25 @@ function MarketItem({
               {launch ? c.launchStage : c.liveStage}
             </span>,
           )}
+        {section === "live" &&
+          cell(
+            "market-staked",
+            c.staked,
+            <>
+              <strong>
+                <AnimatedAmount value={row.totalStaked ?? 0} />{" "}
+                <small data-user-text>{row.symbol}</small>
+              </strong>
+              {project && (
+                <StakeSparkline
+                  points={liveStakeHistory(project, activities, live)}
+                />
+              )}
+            </>,
+          )}
         {cell(
           "market-metric",
-          launch ? c.progress : c.tvl,
+          launch ? c.progress : c.value,
           launch ? (
             <span className="market-progress">
               <span>{curvePercent(row.progress)}</span>
@@ -108,8 +138,10 @@ function MarketItem({
                 />
               </span>
             </span>
+          ) : row.value == null ? (
+            "N/A"
           ) : (
-            compactMarketNumber(row.tvl, true)
+            <AnimatedAmount value={row.value} currency />
           ),
         )}
         {section === "launch" &&
@@ -130,9 +162,19 @@ function MarketItem({
           )}
         {cell(
           "market-participants",
-          c.participants,
+          section === "live" ? c.users : c.participants,
           compactMarketNumber(row.participants),
         )}
+        {section === "live" &&
+          cell(
+            "market-price reference-price",
+            c.price,
+            row.price == null ? (
+              "N/A"
+            ) : (
+              <AnimatedAmount value={row.price} price />
+            ),
+          )}
       </Link>
     </li>
   );
@@ -149,6 +191,7 @@ export function MarketPage({
   const params = useSearchParams(),
     router = useRouter();
   const revision = useSimulation((s) => s.revision);
+  const hydrated = useSimulation((s) => s.hydrated);
   const requested = params.get("sort");
   const sort =
     requested && marketSorts[section].includes(requested as MarketSort)
@@ -156,9 +199,19 @@ export function MarketPage({
       : defaultMarketSort(section);
   const load = useCallback(() => {
     void revision;
+    void hydrated;
     return service.list(section, sort);
-  }, [service, section, sort, revision]);
-  const state = useResource(load);
+  }, [service, section, sort, revision, hydrated]);
+  const state = useResource(
+    load,
+    service === marketService
+      ? marketRows(
+          Object.values(marketDataAdapter(simulationStore.getState()).projects),
+          section,
+          sort,
+        )
+      : undefined,
+  );
   const labels: Record<MarketSort, string> = {
     volume: c.sortVolume,
     change: c.sortChange,
@@ -166,9 +219,13 @@ export function MarketPage({
     newest: c.newest,
     progress: c.sortProgress,
     participants: section === "live" ? c.sortActive : c.sortParticipants,
-    tvl: c.tvl,
+    tvl: c.value,
     liquidity: c.liquidity,
     marketCap: c.marketCap,
+    price: c.price,
+    staked: c.staked,
+    value: c.value,
+    users: c.users,
   };
   const changeSort = (value: string) => {
     const next = new URLSearchParams(params.toString());
@@ -190,12 +247,12 @@ export function MarketPage({
         ? [c.token, c.price, c.progress, c.remaining, c.volume, c.participants]
         : [
             c.token,
-            c.price,
-            c.change,
-            c.tvl,
+            c.staked,
+            c.value,
             c.volume,
             c.liquidity,
-            c.participants,
+            section === "live" ? c.users : c.participants,
+            c.price,
           ];
   return (
     <section className={`market-page market-surface ${section}`}>

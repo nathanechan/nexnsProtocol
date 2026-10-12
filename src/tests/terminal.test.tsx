@@ -45,8 +45,31 @@ const show = (index: number, locale: "zh-CN" | "en" = "en") =>
       <ProjectShell initialProject={mockProjects[index]} />
     </LocaleProvider>,
   );
-describe("bilingual metadata", () => {
-  it("uses supplied names and descriptions, otherwise exact original fallback", () => {
+describe("brand metadata", () => {
+  it("stores creator-entered name and description verbatim across locales and persistence", () => {
+    const s = createSimulationStore();
+    const name = "  澄海 Atlas  ",
+      description = "  原文 description\nSecond line  ";
+    const key = s.getState().createProject({
+      name,
+      description,
+      symbol: "SEA",
+      logo: "S",
+      links: [],
+    });
+    const p = s.getState().projects[key];
+    for (const locale of ["zh-CN", "en"] as const) {
+      expect(projectName(p, locale)).toBe(name);
+      expect(projectDescription(p, locale)).toBe(description);
+    }
+    persistSnapshot(s.getState(), localStorage);
+    const restored = createSimulationStore();
+    restored.getState().hydrate(localStorage);
+    expect(restored.getState().projects[key].name).toBe(name);
+    expect(restored.getState().projects[key].description).toBe(description);
+  });
+
+  it("preserves original brand content across UI languages", () => {
     const p = {
       ...mockProjects[0],
       name: "Original",
@@ -56,9 +79,9 @@ describe("bilingual metadata", () => {
       descriptionZh: "中文说明",
       descriptionEn: "English text",
     };
-    expect(projectName(p, "en")).toBe("GlobalBrand");
-    expect(projectName(p, "zh-CN")).toBe("中文品牌");
-    expect(projectDescription(p, "en")).toBe("English text");
+    expect(projectName(p, "en")).toBe("Original");
+    expect(projectName(p, "zh-CN")).toBe("Original");
+    expect(projectDescription(p, "en")).toBe("Original text");
     expect(projectName({ ...p, nameEn: "" }, "en")).toBe("Original");
     expect(projectDescription({ ...p, descriptionEn: undefined }, "en")).toBe(
       "Original text",
@@ -177,14 +200,14 @@ describe("token terminal", () => {
       </LocaleProvider>,
     );
     expect(
-      screen.getByRole("link", { name: "Creator Studio" }).getAttribute("href"),
+      screen.getByRole("link", { name: "Manage" }).getAttribute("href"),
     ).toBe(`/studio/${project.projectId}`);
   });
   it("Curve preserves chart, Buy/Sell, holdings and identity in one shell", () => {
     show(0);
     expect(document.querySelector(".terminal-layout")).toBeDefined();
     expect(screen.getByRole("heading", { level: 1 }).textContent).toContain(
-      "NovaX",
+      "Velqen",
     );
     expect(screen.getByRole("tab", { name: "Buy" })).toBeDefined();
     expect(screen.getByRole("tab", { name: "Sell" })).toBeDefined();

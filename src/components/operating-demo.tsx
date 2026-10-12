@@ -23,13 +23,13 @@ export function OperatingDemo({ project }: { project: Project }) {
     ["multi", "多批次用户"],
     ["contribution", "贡献活跃"],
     ["nearCapacity", "接近容量完成"],
-    ["claimable", "可领取奖励"],
+    ["claimable", "可领取"],
   ];
   return (
     <>
       <DetailCard title="运行阶段情景">
         <p className="small-note">
-          情景会替换所选项目的模拟用户、头寸和奖励记录。项目之间独立。
+          情景会替换所选项目的模拟用户、仓位和奖励记录。项目之间独立。
         </p>
         <div className="demo-buttons">
           {presets.map(([key, label]) => (

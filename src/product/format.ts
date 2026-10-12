@@ -42,3 +42,18 @@ export function poolLabel(pair: string, symbol: string): string {
     ? `${symbol}/${pair.slice(2).replace("NEXUS", "NEXNS")}`
     : pair.replace(/^NEXUS\//, "NEXNS/");
 }
+
+export function localTime(
+  value: string | number,
+  locale: "zh-CN" | "en",
+  timeZone?: string,
+) {
+  return new Intl.DateTimeFormat(locale, {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+    ...(timeZone ? { timeZone } : {}),
+  }).format(new Date(value));
+}

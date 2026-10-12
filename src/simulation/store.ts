@@ -1,4 +1,9 @@
 import {
+  reconcileLive,
+  marketDataAdapter,
+  type LiveState,
+} from "./live-market";
+import {
   makeBook,
   operatingActions,
   userSummary,
@@ -12,6 +17,7 @@ import { useStore } from "zustand";
 import {
   mockActivities,
   mockProjects,
+  fixtureLegacyNames,
   mockUser,
   platformProject,
 } from "../data/mock";
@@ -63,6 +69,7 @@ export type Scenario =
   | "processing"
   | "operating";
 export interface SimulationData {
+  liveMarket: LiveState | null;
   projects: Record<ProjectKey, Project>;
   curves: Record<ProjectKey, CurveLedger>;
   exactBalances: Record<string, string>;
@@ -97,6 +104,7 @@ export interface SimulationState extends SimulationData, OperatingActions {
   setTradeFailure: () => void;
   hydrate: (storage: Storage) => void;
   refreshVolumes: () => void;
+  advanceMarket: (timestamp?: number) => void;
 }
 const now = () => new Date().toISOString();
 function projectWithCurve(project: Project, ledger: CurveLedger): Project {
@@ -139,6 +147,7 @@ function seed(): SimulationData {
   }
   const currentUser = structuredClone(mockUser);
   return {
+    liveMarket: null,
     projects,
     curves,
     currentUser,
@@ -198,7 +207,7 @@ function requireProject(state: SimulationData, key: ProjectKey) {
   return p;
 }
 export function createSimulationStore() {
-  return createStore<SimulationState>()((set, get) => ({
+  const store = createStore<SimulationState>()((set, get) => ({
     ...seed(),
     ...operatingActions(set, get),
     updateMetadata: (key, metadata) => {
@@ -269,6 +278,12 @@ export function createSimulationStore() {
         };
       }),
     reset: () => set({ ...seed(), hydrated: true }),
+    advanceMarket: (timestamp = Date.now()) => {
+      const state = get();
+      if (!Number.isFinite(timestamp)) return;
+      if (state.liveMarket && timestamp < state.liveMarket.now + 30000) return;
+      set({ liveMarket: reconcileLive(state, timestamp) });
+    },
     createProject: (input) => {
       const errors = {
         ...validateIdentity(input),
@@ -295,7 +310,7 @@ export function createSimulationStore() {
         chainId: 56,
         tokenContract: contract,
         name:
-          input.name.trim() ||
+          (input.name.trim() ? input.name : "") ||
           input.nameEn?.trim() ||
           input.nameZh?.trim() ||
           "",
@@ -763,8 +778,16 @@ export function createSimulationStore() {
             );
             if (
               catalog &&
-              [catalog.name, catalog.nameZh].includes(project.name)
+              [
+                catalog.name,
+                catalog.nameZh,
+                fixtureLegacyNames[
+                  projectKey(project.chainId, project.tokenContract)
+                ],
+              ].includes(project.name)
             ) {
+              project.name = catalog.name;
+              project.description = catalog.description;
               project.nameZh ??= catalog.nameZh;
               project.nameEn ??= catalog.nameEn;
               project.descriptionZh ??= catalog.descriptionZh;
@@ -821,6 +844,9 @@ export function createSimulationStore() {
           )
             throw new Error("Invalid simulation revision");
           set({
+            liveMarket: validLiveState(data.liveMarket)
+              ? data.liveMarket
+              : null,
             projects: data.projects,
             curves: data.curves,
             currentUser: userSummary(
@@ -845,12 +871,58 @@ export function createSimulationStore() {
       set({ hydrated: true });
     },
   }));
+  let reconciling = false;
+  store.subscribe((state, previous) => {
+    if (
+      reconciling ||
+      !state.liveMarket ||
+      (state.projects === previous.projects &&
+        state.activities === previous.activities)
+    )
+      return;
+    reconciling = true;
+    store.setState({ liveMarket: reconcileLive(state, state.liveMarket.now) });
+    reconciling = false;
+  });
+  return store;
+}
+function validLiveState(
+  value: LiveState | null | undefined,
+): value is LiveState {
+  return (
+    !!value &&
+    Number.isFinite(value.now) &&
+    value.projects != null &&
+    Object.values(value.projects).every(
+      (p) =>
+        typeof p.operatingStart === "string" &&
+        Number.isFinite(Date.parse(p.operatingStart)) &&
+        Number.isFinite(p.epoch) &&
+        (p.basePrice === null ||
+          (Number.isFinite(p.basePrice) && p.basePrice >= 0)) &&
+        Number.isFinite(p.baseStake) &&
+        p.baseStake >= 0 &&
+        Number.isFinite(p.canonicalStake) &&
+        Number.isFinite(p.canonicalUsers) &&
+        typeof p.signature === "string" &&
+        Array.isArray(p.history) &&
+        p.history.length > 0 &&
+        p.history.length <= 20000 &&
+        p.history.every(
+          (point) =>
+            Number.isFinite(point.time) &&
+            Number.isFinite(point.amount) &&
+            point.amount >= 0,
+        ),
+    )
+  );
 }
 export function persistSnapshot(state: SimulationState, storage: Storage) {
   storage.setItem(
     STORAGE_KEY,
     JSON.stringify({
       version: 3,
+      liveMarket: state.liveMarket,
       failNextTrade: state.failNextTrade,
       failNextOperating: state.failNextOperating,
       operatingBooks: state.operatingBooks,
@@ -866,4 +938,4 @@ export function persistSnapshot(state: SimulationState, storage: Storage) {
 }
 export const simulationStore = createSimulationStore();
 export const useSimulation = <T>(selector: (state: SimulationState) => T): T =>
-  useStore(simulationStore, selector);
+  useStore(simulationStore, (state) => selector(marketDataAdapter(state)));

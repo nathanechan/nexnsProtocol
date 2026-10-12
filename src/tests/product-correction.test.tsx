@@ -136,7 +136,7 @@ describe("production locale", () => {
     expect(screen.getAllByRole("tab").map((n) => n.textContent)).toEqual([
       "总览",
       "项目",
-      "头寸",
+      "仓位",
       "质押",
       "奖励",
       "网络",
@@ -169,7 +169,7 @@ describe("financial confirmation identity", () => {
         fireEvent.change(screen.getByRole("textbox"), {
           target: { value: action === "buy" ? "10" : "1" },
         });
-        trigger = (action === "buy" ? "Buy " : "Sell ") + p.symbol;
+        trigger = action === "buy" ? "Confirm buy" : "Confirm sell";
       } else {
         p = operating();
         localized(<OperatingActionForm project={p} kind={action} />);
@@ -198,6 +198,8 @@ describe("financial confirmation identity", () => {
         d.getByText(/Input amount|Participation amount|Claim amount/),
       ).toBeDefined();
       expect(dialog.textContent).not.toMatch(/模拟|确认|实际到账|合约地址/);
+      if (action === "buy" || action === "sell")
+        expect(d.getByText("Fee")).toBeDefined();
       if (action === "claim")
         expect(
           d.getByText("You receive").closest(".receive-result"),
@@ -373,7 +375,7 @@ describe("four-section information architecture", () => {
       screen.getByRole("link", { name: "NEXNS" }).getAttribute("href"),
     ).toBe("/nexns");
     expect(screen.getByRole("link", { name: "Protocol" })).toBeDefined();
-    expect(screen.getByRole("link", { name: "Creator Studio" })).toBeDefined();
+    expect(screen.getByRole("link", { name: "Manage" })).toBeDefined();
     expect(
       screen
         .getByRole("button", { name: "Product menu" })

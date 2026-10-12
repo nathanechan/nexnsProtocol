@@ -2,7 +2,7 @@
 import { useLocale } from "../i18n/locale";
 import { projectName } from "../product/metadata";
 import type { Project } from "../domain/models";
-import { ContractAddress, LifecycleBadge, KeyValueList } from "./ui";
+import { ContractAddress, KeyValueList } from "./ui";
 export function FinancialIdentity({
   project,
   action,
@@ -26,10 +26,6 @@ export function FinancialIdentity({
           {
             label: "合约地址",
             value: <ContractAddress address={project.tokenContract} />,
-          },
-          {
-            label: "项目状态",
-            value: <LifecycleBadge state={project.lifecycle} />,
           },
           ...(action ? [{ label: "操作", value: action }] : []),
         ]}

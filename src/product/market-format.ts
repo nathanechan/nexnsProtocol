@@ -38,3 +38,10 @@ export function marketChange(v: number | null): string {
     "%"
   );
 }
+
+// Estimated aggregate values are compact currency amounts, not token balances.
+export function compactUsdtValue(value: bigint | null): string {
+  return value == null
+    ? "N/A"
+    : `${compactMarketNumber(Number(value) / 1e18, true).slice(1)} USDT`;
+}

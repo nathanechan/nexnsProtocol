@@ -9,27 +9,16 @@ import {
 } from "../domain/create";
 import { simulationStore, useSimulation } from "../simulation/store";
 import { projectRoute } from "../domain/identity";
-import {
-  Button,
-  DetailCard,
-  Input,
-  KeyValueList,
-  PageHeader,
-  WalletAddress,
-} from "./ui";
+import { Button, Input, KeyValueList, PageHeader, WalletAddress } from "./ui";
 import { ProjectLogo } from "./project-logo";
 export function CreateEconomy() {
-  const { t, locale } = useLocale();
+  const { t } = useLocale();
 
   const router = useRouter();
   const user = useSimulation((s) => s.currentUser);
   const [step, setStep] = useState(0);
   const [input, setInput] = useState<CreateInput>({
     name: "",
-    nameZh: "",
-    nameEn: "",
-    descriptionZh: "",
-    descriptionEn: "",
     symbol: "",
     description: "",
     logo: "N",
@@ -54,12 +43,7 @@ export function CreateEconomy() {
     setStatus("processing");
     try {
       await new Promise((r) => setTimeout(r, 300));
-      const key = simulationStore.getState().createProject({
-        ...input,
-        name: input.nameEn?.trim() || input.nameZh?.trim() || input.name,
-        description:
-          input.descriptionZh || input.descriptionEn || input.description,
-      });
+      const key = simulationStore.getState().createProject(input);
       setStatus("success");
       await new Promise((r) => setTimeout(r, 200));
       router.push(projectRoute(simulationStore.getState().projects[key]));
@@ -73,7 +57,7 @@ export function CreateEconomy() {
       <PageHeader
         eyebrow={t("创建项目")}
         title={t("创建项目")}
-        description={t("从一个清晰的身份开始，让你的项目进入曲线发行。")}
+        description=""
       />
       <div className="wizard-layout">
         <section className="card wizard">
@@ -106,14 +90,7 @@ export function CreateEconomy() {
               <div className="wizard-fields identity-fields">
                 {(
                   [
-                    [
-                      "nameZh",
-                      locale === "zh-CN" ? "中文名称" : "Chinese Name",
-                    ],
-                    [
-                      "nameEn",
-                      locale === "zh-CN" ? "英文名称" : "English Name",
-                    ],
+                    ["name", t("项目名称")],
                     ["symbol", t("代币符号")],
                   ] as const
                 ).map(([field, label]) => (
@@ -134,47 +111,33 @@ export function CreateEconomy() {
                     </small>
                   </label>
                 ))}
-                <p className="small-note">
-                  {locale === "zh-CN"
-                    ? "至少填写一种名称；建议同时填写英文名称。名称不会自动翻译。"
-                    : "Provide at least one name. An English name is recommended. Names are never auto-translated."}
-                </p>
-                {(
-                  [
-                    [
-                      "descriptionZh",
-                      locale === "zh-CN" ? "中文描述" : "Chinese Description",
-                    ],
-                    [
-                      "descriptionEn",
-                      locale === "zh-CN" ? "英文描述" : "English Description",
-                    ],
-                  ] as const
-                ).map(([field, label]) => (
-                  <label key={field} htmlFor={`create-${field}`}>
-                    {label}
-                    <textarea
-                      id={`create-${field}`}
-                      rows={3}
-                      value={input[field] ?? ""}
-                      onChange={(e) => change(field, e.target.value)}
-                      aria-invalid={!!errors.description}
-                      aria-describedby={`error-${field}`}
-                    />
-                    <small id={`error-${field}`} className="field-error">
-                      {t(errors.description)}
-                    </small>
-                  </label>
-                ))}
+                <label htmlFor="create-description">
+                  {t("简介")}
+                  <textarea
+                    id="create-description"
+                    aria-label={t("简介")}
+                    rows={3}
+                    value={input.description}
+                    onChange={(e) => change("description", e.target.value)}
+                    aria-invalid={!!errors.description}
+                    aria-describedby="error-description"
+                  />
+                  <small id="error-description" className="field-error">
+                    {t(errors.description)}
+                  </small>
+                </label>
                 <div className="logo-upload">
                   <div className="project-logo">
-                    <ProjectLogo logo={input.logo} />
+                    <ProjectLogo
+                      logo={input.logo}
+                      identity={input.name + input.symbol}
+                    />
                   </div>
                   <label htmlFor="create-logo">
-                    {t("项目标志")}
+                    {t("Logo")}
                     {t(" ")}
                     <span className="small-note">
-                      {t("默认字标，或上传 PNG / JPEG / WebP · 最大 2 MB")}
+                      {t("默认图标，或上传 PNG / JPEG / WebP · 最大 2 MB")}
                     </span>
                     <span className="file-upload-control">
                       <span>{t("选择图片")}</span>
@@ -221,10 +184,12 @@ export function CreateEconomy() {
                 {t(
                   input.links.map((l, i) => (
                     <label key={l.label} htmlFor={`link-${i}`}>
-                      {t(l.label)}
+                      {t(l.label === "X / Twitter" ? "X" : l.label)}
                       <Input
                         id={`link-${i}`}
-                        aria-label={t(l.label)}
+                        aria-label={t(
+                          l.label === "X / Twitter" ? "X" : l.label,
+                        )}
                         value={l.url}
                         placeholder={t("https://")}
                         onChange={(e) => {
@@ -250,29 +215,19 @@ export function CreateEconomy() {
               <div className="wizard-review">
                 <div className="inline">
                   <div className="project-logo">
-                    <ProjectLogo logo={input.logo} />
+                    <ProjectLogo
+                      logo={input.logo}
+                      identity={input.name + input.symbol}
+                    />
                   </div>
                   <div>
-                    <h3>
-                      {(locale === "zh-CN" ? input.nameZh : input.nameEn) ||
-                        input.nameEn ||
-                        input.nameZh ||
-                        input.name}
-                    </h3>
+                    <h3 data-user-text>{input.name}</h3>
                     <span>
                       {input.symbol} {t("· BSC")}
                     </span>
                   </div>
                 </div>
-                <p>
-                  {(locale === "zh-CN"
-                    ? input.descriptionZh
-                    : input.descriptionEn) ||
-                    input.descriptionZh ||
-                    input.descriptionEn ||
-                    input.description ||
-                    t("暂无描述")}
-                </p>
+                <p data-user-text>{input.description || t("暂无描述")}</p>
                 <KeyValueList
                   items={[
                     {
@@ -330,7 +285,8 @@ export function CreateEconomy() {
           </div>
         </section>
         <aside>
-          <DetailCard title={t("曲线发行摘要")}>
+          <details className="card action-rules">
+            <summary>{t("查看规则")}</summary>
             <KeyValueList
               items={[
                 { label: "初始供应", value: "1,000,000 X" },
@@ -345,7 +301,7 @@ export function CreateEconomy() {
                 "X 代表你的项目代币。发行完成后，项目将在迁移确认后进入运行阶段。",
               )}
             </p>
-          </DetailCard>
+          </details>
         </aside>
       </div>
     </div>

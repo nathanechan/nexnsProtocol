@@ -32,10 +32,10 @@ try {
   await page.goto(base + "/create");
   await page.getByRole("button", { name: "下一步" }).click();
   await text(page, "名称必填");
-  await page.getByLabel("中文名称", { exact: true }).fill("澄海经济");
+  await page.getByLabel("项目名称", { exact: true }).fill("澄海经济");
   await page.getByLabel("代币符号", { exact: true }).fill("SEA");
   await page
-    .getByLabel("中文描述", { exact: true })
+    .getByLabel("简介", { exact: true })
     .fill("连接参与者与长期价值的链上项目。");
   await page.getByRole("button", { name: "下一步" }).click();
   await page.getByLabel("官网", { exact: true }).fill("https://example.com");
@@ -47,7 +47,7 @@ try {
   const contract = projectUrl.split("/").at(-1);
   results.push({ creation: projectUrl });
   await page.getByLabel("支付金额 · USDT", { exact: true }).fill("1000");
-  await page.getByRole("button", { name: "买入 SEA", exact: true }).click();
+  await page.getByRole("button", { name: "确认买入", exact: true }).click();
   assert.equal(
     await page
       .getByRole("dialog")
@@ -63,7 +63,7 @@ try {
   await text(page, "交易成功");
   await page.getByRole("tab", { name: "卖出", exact: true }).click();
   await page.getByLabel("卖出数量 · SEA", { exact: true }).fill("100");
-  await page.getByRole("button", { name: "卖出 SEA", exact: true }).click();
+  await page.getByRole("button", { name: "确认卖出", exact: true }).click();
   assert.equal(
     await page
       .getByRole("dialog")
@@ -89,7 +89,7 @@ try {
   await text(page, "99,990 USDT");
   await page.getByLabel("支付金额 · USDT", { exact: true }).fill("1000");
   await text(page, "未使用金额");
-  await page.getByRole("button", { name: "买入 SEA", exact: true }).click();
+  await page.getByRole("button", { name: "确认买入", exact: true }).click();
   assert.equal(
     await page
       .getByRole("dialog")
@@ -105,7 +105,7 @@ try {
   await text(page, "曲线已完成，等待迁移");
   assert.equal(page.url(), projectUrl);
   assert.equal(
-    await page.getByRole("button", { name: "买入 SEA", exact: true }).count(),
+    await page.getByRole("button", { name: "确认买入", exact: true }).count(),
     0,
   );
   await consolePage

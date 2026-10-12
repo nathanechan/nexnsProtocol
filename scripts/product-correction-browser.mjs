@@ -51,7 +51,7 @@ const copyCheck = async (label, locale) => {
       const a = [];
       while (w.nextNode()) {
         const n = w.currentNode;
-        if (n.parentElement.closest("script,style")) continue;
+        if (n.parentElement.closest("[data-user-text],script,style")) continue;
         a.push(n.textContent.trim());
       }
       return a;
@@ -68,7 +68,7 @@ const copyCheck = async (label, locale) => {
   } else
     assert.doesNotMatch(
       ui,
-      /Contribution Value|Network Weight|Active Network|Network Reward|Curve Stage|Operating Stage|Position|Portfolio|Overview|Website|Logo/,
+      /Contribution Value|Network Weight|Active Network|Network Reward|Curve Stage|Operating Stage|Position|Portfolio|Overview|Website/,
       label + " mixed Chinese",
     );
   checks.push(label);

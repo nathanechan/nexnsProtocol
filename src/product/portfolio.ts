@@ -1,6 +1,7 @@
+import { validPrices } from "../domain/economics/operating";
 import { personalRows } from "./read-model";
 import { parseAmount, UNIT } from "../domain/economics/amount";
-import { validPrices } from "../domain/economics/operating";
+
 export function portfolioSummary(rows: ReturnType<typeof personalRows>) {
   const sum = (field: "balance" | "claimable" | "stake") => {
     let total = 0n;
@@ -12,13 +13,15 @@ export function portfolioSummary(rows: ReturnType<typeof personalRows>) {
             ? r.staked
             : BigInt(r.member?.claimable ?? "0");
       if (!quantity) continue;
-      const prices = r.book ? validPrices(r.book.prices) : null;
-      const price =
-        field === "stake"
-          ? prices?.stake
-          : r.p.lifecycle === "CURVE_OPEN"
-            ? parseAmount(String(r.p.curve.curvePrice))
-            : prices?.reward;
+      const valid =
+        r.p.lifecycle === "CURVE_OPEN" ||
+        (!!r.book && validPrices(r.book.prices) != null);
+      const reference = !valid
+        ? null
+        : r.p.lifecycle === "CURVE_OPEN"
+          ? r.p.curve.curvePrice
+          : r.p.operating?.tokenPrice;
+      const price = reference == null ? null : parseAmount(String(reference));
       if (price == null) return null;
       total += (quantity * price) / UNIT;
     }

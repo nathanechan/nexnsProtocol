@@ -113,7 +113,7 @@ export function TradePanel({ project }: { project: Project }) {
       label: q.side === "buy" ? "预计获得" : "实际到账",
       value: `${displayAmount(q.receive)} ${q.side === "buy" ? project.symbol : "USDT"}`,
     },
-    { label: "交易手续费 · 1%", value: `${displayAmount(q.fee)} USDT` },
+    { label: "手续费", value: `${displayAmount(q.fee)} USDT` },
     ...(q.side === "buy"
       ? [
           { label: "实际支付", value: `${displayAmount(q.accepted)} USDT` },
@@ -221,7 +221,7 @@ export function TradePanel({ project }: { project: Project }) {
                   [
                     "预计获得",
                     "实际到账",
-                    "交易手续费 · 1%",
+                    "手续费",
                     "实际支付",
                     "未使用金额",
                   ].includes(v.label),
@@ -255,11 +255,7 @@ export function TradePanel({ project }: { project: Project }) {
                   setMessage("");
                 }}
               >
-                {t(
-                  side === "buy"
-                    ? `买入 ${project.symbol}`
-                    : `卖出 ${project.symbol}`,
-                )}
+                {t(side === "buy" ? "确认买入" : "确认卖出")}
               </Button>
             }
           >
@@ -287,7 +283,11 @@ export function TradePanel({ project }: { project: Project }) {
               {t(processing ? "正在处理交易…" : "")}
             </p>
           </Modal>
-          <p className="trade-status" role="status" aria-live="polite">
+          <p
+            className={`trade-status ${message.includes("成功") ? "operation-success" : ""}`}
+            role="status"
+            aria-live="polite"
+          >
             {t(message)}
           </p>
         </div>

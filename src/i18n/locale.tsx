@@ -23,7 +23,7 @@ const chinese: Record<string, string> = {
   PROTOCOL: "协议",
   "P ECOSYSTEM": "NEXNS",
   "MY NEXNS": "资产",
-  Logo: "标志",
+  Logo: "Logo",
   "Logo 图片": "标志图片",
   Website: "官网",
   Docs: "文档",
@@ -32,8 +32,8 @@ const chinese: Record<string, string> = {
   "Network Weight": "网络权重",
   "Active Network": "有效网络",
   "Network Reward": "网络奖励",
-  Position: "头寸",
-  Positions: "头寸",
+  Position: "仓位",
+  Positions: "仓位",
   Projects: "项目",
   Assets: "资产",
   Stakes: "质押",
@@ -95,7 +95,7 @@ export function translateText(
     else text = text.replace(phrasePattern, (k) => messages[k]);
   } else
     text = text
-      .replace(/Logo/g, "标志")
+      .replace(/头寸/g, "仓位")
       .replace(/贡献值 \/ Contribution Value/g, "贡献值");
   return text.replace(
     /\uE000(\d+)\uE001/g,

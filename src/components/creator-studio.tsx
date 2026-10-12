@@ -155,7 +155,11 @@ function MetadataEditor({ p }: { p: Project }) {
           </span>
         </label>
         <div className="project-logo">
-          <ProjectLogo logo={logo} />
+          <ProjectLogo
+            logo={logo}
+            identity={`${p.chainId}:${p.tokenContract}`}
+            platform={p.isPlatformToken}
+          />
         </div>
         <label>
           {t("官网链接")}
@@ -374,7 +378,7 @@ export function CreatorStudio({ projectId }: { projectId: string }) {
         }
       />
       <div className="studio-identity card">
-        <LifecycleBadge state={p.lifecycle} />
+        <LifecycleBadge showHealthy state={p.lifecycle} />
         <span>
           {p.projectId} · {p.symbol} {t("· BSC")}
         </span>
@@ -413,7 +417,7 @@ export function CreatorStudio({ projectId }: { projectId: string }) {
                   ) : (
                     <>
                       <MetricCard
-                        label={t("活跃头寸价值")}
+                        label={t("仓位价值")}
                         value={
                           op?.activePositionValue != null
                             ? `${money(op.activePositionValue)}`
@@ -431,7 +435,7 @@ export function CreatorStudio({ projectId }: { projectId: string }) {
                         }
                       />
                       <MetricCard
-                        label={t("可领取奖励")}
+                        label={t("可领取")}
                         value={`${displayAmount(members.reduce((n, m) => n + BigInt(m.claimable), 0n))} ${p.symbol}`}
                       />
                     </>
@@ -444,11 +448,18 @@ export function CreatorStudio({ projectId }: { projectId: string }) {
                     items={[
                       {
                         label: "生命周期",
-                        value: <LifecycleBadge state={p.lifecycle} />,
+                        value: (
+                          <LifecycleBadge showHealthy state={p.lifecycle} />
+                        ),
                       },
                       {
                         label: "价格状态",
-                        value: <PriceStatusBadge status={p.priceStatus} />,
+                        value: (
+                          <PriceStatusBadge
+                            showHealthy
+                            status={p.priceStatus}
+                          />
+                        ),
                       },
                       { label: "有效贡献者", value: contributors.length },
                       {
@@ -506,7 +517,7 @@ export function CreatorStudio({ projectId }: { projectId: string }) {
                     columns={[
                       "钱包",
                       "活跃本金 · USDT",
-                      "活跃头寸",
+                      "活跃仓位",
                       "质押数量",
                       "质押价值 · USDT",
                       "覆盖率",
@@ -639,13 +650,13 @@ export function CreatorStudio({ projectId }: { projectId: string }) {
                   }
                 />
                 <MetricCard
-                  label={t("累计网络奖励")}
+                  label={t("累计网络收益")}
                   value={`${displayAmount(members.reduce((n, m) => n + BigInt(m.networkEarned), 0n))} ${p.symbol}`}
                 />
               </div>
               <CompactResults
                 caption={t("贡献钱包 · 无竞争排名")}
-                columns={["钱包", "贡献值", "有效网络", "网络奖励"]}
+                columns={["钱包", "贡献值", "有效网络", "网络收益"]}
                 rows={members.map((m) => [
                   <WalletAddress key={m.wallet} address={m.wallet} />,
                   prices ? displayAmount(graph[m.wallet]?.value ?? 0n) : "N/A",
@@ -820,11 +831,13 @@ export function CreatorStudio({ projectId }: { projectId: string }) {
                     { label: "运行开始", value: date(p.migration.completedAt) },
                     {
                       label: "当前生命周期",
-                      value: <LifecycleBadge state={p.lifecycle} />,
+                      value: <LifecycleBadge showHealthy state={p.lifecycle} />,
                     },
                     {
                       label: "当前价格质量",
-                      value: <PriceStatusBadge status={p.priceStatus} />,
+                      value: (
+                        <PriceStatusBadge showHealthy status={p.priceStatus} />
+                      ),
                     },
                   ]}
                 />

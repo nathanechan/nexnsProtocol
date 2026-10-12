@@ -1,4 +1,5 @@
 "use client";
+import { ProjectLogo } from "./project-logo";
 import { useLocale } from "../i18n/locale";
 import { useSimulation } from "../simulation/store";
 import { projectKey, projectRoute } from "../domain/identity";
@@ -40,6 +41,13 @@ export function PEcosystem() {
             <div className="overview-grid">
               <DetailCard title={t("NEXNS 代币")}>
                 <div className="inline">
+                  <span className="project-logo">
+                    <ProjectLogo
+                      logo={p.logo}
+                      identity={`${p.chainId}:${p.tokenContract}`}
+                      platform
+                    />
+                  </span>
                   <LifecycleBadge state={p.lifecycle} />
                   {p.priceStatus !== "VALID" && (
                     <PriceStatusBadge status={p.priceStatus} />

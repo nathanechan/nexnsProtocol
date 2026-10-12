@@ -152,7 +152,7 @@ Future integration must replace mock registry/market snapshots, exact browser ba
 
 Canonical economy routes use a 20/52/28 desktop switcher, market workspace and action panel. Mobile puts identity, personal state and actions before charts. Operating uses Participate/Stake/Claim only. Secondary-market trading is a separate disabled DEX entry until an authoritative pair URL exists. Migration remains read-only.
 
-Optional nameZh/nameEn/descriptionZh/descriptionEn select exact locale content, falling back to original content without automatic brand translation. Create requires at least one name. Catalog hydration preserves custom identities and financial ledgers. Both names remain searchable.
+Create now uses a single Project Name and Description, preserving creator-entered content exactly. Language selection applies only to system UI. Legacy locale metadata remains readable/searchable for compatibility but does not replace original brand content in displays. Catalog hydration preserves custom identities and financial ledgers.
 
 `node scripts/terminal-browser-check.mjs` covers both languages, four lifecycle states and 1440/768/390 layouts. Step 3 ends at review.
 
@@ -177,3 +177,37 @@ Rules and chart explanations use native expandable disclosure. Action previews s
 Final QA includes unit tests, lint, typecheck, formatting, production build, bilingual lifecycle flows and browser checks at 1440/768/390. `scripts/final-surface-browser-check.mjs` additionally checks healthy/exception status visibility, disabled DEX, three actions, progressive disclosure, summary hierarchy, Search keyboard entry, dialog focus trapping/Escape and mobile action order. Existing Studio and Protocol result-only analytics remain available. Browser artifacts are written to ignored `test-results/`.
 
 Remaining integration boundaries: real wallet signing and chain execution; authoritative registry, balances, prices, market history, settlement and event feeds; verified DEX pair URLs. These belong to the existing data/execution adapters. No executable DEX trade or fabricated market history is provided. Step 5 ends here for final product review; no additional feature phase starts automatically.
+
+## Step 5 final detail correction
+
+Create exposes one name, symbol, description, Logo and five public links; no separate Chinese/English fields. Names and descriptions are preserved verbatim through confirmation, creation, locale switching and reload. The store change is metadata-only; economic execution is unchanged.
+
+Terminal and secondary surfaces use fewer borders, compact strips, thin dividers and subdued layers. Important personal values, price and curve progress carry stronger numeric weight. Operation panels reserve a stable workspace and bottom CTA location; stake tier details are collapsed. Mobile action tabs stick within their operation panel, above the existing three-destination bottom navigation. Empty states are short. Hover/focus, panel/value entrances, progress transitions and outcome feedback honor reduced-motion settings.
+
+`node scripts/detail-correction-browser-check.mjs` checks single-field creation and raw metadata persistence, three mobile navigation links, stable Participate/Stake/Claim panel/CTA/scroll positions, sticky tabs, reduced motion and overflow at 1440/768/390. The existing lifecycle, financial confirmation, Portfolio/Studio/Protocol, search and language regressions remain required. This correction ends at review.
+
+### Step 6 — Product copy and information reduction
+
+Ordinary product screens use 仓位, 昨日收益, 累计收益, 覆盖率 and concise asset labels. Healthy lifecycle and price badges are hidden outside the protocol and management views. The logo menu uses Create / Manage; the application footer is removed. Participation acknowledgement appears only in the final confirmation. The terminal no longer repeats update timestamps, claimable rewards in reward details, or presentation-only daily progress. Project branding and execution engines are unchanged.
+
+`node scripts/step6-copy-browser-check.mjs` checks both locales and three viewport widths, including navigation, status visibility, overflow and the participation confirmation boundary.
+
+### Step 7 — Token branding and staking workspace
+
+Token identities share uploaded-image support and geometric fallbacks seeded by chain + contract. Catalog fixtures use fictional short brands; creator names and descriptions remain raw content. The Live list prioritizes total stake and a subtle sparkline, with DEX prices secondary.
+
+Operating terminals use Staking Trend: 24H / 7D / 30D / 90D / All, UTC crosshair readouts, pointer/touch and arrow-key navigation. Deterministic mock baseline snapshots begin after operating migration; persisted successful stake/unstake events reconstruct their quantity changes. These are presentation fixtures, not historical chain observations. Failed actions add no points. Calculations and financial engines are unchanged. Total stake uses a short presentation-only number transition and respects reduced motion.
+
+`node scripts/step7-visual-browser-check.mjs` verifies both locales at 1440/768/390, all ranges, historical selection, stake/unstake deltas, reload and screenshots in `test-results/step7-*.png`.
+
+## Step 8 — Shared live presentation data
+
+`src/simulation/live-market.ts` is the market adapter boundary. It projects persisted, identity-seeded external reference prices and anonymous ecosystem aggregates over the existing simulation store. All UI consumers use the same projection. Financial books, exact balances, coverage calculations, reward settlement and claim entitlement are untouched by clock progression.
+
+One provider clock updates every 30 seconds and catches up on visibility/return. Reference movement uses bounded sinusoidal profiles. Global staking drift applies only to the seeded background stake, not personal balances. Anonymous participating-user increments occur every 3–6 hours. Liquidity comes directly from the existing project protocol summary. Value is exclusively total stake multiplied by reference price. User actions remain the exact existing engines and reconcile the same projected total/chart immediately.
+
+History persists in `nexus-simulation-v3` alongside existing state. Closed chart samples and user events retain their recorded values; the current fifteen-minute head follows live quantity. Time away is caught up with at most 64 points per project per pass. Older chart samples are compacted for browser storage. The market list retains its chosen order during clock ticks; explicit sorting/user-state changes recompute it. Prices and Portfolio market valuations update without settling rewards.
+
+Internal `/simulation-console` includes a one-hour market advance separate from reward-day advance/settlement. Market time never grants user rewards. Future RPC/DEX/API integration replaces the market adapter and execution data source; no wallet signing, actual DEX execution, APIs or backend are added. Seeded history/background activity are frontend fixtures, not on-chain provenance.
+
+Step 8 verification adds state/formula/persistence/lifecycle/date/reduced-motion tests and `scripts/step8-live-browser-check.mjs`, plus the bilingual 1440×900 / 768 / 390 visual suite in `scripts/step8-visual-browser-check.mjs`. Screenshots and logs are stored under ignored `test-results/`.

@@ -1,4 +1,6 @@
 "use client";
+import { AnimatedAmount } from "./animated-amount";
+import { stakedValue } from "../simulation/live-market";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import type { Project, Activity } from "../domain/models";
@@ -6,7 +8,7 @@ import { projectKey } from "../domain/identity";
 import { useLocale } from "../i18n/locale";
 import { projectName } from "../product/metadata";
 import { useSimulation } from "../simulation/store";
-import { marketService, type MarketRow } from "../data/market";
+import { marketService, marketRow, type MarketRow } from "../data/market";
 import { useResource } from "../product/use-resource";
 import {
   marketPrice,
@@ -27,11 +29,11 @@ import {
   LifecycleBadge,
   PriceStatusBadge,
   KeyValueList,
-  DataFreshness,
   Button,
 } from "./ui";
 import { ProductTabs } from "./product-tabs";
 import { ProjectLogo } from "./project-logo";
+import { StakingChart } from "./staking-chart";
 import { CurveChart } from "./curve-chart";
 import { TradePanel, CurveHoldings } from "./trade-panel";
 import {
@@ -54,42 +56,48 @@ function TokenSwitcher({ current }: { current: Project }) {
     setStage(current.lifecycle === "OPERATING" ? "live" : "launch");
   }, [current.lifecycle]);
   const revision = useSimulation((s) => s.revision);
+  const projects = useSimulation((s) => s.projects);
   const load = useCallback(() => {
     void revision;
     return marketService.list(
       stage === "launch" ? "launch" : "live",
-      stage === "launch" ? "progress" : "tvl",
+      stage === "launch" ? "progress" : "staked",
     );
   }, [stage, revision]);
   const state = useResource(load);
-  const row = (r: MarketRow) => (
-    <Link
-      key={r.key}
-      href={r.href}
-      className="switcher-row"
-      aria-current={
-        r.key === projectKey(current.chainId, current.tokenContract)
-          ? "page"
-          : undefined
-      }
-    >
-      <span className="switcher-logo" aria-hidden>
-        <ProjectLogo logo={r.logo} />
-      </span>
-      <span>
-        <strong>{r.symbol}</strong>
-        {!r.platform && <small>{projectName(r, locale)}</small>}
-      </span>
-      <span>
-        <b>{marketPrice(r.price)}</b>
-        <small>
-          {r.stage === "CURVE_OPEN"
-            ? curvePercent(r.progress)
-            : marketChange(r.change)}
-        </small>
-      </span>
-    </Link>
-  );
+  const row = (original: MarketRow) => {
+    const r = projects[original.key]
+      ? marketRow(projects[original.key])
+      : original;
+    return (
+      <Link
+        key={r.key}
+        href={r.href}
+        className="switcher-row"
+        aria-current={
+          r.key === projectKey(current.chainId, current.tokenContract)
+            ? "page"
+            : undefined
+        }
+      >
+        <span className="switcher-logo" aria-hidden>
+          <ProjectLogo logo={r.logo} identity={r.key} platform={r.platform} />
+        </span>
+        <span>
+          <strong>{r.symbol}</strong>
+          {!r.platform && <small>{projectName(r, locale)}</small>}
+        </span>
+        <span>
+          <b>{marketPrice(r.price)}</b>
+          <small>
+            {r.stage === "CURVE_OPEN"
+              ? curvePercent(r.progress)
+              : marketChange(r.change)}
+          </small>
+        </span>
+      </Link>
+    );
+  };
   return (
     <aside
       className="terminal-switcher"
@@ -127,13 +135,13 @@ function UserState({ project }: { project: Project }) {
   return (
     <dl className="terminal-user-state" aria-label={t("我的项目状态")}>
       {[
-        ["我的头寸", `${displayAmount(s.principal)} USDT`],
+        ["我的仓位", `${displayAmount(s.principal)} USDT`],
         [
-          "我的质押",
+          "已质押",
           `${displayAmount(BigInt(s.member.staked))} ${project.symbol}`,
         ],
         [
-          "当前覆盖率",
+          "覆盖率",
           percent(s.coverage === null ? null : Number(s.coverage) / 1e18),
         ],
         [
@@ -215,7 +223,7 @@ export function TokenTerminal({
       ? [
           {
             value: "positions",
-            label: locale === "zh-CN" ? "头寸" : "Positions",
+            label: locale === "zh-CN" ? "仓位" : "Positions",
           },
           { value: "contribution", label: t("贡献") },
           { value: "rewards", label: t("奖励") },
@@ -239,19 +247,26 @@ export function TokenTerminal({
         ["参与人数", number(project.curve.participants)],
       ]
     : [
+        ["价格", marketPrice(project.operating?.tokenPrice ?? null)],
         [
-          "资金规模 · TVL",
-          compactMarketNumber(project.operating?.tvl ?? null, true),
+          "总质押",
+          `${compactMarketNumber(project.operating?.totalStaked ?? null)} ${project.symbol}`,
         ],
         [
-          "24H 成交量",
-          compactMarketNumber(project.operating?.volume24h ?? null, true),
+          "质押价值",
+          compactMarketNumber(
+            stakedValue(
+              project.operating?.totalStaked ?? 0,
+              project.operating?.tokenPrice ?? null,
+            ),
+            true,
+          ),
         ],
         [
           "流动性",
           compactMarketNumber(project.operating?.liquidity ?? null, true),
         ],
-        ["活跃参与人数", number(project.operating?.activeParticipants)],
+        ["参与人数", number(project.operating?.activeParticipants)],
       ];
   void initialActivities;
   return (
@@ -260,7 +275,11 @@ export function TokenTerminal({
     >
       <header className="terminal-header">
         <span className="terminal-logo" aria-hidden>
-          <ProjectLogo logo={project.logo} />
+          <ProjectLogo
+            logo={project.logo}
+            identity={`${project.chainId}:${project.tokenContract}`}
+            platform={project.isPlatformToken}
+          />
         </span>
         <div className="terminal-identity">
           <h1>
@@ -271,7 +290,7 @@ export function TokenTerminal({
             {!curve && !op && <LifecycleBadge state={project.lifecycle} />}
             {wallet.toLowerCase() === project.creatorWallet.toLowerCase() && (
               <Link className="text-link" href={`/studio/${project.projectId}`}>
-                {locale === "zh-CN" ? "创建者工作室" : "Creator Studio"}
+                {locale === "zh-CN" ? "管理" : "Manage"}
               </Link>
             )}
             <ContractAddress address={project.tokenContract} />
@@ -286,7 +305,9 @@ export function TokenTerminal({
           </div>
         </div>
         <div className="terminal-price">
-          <strong>{marketPrice(quotePrice)}</strong>
+          <strong key={quotePrice ?? "unavailable"}>
+            {marketPrice(quotePrice)}
+          </strong>
           <span>
             {marketChange(op ? (project.operating?.change24h ?? null) : null)}
           </span>
@@ -324,10 +345,43 @@ export function TokenTerminal({
       <div className="terminal-layout">
         <TokenSwitcher current={project} />
         <dl className="terminal-market-strip">
-          {stats.map(([label, value]) => (
+          {stats.map(([label, value], index) => (
             <div key={label}>
-              <dt>{t(label)}</dt>
-              <dd>{value}</dd>
+              <dt>
+                {op
+                  ? (locale === "en"
+                      ? ["Price", "Staked", "Value", "Liquidity", "Users"]
+                      : ["价格", "总质押", "质押价值", "流动性", "参与人数"])[
+                      index
+                    ]
+                  : t(label)}
+              </dt>
+              <dd>
+                {op && index === 1 ? (
+                  <>
+                    <AnimatedAmount
+                      value={project.operating?.totalStaked ?? 0}
+                    />{" "}
+                    <span data-user-text>{project.symbol}</span>
+                  </>
+                ) : op &&
+                  index === 2 &&
+                  project.operating?.tokenPrice != null ? (
+                  <AnimatedAmount
+                    value={stakedValue(
+                      project.operating.totalStaked,
+                      project.operating.tokenPrice,
+                    )!}
+                    currency
+                  />
+                ) : op &&
+                  index === 0 &&
+                  project.operating?.tokenPrice != null ? (
+                  <AnimatedAmount value={project.operating.tokenPrice} price />
+                ) : (
+                  value
+                )}
+              </dd>
             </div>
           ))}
         </dl>
@@ -350,7 +404,9 @@ export function TokenTerminal({
               </div>
               <CurveChart project={project} />
             </section>
-          ) : op ? null : (
+          ) : op ? (
+            <StakingChart project={project} />
+          ) : (
             <section className="terminal-migration" role="status">
               <h2>
                 {t(
@@ -427,13 +483,6 @@ export function TokenTerminal({
               )}
             </ProductTabs>
           </section>
-          <DataFreshness
-            timestamp={
-              project.updatedAt ??
-              project.operating?.updatedAt ??
-              "2026-10-11T08:00:00Z"
-            }
-          />
         </section>
         <aside
           className="terminal-actions"

@@ -473,9 +473,9 @@ describe("claim and cross-app state", () => {
   it("participation, stake, settlement, claim and My NEXUS synchronize without remount", () => {
     simulationStore.getState().seedScenario(key, "operating");
     render(<MyNexus />);
-    expect(screen.getByText("开始你的协议参与")).toBeDefined();
+    expect(screen.getByText("暂无资产")).toBeDefined();
     act(() => simulationStore.getState().participate(key, "2400"));
-    expect(screen.queryByText("开始你的协议参与")).toBeNull();
+    expect(screen.queryByText("暂无资产")).toBeNull();
     expect(screen.getAllByText("2,400 USDT").length).toBeGreaterThan(0);
     act(() => {
       simulationStore.getState().fundToken(key);

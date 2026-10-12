@@ -5,10 +5,12 @@ export function CompactResults({
   caption,
   columns,
   rows,
+  emptyLabel = "暂无活动记录",
 }: {
   caption: string;
   columns: string[];
   rows: ReactNode[][];
+  emptyLabel?: string;
 }) {
   const { t } = useLocale();
   return (
@@ -37,7 +39,7 @@ export function CompactResults({
             ))
           ) : (
             <tr className="compact-empty">
-              <td colSpan={columns.length}>{t("当前暂无结果记录。")}</td>
+              <td colSpan={columns.length}>{t(emptyLabel)}</td>
             </tr>
           )}
         </tbody>
@@ -56,7 +58,15 @@ export function SummaryStrip({
       {items.map((i) => (
         <div key={i.label} className={i.className}>
           <dt>{t(i.label)}</dt>
-          <dd>{t(i.value)}</dd>
+          <dd
+            key={
+              typeof i.value === "string" || typeof i.value === "number"
+                ? i.value
+                : undefined
+            }
+          >
+            {t(i.value)}
+          </dd>
         </div>
       ))}
     </dl>
