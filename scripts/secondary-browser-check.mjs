@@ -100,8 +100,8 @@ try {
                 })),
               );
             assert(
-              order.find((e) => e.name === "summary-claimable").y <=
-                order.find((e) => e.name === "summary-position").y,
+              order.find((e) => e.name === "summary-tokens").y <
+                order.find((e) => e.name === "summary-claimable").y,
             );
           }
         }

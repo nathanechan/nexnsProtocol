@@ -155,9 +155,11 @@ export function PositionLots({ project }: { project: Project }) {
 export function OperatingActionForm({
   project,
   kind,
+  onSuccess,
 }: {
   project: Project;
   kind: OperatingAction;
+  onSuccess?: (received: string) => void;
 }) {
   const { t, locale } = useLocale();
 
@@ -310,6 +312,7 @@ export function OperatingActionForm({
       );
       setInput("");
       setOpen(false);
+      onSuccess?.(received);
     } catch (e) {
       setStatus(e instanceof Error ? e.message : "处理失败，请重试");
       setOpen(false);

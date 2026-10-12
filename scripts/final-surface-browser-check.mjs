@@ -36,11 +36,11 @@ try {
       const summary = page.locator(".summary-strip");
       assert.equal(
         await summary.locator("div").first().getAttribute("class"),
-        "summary-claimable",
+        "summary-tokens",
       );
       assert(
         (await summary
-          .locator(".summary-claimable dd")
+          .locator(".summary-tokens dd")
           .evaluate((e) => parseFloat(getComputedStyle(e).fontSize))) >
           (await summary
             .locator(".summary-projects dd")

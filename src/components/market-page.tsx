@@ -26,8 +26,7 @@ import { shortAddress } from "../domain/identity";
 import { projectName } from "../product/metadata";
 import { useLocale } from "../i18n/locale";
 import { marketCopy } from "../i18n/market";
-import { StakeSparkline } from "./staking-chart";
-import { liveStakeHistory, marketDataAdapter } from "../simulation/live-market";
+import { marketDataAdapter } from "../simulation/live-market";
 import { ProjectLogo } from "./project-logo";
 
 type Copy = typeof marketCopy.en;
@@ -42,8 +41,6 @@ function MarketItem({
 }) {
   const { locale } = useLocale();
   const project = useSimulation((s) => s.projects[row.key]);
-  const activities = useSimulation((s) => s.activities);
-  const live = useSimulation((s) => s.liveMarket);
   if (project) row = marketRow(project);
   const launch = row.stage === "CURVE_OPEN";
   const cell = (kind: string, label: string, value: React.ReactNode) => (
@@ -52,6 +49,59 @@ function MarketItem({
       <span className="market-value">{value}</span>
     </span>
   );
+  if (section === "live")
+    return (
+      <li>
+        <Link
+          className={`market-row live-project-row ${row.platform ? "platform-row" : ""}`}
+          href={row.href}
+          data-stage={row.stage}
+        >
+          <span className="market-identity">
+            <span className="market-logo" aria-hidden="true">
+              <ProjectLogo
+                logo={row.logo}
+                identity={row.key}
+                platform={row.platform}
+              />
+            </span>
+            <span className="market-token">
+              <strong className="live-token-name" data-user-text>
+                {row.platform ? "NEXNS" : projectName(row, locale)}
+              </strong>
+              {!row.platform && (
+                <small className="live-token-symbol" data-user-text>
+                  {row.symbol}
+                </small>
+              )}
+            </span>
+          </span>
+          {cell(
+            "market-price reference-price",
+            c.price,
+            row.price == null ? (
+              "N/A"
+            ) : (
+              <AnimatedAmount value={row.price} price />
+            ),
+          )}
+          {cell(
+            "market-staked",
+            c.liveStaked,
+            row.value == null ? (
+              "N/A"
+            ) : (
+              <AnimatedAmount value={row.value} currency />
+            ),
+          )}
+          {cell(
+            "market-participants",
+            c.liveUsers,
+            compactMarketNumber(row.participants),
+          )}
+        </Link>
+      </li>
+    );
   return (
     <li>
       <Link
@@ -90,8 +140,7 @@ function MarketItem({
             </span>
           </span>
         </span>
-        {section !== "live" &&
-          cell("market-price", c.price, marketPrice(row.price))}
+        {cell("market-price", c.price, marketPrice(row.price))}
         {section === "markets" &&
           cell(
             `market-change ${row.change !== null && row.change > 0 ? "positive" : row.change !== null && row.change < 0 ? "negative" : ""}`,
@@ -107,22 +156,6 @@ function MarketItem({
             >
               {launch ? c.launchStage : c.liveStage}
             </span>,
-          )}
-        {section === "live" &&
-          cell(
-            "market-staked",
-            c.staked,
-            <>
-              <strong>
-                <AnimatedAmount value={row.totalStaked ?? 0} />{" "}
-                <small data-user-text>{row.symbol}</small>
-              </strong>
-              {project && (
-                <StakeSparkline
-                  points={liveStakeHistory(project, activities, live)}
-                />
-              )}
-            </>,
           )}
         {cell(
           "market-metric",
@@ -154,27 +187,11 @@ function MarketItem({
             </>,
           )}
         {cell("market-volume", c.volume, compactMarketNumber(row.volume, true))}
-        {section === "live" &&
-          cell(
-            "market-liquidity",
-            c.liquidity,
-            compactMarketNumber(row.liquidity, true),
-          )}
         {cell(
           "market-participants",
-          section === "live" ? c.users : c.participants,
+          c.participants,
           compactMarketNumber(row.participants),
         )}
-        {section === "live" &&
-          cell(
-            "market-price reference-price",
-            c.price,
-            row.price == null ? (
-              "N/A"
-            ) : (
-              <AnimatedAmount value={row.price} price />
-            ),
-          )}
       </Link>
     </li>
   );
@@ -223,9 +240,9 @@ export function MarketPage({
     liquidity: c.liquidity,
     marketCap: c.marketCap,
     price: c.price,
-    staked: c.staked,
+    staked: section === "live" ? c.liveStaked : c.staked,
     value: c.value,
-    users: c.users,
+    users: section === "live" ? c.liveUsers : c.users,
   };
   const changeSort = (value: string) => {
     const next = new URLSearchParams(params.toString());
@@ -245,15 +262,7 @@ export function MarketPage({
         ]
       : section === "launch"
         ? [c.token, c.price, c.progress, c.remaining, c.volume, c.participants]
-        : [
-            c.token,
-            c.staked,
-            c.value,
-            c.volume,
-            c.liquidity,
-            section === "live" ? c.users : c.participants,
-            c.price,
-          ];
+        : [c.liveToken, c.price, c.liveStaked, c.liveUsers];
   return (
     <section className={`market-page market-surface ${section}`}>
       <div className="market-toolbar">

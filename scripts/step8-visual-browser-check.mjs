@@ -62,10 +62,7 @@ try {
             /平台币|Platform Token/,
           );
           if (name === "live")
-            assert.equal(
-              await page.locator(".market-row").count(),
-              await page.locator(".stake-sparkline").count(),
-            );
+            assert.equal(await page.locator(".stake-sparkline").count(), 0);
         }
         if (name === "operating") {
           const chart = page.locator(".staking-chart");

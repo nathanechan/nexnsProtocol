@@ -43,6 +43,30 @@ const show = (
     </LocaleProvider>,
   );
 describe("market read models", () => {
+  it("sorts Live Staked by monetary value, independently of token quantity", () => {
+    const fixtures = mockProjects
+      .filter((p) => p.lifecycle === "OPERATING" && !p.isPlatformToken)
+      .slice(0, 2);
+    const projects = fixtures.map((p, i) => ({
+      ...p,
+      operating: {
+        ...p.operating!,
+        totalStaked: i ? 200 : 100,
+        tokenPrice: i ? 1 : 10,
+        activeParticipants: i ? 50 : 20,
+      },
+    }));
+    expect(marketRows(projects, "live", "staked").map((r) => r.value)).toEqual([
+      1000, 200,
+    ]);
+    expect(marketRows(projects, "live", "price").map((r) => r.price)).toEqual([
+      10, 1,
+    ]);
+    expect(
+      marketRows(projects, "live", "users").map((r) => r.participants),
+    ).toEqual([50, 20]);
+    expect(marketSorts.live).toEqual(["price", "staked", "users"]);
+  });
   it.each(["CURVE_OPEN", "OPERATING"] as const)(
     "pins %s platform without mutating projects",
     (lifecycle) => {
@@ -105,6 +129,39 @@ describe("market read models", () => {
   });
 });
 describe("market presentation", () => {
+  it.each(["zh-CN", "en"] as const)(
+    "shows four comparison columns without detail metrics in %s",
+    async (locale) => {
+      const { container } = show("live", undefined, locale);
+      await waitFor(() =>
+        expect(
+          container.querySelectorAll(".market-row").length,
+        ).toBeGreaterThan(0),
+      );
+      expect(
+        [...container.querySelectorAll(".market-columns > span")].map(
+          (e) => e.textContent,
+        ),
+      ).toEqual(
+        locale === "en"
+          ? ["Token", "Price", "Staked", "Users"]
+          : ["项目", "价格", "质押", "人数"],
+      );
+      for (const row of container.querySelectorAll(".market-row")) {
+        expect(row.children).toHaveLength(4);
+        expect(
+          row.querySelector(
+            ".market-metric,.market-volume,.market-liquidity,.stake-sparkline",
+          ),
+        ).toBeNull();
+        const value = row.querySelector(
+          ".market-staked .market-value",
+        )!.textContent!;
+        expect(value === "N/A" || value.startsWith("$")).toBe(true);
+        expect(row.querySelector(".market-staked small")).toBeNull();
+      }
+    },
+  );
   it.each(["markets", "launch", "live"] as const)(
     "renders %s as native linked rows with labelled sort",
     async (section) => {
@@ -120,10 +177,10 @@ describe("market presentation", () => {
       expect(link.tabIndex).toBe(0);
       expect(screen.getByRole("combobox", { name: "Sort by" })).toBeDefined();
       fireEvent.change(screen.getByRole("combobox"), {
-        target: { value: section === "live" ? "value" : "volume" },
+        target: { value: section === "live" ? "staked" : "volume" },
       });
       expect(routing.replace).toHaveBeenCalledWith(
-        `/${section}?sort=${section === "live" ? "value" : "volume"}`,
+        `/${section}?sort=${section === "live" ? "staked" : "volume"}`,
         {
           scroll: false,
         },

@@ -19,11 +19,17 @@ export function StakeSparkline({ points }: { points: StakePoint[] }) {
   const min = Math.min(...sampled.map((p) => p.amount)),
     max = Math.max(...sampled.map((p) => p.amount));
   return (
-    <svg className="stake-sparkline" viewBox="0 0 90 24" aria-hidden>
+    <svg
+      className="stake-sparkline"
+      viewBox="0 0 90 24"
+      preserveAspectRatio="none"
+      aria-hidden
+    >
       <polyline
         fill="none"
         stroke="currentColor"
         strokeWidth="1.5"
+        vectorEffect="non-scaling-stroke"
         points={sampled
           .map(
             (p, i) =>

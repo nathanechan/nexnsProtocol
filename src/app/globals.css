@@ -3783,11 +3783,11 @@ h1,
   font-size: 11px;
 }
 .portfolio-page .summary-claimable {
-  background: #eef4ff;
+  background: transparent;
 }
 .portfolio-page .summary-claimable dd {
-  font-size: 23px;
-  color: #244f9c;
+  font-size: 16px;
+  color: var(--muted);
 }
 .portfolio-page .summary-projects dd {
   font-size: 17px;
@@ -4334,7 +4334,7 @@ h1,
   border-radius: 10px;
 }
 .portfolio-page .summary-claimable dd {
-  color: #514bc2;
+  color: var(--muted);
 }
 .wizard-fields {
   gap: 14px;
@@ -4582,5 +4582,217 @@ main {
     grid-column: 1;
     grid-row: 3;
     padding-left: 48px;
+  }
+}
+
+/* Final acceptance: a deliberate compact Live row and asset overview. */
+.portfolio-page .summary-strip > div {
+  order: 0;
+  min-width: 0;
+}
+.portfolio-page .summary-strip dd {
+  font-size: 16px;
+  text-align: left;
+}
+.portfolio-page .summary-projects {
+  display: block;
+  grid-column: auto;
+}
+.portfolio-page .summary-projects dd {
+  color: var(--muted);
+  font-size: 14px;
+}
+.portfolio-page .portfolio-claimable {
+  display: grid;
+  grid-template-columns: 80px minmax(0, 1fr);
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  padding: 12px 0;
+  gap: 12px;
+}
+.portfolio-page .portfolio-reward-list {
+  display: grid;
+  margin: 0;
+  max-height: none;
+  overflow: visible;
+  gap: 10px;
+}
+.portfolio-page .portfolio-claim-row {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) minmax(110px, auto) auto;
+  align-items: center;
+  gap: 10px;
+}
+.portfolio-claim-identity,
+.portfolio-claim-amount {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+.portfolio-claim-identity {
+  color: var(--navy);
+  text-decoration: none;
+}
+.portfolio-claim-identity strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.portfolio-claim-row small,
+.portfolio-claim-empty {
+  color: var(--muted);
+}
+.portfolio-claim-amount {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.portfolio-claim-row .button {
+  min-height: 32px;
+  padding: 5px 12px;
+  font-size: 12px;
+}
+.portfolio-claim-form {
+  max-width: 540px;
+  margin-bottom: 14px;
+}
+.portfolio-claim-receipt {
+  font-size: 13px;
+  margin: 0 0 14px;
+}
+@media (max-width: 600px) {
+  .portfolio-page .summary-strip {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 14px 10px;
+    padding: 14px 12px;
+  }
+  .portfolio-page .summary-strip > div {
+    grid-column: span 2;
+  }
+  .portfolio-page .summary-strip .summary-tokens,
+  .portfolio-page .summary-strip .summary-position {
+    grid-column: span 3;
+  }
+  .portfolio-page .summary-strip dd {
+    font-size: 14px;
+  }
+  .portfolio-page .summary-claimable dd,
+  .portfolio-page .summary-projects dd {
+    font-size: 13px;
+    font-weight: 550;
+  }
+  .portfolio-page .portfolio-claimable {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+  .portfolio-page .portfolio-claim-row {
+    grid-template-columns: 28px minmax(0, 1fr) auto;
+    gap: 6px 8px;
+  }
+  .portfolio-claim-row .portfolio-token-logo {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .portfolio-claim-identity {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .portfolio-claim-row .button {
+    grid-column: 3;
+    grid-row: 1 / 3;
+  }
+  .portfolio-claim-amount {
+    grid-column: 2;
+    grid-row: 2;
+    text-align: left;
+  }
+}
+
+/* Frozen Live comparison surface: identity, price, monetary stake and users. */
+.live .market-columns,
+.live .live-project-row {
+  display: grid;
+  grid-template-columns:
+    minmax(180px, 2.5fr) minmax(90px, 1fr) minmax(110px, 1.2fr)
+    minmax(70px, 0.7fr);
+  gap: 14px;
+  align-items: center;
+}
+.live .market-columns {
+  padding: 10px 20px;
+}
+.live .live-project-row {
+  min-height: 62px;
+  padding: 10px 20px;
+}
+.live .live-project-row .market-identity {
+  grid-column: auto;
+  grid-row: auto;
+  align-self: center;
+}
+.live .live-project-row .market-cell {
+  display: block;
+  grid-column: auto;
+  grid-row: auto;
+  padding: 0;
+  text-align: right;
+  line-height: 1.35;
+}
+.live .live-project-row .market-cell-label {
+  display: none;
+}
+.live .live-project-row .market-value {
+  display: block;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.live .reference-price .market-value {
+  color: var(--navy);
+}
+.live-token-name {
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.live-token-symbol {
+  font-size: 10px;
+  color: var(--muted);
+}
+@media (max-width: 1100px) {
+  .live .market-columns,
+  .live .live-project-row {
+    grid-template-columns: minmax(95px, 1fr) 70px 84px 46px;
+    gap: 10px;
+    padding: 10px 12px;
+  }
+  .live .market-columns {
+    font-size: 10px;
+  }
+  .live .live-project-row {
+    min-height: 58px;
+  }
+  .live .market-identity {
+    gap: 8px;
+  }
+  .live .market-logo,
+  .live .market-logo img {
+    width: 26px;
+    height: 26px;
+  }
+  .live-token-name {
+    font-size: 13px;
+  }
+}
+@media (max-width: 480px) {
+  .live .market-columns,
+  .live .live-project-row {
+    grid-template-columns: minmax(95px, 1fr) 60px 76px 36px;
+    gap: 8px;
+  }
+  .live .live-project-row .market-value {
+    font-size: 12px;
   }
 }

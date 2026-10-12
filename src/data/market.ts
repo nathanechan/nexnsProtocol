@@ -9,7 +9,7 @@ export type MarketSort =
 export const marketSorts: Record<MarketSection, readonly MarketSort[]> = {
   markets: ["volume", "change", "stage", "newest"],
   launch: ["progress", "price", "volume", "participants", "newest"],
-  live: ["staked", "value", "liquidity", "users"],
+  live: ["price", "staked", "users"],
 };
 export const defaultMarketSort = (section: MarketSection): MarketSort =>
   section === "markets"
@@ -98,7 +98,9 @@ export function marketRows(
       .map(marketRow);
     const metric = (r: MarketRow) =>
       sort === "staked"
-        ? (r.totalStaked ?? null)
+        ? section === "live"
+          ? r.value
+          : (r.totalStaked ?? null)
         : sort === "value"
           ? r.value
           : sort === "users" || sort === "participants"

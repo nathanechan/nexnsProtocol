@@ -1,5 +1,7 @@
 "use client";
 import { ProjectLogo } from "./project-logo";
+import type { ProjectKey } from "../domain/models";
+import { OperatingActionForm } from "./operating-panels";
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useLocale } from "../i18n/locale";
@@ -25,6 +27,7 @@ import {
   LifecycleBadge,
   EmptyState,
   KeyValueList,
+  Button,
 } from "./ui";
 const amount = (v: bigint, s = "USDT") => `${displayAmount(v)} ${s}`;
 export function MyNexus() {
@@ -56,6 +59,8 @@ export function MyNexus() {
     [status, setStatus] = useState("all"),
     [projectFilter, setProjectFilter] = useState("all"),
     [actionFilter, setActionFilter] = useState("all");
+  const [claimProject, setClaimProject] = useState<ProjectKey | null>(null);
+  const [claimReceipt, setClaimReceipt] = useState("");
   const summary = portfolioSummary(rows),
     value = compactUsdtValue;
   const claimRows = rows.filter((r) => BigInt(r.member?.claimable ?? "0") > 0n);
@@ -112,42 +117,38 @@ export function MyNexus() {
       <SummaryStrip
         items={[
           {
+            label: locale === "en" ? "Assets" : "Token资产",
+            value: value(summary.tokens),
+            className: "summary-tokens",
+          },
+          {
+            label: locale === "en" ? "Position" : "仓位",
+            value: amount(summary.principal),
+            className: "summary-position",
+          },
+          {
+            label: locale === "en" ? "Staked" : "质押",
+            value: value(summary.staked),
+            className: "summary-stake",
+          },
+          {
             label: "可领取",
             value: value(summary.claimable),
             className: "summary-claimable",
           },
           {
-            label: "仓位",
-            value: amount(summary.principal),
-            className: "summary-position",
-          },
-          {
-            label: "质押",
-            value: value(summary.staked),
-            className: "summary-stake",
-          },
-          {
-            label: "Token 资产",
-            value: value(summary.tokens),
-            className: "summary-tokens",
-          },
-          {
-            label: "项目",
+            label: locale === "en" ? "Projects" : "项目",
             value: summary.activeProjects,
             className: "summary-projects",
           },
         ]}
       />
       <div className="portfolio-claimable">
-        <strong>{t("领取")}</strong>
+        <strong>{t("可领取")}</strong>
         <div className="portfolio-reward-list">
           {claimRows.length ? (
             claimRows.map((r) => (
-              <Link
-                className="text-link"
-                key={r.key}
-                href={projectRoute(r.p) + "?tab=claim"}
-              >
+              <div className="portfolio-claim-row" key={r.key}>
                 <span className="portfolio-token-logo">
                   <ProjectLogo
                     logo={r.p.logo}
@@ -155,17 +156,66 @@ export function MyNexus() {
                     platform={r.p.isPlatformToken}
                   />
                 </span>
-                <span data-user-text>
-                  {projectName(r.p, locale)} · {r.p.symbol}
-                </span>{" "}
-                · {t("去领取")}
-              </Link>
+                <Link
+                  className="portfolio-claim-identity"
+                  href={projectRoute(r.p)}
+                >
+                  <strong data-user-text>{projectName(r.p, locale)}</strong>
+                  <small data-user-text>{r.p.symbol}</small>
+                </Link>
+                <span className="portfolio-claim-amount">
+                  <small>{t("可领取")}</small>
+                  <strong data-user-text>
+                    {amount(BigInt(r.member!.claimable), r.p.symbol)}
+                  </strong>
+                </span>
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    setClaimReceipt("");
+                    setClaimProject(r.key);
+                  }}
+                >
+                  {t("领取")}
+                </Button>
+              </div>
             ))
           ) : (
-            <span>{t("暂无可领取")}</span>
+            <span className="portfolio-claim-empty">
+              {locale === "en"
+                ? "No claimable assets right now"
+                : "当前暂无可领取资产"}
+            </span>
           )}
         </div>
       </div>
+      {claimProject && projects[claimProject] && (
+        <div className="portfolio-claim-form">
+          <OperatingActionForm
+            key={claimProject}
+            project={projects[claimProject]}
+            kind="claim"
+            onSuccess={(received) => {
+              setClaimReceipt(
+                `${locale === "en" ? "Claim successful · Received" : "领取成功 · 实际到账"} ${received} ${projects[claimProject].symbol}`,
+              );
+              setClaimProject(null);
+            }}
+          />
+          <Button variant="ghost" onClick={() => setClaimProject(null)}>
+            {t("关闭")}
+          </Button>
+        </div>
+      )}
+      <p
+        className={
+          claimReceipt ? "portfolio-claim-receipt operation-success" : "sr-only"
+        }
+        role="status"
+        aria-live="polite"
+      >
+        {claimReceipt}
+      </p>
       <ProductTabs
         label={t("个人资产分类")}
         items={[
@@ -225,9 +275,6 @@ export function MyNexus() {
                 <span>
                   USDT · BSC: {amount(BigInt(balances["56:usdt"] ?? "0"))}
                 </span>
-                <small>
-                  {t("资产估值按可用参考价展示，不同代币数量不相加。")}
-                </small>
               </div>
             )}
             {projectRows}

@@ -29,7 +29,7 @@ try {
     epoch = initial.liveMarket.now;
   await page.clock.install({ time: new Date(epoch + 1000) });
   await page.clock.pauseAt(new Date(epoch + 2000));
-  await page.goto(base + "/live?sort=value");
+  await page.goto(base + "/live?sort=staked");
   await page.locator(".market-row").first().waitFor();
   const order = await page
     .locator(".market-row")
@@ -65,18 +65,11 @@ try {
     order,
   );
   checks.push("time-based price motion", "stable selected-sort order");
-  const staked = Number(
+  const value = Number(
     await cell
       .locator(".market-staked [data-value]")
       .getAttribute("data-value"),
   );
-  const value = Number(
-    await cell
-      .locator(".market-metric [data-value]")
-      .getAttribute("data-value"),
-  );
-  assert.equal(value, staked * after);
-  checks.push("single Value formula in Live row");
   const elapsed = await snapshot();
   assert.deepEqual(elapsed.exactBalances, initial.exactBalances);
   assert.deepEqual(elapsed.operatingBooks, initial.operatingBooks);
@@ -87,14 +80,13 @@ try {
   checks.push("no entitlement from visual time", "bounded catch-up history");
   await page.goto(base + route);
   await page.locator(".trend-heading [data-value]").waitFor();
-  assert.equal(
-    Number(
-      await page
-        .locator(".trend-heading [data-value]")
-        .getAttribute("data-value"),
-    ),
-    staked,
+  const staked = Number(
+    await page
+      .locator(".trend-heading [data-value]")
+      .getAttribute("data-value"),
   );
+  assert.equal(value, staked * after);
+  checks.push("single monetary Staked formula shared with Operating detail");
   assert.equal(
     Number(
       await page
