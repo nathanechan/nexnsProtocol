@@ -24,6 +24,8 @@ import { decimal } from "../domain/economics/amount";
 const epoch = Date.parse("2026-10-12T12:00:00Z");
 const key = projectKey(56, "0x" + "4".repeat(40));
 function setup(preset: "mid" | "claimable" = "mid") {
+  vi.useFakeTimers();
+  vi.setSystemTime(epoch);
   const store = createSimulationStore();
   store.getState().seedOperating(key, preset);
   store.getState().fundToken(key);
@@ -45,6 +47,7 @@ const memory = () => {
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
+  vi.useRealTimers();
 });
 describe("shared live market adapter", () => {
   it("computes value solely from price times total stake", () => {

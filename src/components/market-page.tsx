@@ -1,4 +1,5 @@
 "use client";
+import { DiscoveryMarketPage } from "./discovery-market-page";
 import { AnimatedAmount } from "./animated-amount";
 import Link from "next/link";
 import { useCallback } from "react";
@@ -196,7 +197,7 @@ function MarketItem({
     </li>
   );
 }
-export function MarketPage({
+function LegacyMarketPage({
   section,
   service = marketService,
 }: {
@@ -316,5 +317,16 @@ export function MarketPage({
         )}
       </div>
     </section>
+  );
+}
+
+export function MarketPage(props: {
+  section: MarketSection;
+  service?: MarketDataService;
+}) {
+  return props.section === "markets" ? (
+    <LegacyMarketPage {...props} />
+  ) : (
+    <DiscoveryMarketPage {...props} />
   );
 }

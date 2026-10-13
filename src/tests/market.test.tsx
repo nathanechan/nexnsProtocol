@@ -8,6 +8,7 @@ import {
   waitFor,
 } from "@testing-library/react";
 import {
+  discoverRows,
   marketRows,
   createMarketDataService,
   marketRow,
@@ -65,7 +66,13 @@ describe("market read models", () => {
     expect(
       marketRows(projects, "live", "users").map((r) => r.participants),
     ).toEqual([50, 20]);
-    expect(marketSorts.live).toEqual(["price", "staked", "users"]);
+    expect(marketSorts.live).toEqual([
+      "price",
+      "change",
+      "staked",
+      "users",
+      "newest",
+    ]);
   });
   it.each(["CURVE_OPEN", "OPERATING"] as const)(
     "pins %s platform without mutating projects",
@@ -130,7 +137,7 @@ describe("market read models", () => {
 });
 describe("market presentation", () => {
   it.each(["zh-CN", "en"] as const)(
-    "shows four comparison columns without detail metrics in %s",
+    "shows five comparison columns without detail metrics in %s",
     async (locale) => {
       const { container } = show("live", undefined, locale);
       await waitFor(() =>
@@ -144,11 +151,11 @@ describe("market presentation", () => {
         ),
       ).toEqual(
         locale === "en"
-          ? ["Token", "Price", "Staked", "Users"]
-          : ["项目", "价格", "质押", "人数"],
+          ? ["Token", "Price", "Change", "Staked", "Users"]
+          : ["项目", "价格", "涨跌", "质押", "人数"],
       );
       for (const row of container.querySelectorAll(".market-row")) {
-        expect(row.children).toHaveLength(4);
+        expect(row.children).toHaveLength(5);
         expect(
           row.querySelector(
             ".market-metric,.market-volume,.market-liquidity,.stake-sparkline",
@@ -175,16 +182,21 @@ describe("market presentation", () => {
       const link = document.querySelector<HTMLAnchorElement>(".market-row")!;
       expect(link.href).toContain("/economy/56/0x");
       expect(link.tabIndex).toBe(0);
-      expect(screen.getByRole("combobox", { name: "Sort by" })).toBeDefined();
-      fireEvent.change(screen.getByRole("combobox"), {
-        target: { value: section === "live" ? "staked" : "volume" },
-      });
-      expect(routing.replace).toHaveBeenCalledWith(
-        `/${section}?sort=${section === "live" ? "staked" : "volume"}`,
-        {
+      if (section === "markets") {
+        fireEvent.change(screen.getByRole("combobox"), {
+          target: { value: "volume" },
+        });
+        expect(routing.replace).toHaveBeenCalledWith("/markets?sort=volume", {
           scroll: false,
-        },
-      );
+        });
+      } else {
+        expect(screen.queryByRole("combobox")).toBeNull();
+        fireEvent.click(screen.getByRole("button", { name: "Price" }));
+        expect(routing.replace).toHaveBeenCalledWith(
+          `/${section}?sort=price&dir=desc`,
+          { scroll: false },
+        );
+      }
       expect(document.querySelector("input[type=search]")).toBeNull();
     },
   );
@@ -220,9 +232,124 @@ describe("market presentation", () => {
       ),
     );
     expect(screen.getByRole("heading", { name: "发行" })).toBeDefined();
-    expect(screen.getByRole("combobox", { name: "排序方式" })).toBeDefined();
+    expect(screen.getByRole("tab", { name: "热门" })).toBeDefined();
     expect(document.querySelector(".market-surface")?.textContent).not.toMatch(
       /Curve Progress|Platform Token|Remaining|Participants/,
     );
+  });
+});
+
+describe("discovery interactions", () => {
+  it.each(["launch", "live"] as const)(
+    "sorts all numeric headers both directions in %s",
+    (section) => {
+      const rows = marketRows(mockProjects, section, "price").filter(
+        (r) => !r.platform,
+      );
+      for (const sort of [
+        "price",
+        "change",
+        section === "launch" ? "progress" : "staked",
+        "users",
+      ]) {
+        const down = discoverRows(rows, section, "all", [], sort, "desc");
+        const up = discoverRows(rows, section, "all", [], sort, "asc");
+        const value = (r: (typeof rows)[number]) =>
+          sort === "staked"
+            ? r.value
+            : sort === "users"
+              ? r.participants
+              : sort === "price"
+                ? r.price
+                : sort === "change"
+                  ? r.change
+                  : r.progress;
+        for (const [list, factor] of [
+          [down, 1],
+          [up, -1],
+        ] as const) {
+          const numbers = list
+            .map(value)
+            .filter((v): v is number => v !== null);
+          expect(numbers).toEqual(
+            [...numbers].sort((a, b) => (b - a) * factor),
+          );
+        }
+      }
+    },
+  );
+  it("uses creation versus migration time for New and deterministic Hot", () => {
+    const rows = marketRows(mockProjects, "live", "price")
+      .filter((r) => !r.platform)
+      .slice(0, 2)
+      .map((r, i) => ({
+        ...r,
+        createdAt: i ? "2026-01-01" : "2026-02-01",
+        operatingAt: i ? "2026-04-01" : "2026-03-01",
+      }));
+    expect(discoverRows(rows, "live", "new", [], null, "desc")[0].key).toBe(
+      rows[1].key,
+    );
+    expect(discoverRows(rows, "launch", "new", [], null, "desc")[0].key).toBe(
+      rows[0].key,
+    );
+    expect(discoverRows(rows, "live", "hot", [], null, "desc")).toEqual(
+      discoverRows([...rows].reverse(), "live", "hot", [], null, "desc"),
+    );
+  });
+  it("preserves canonical watch identity across stages and composes search", () => {
+    const row = marketRows(mockProjects, "launch", "price")[0];
+    expect(
+      discoverRows(
+        [row],
+        "launch",
+        "watchlist",
+        [row.key],
+        "price",
+        "asc",
+        row.contract,
+      ),
+    ).toHaveLength(1);
+    expect(
+      discoverRows(
+        [{ ...row, stage: "OPERATING" }],
+        "live",
+        "watchlist",
+        [row.key],
+        null,
+        "desc",
+      )[0].key,
+    ).toBe(row.key);
+    expect(
+      discoverRows([row], "launch", "watchlist", [], null, "desc"),
+    ).toHaveLength(0);
+  });
+  it("saves and restores watchlist separately from financial state", async () => {
+    const view = show("launch");
+    const add = (
+      await screen.findAllByRole("button", { name: "Add to watchlist" })
+    )[0];
+    fireEvent.click(add);
+    const stored = JSON.parse(localStorage.getItem("nexns-watchlist-v1")!);
+    expect(stored).toHaveLength(1);
+    view.unmount();
+    show("launch");
+    expect(
+      await screen.findByRole("button", { name: "Remove from watchlist" }),
+    ).toBeDefined();
+  });
+  it("toggles a selected header to ascending with accessible state", async () => {
+    routing.query = "sort=price&dir=desc";
+    show("launch");
+    await screen.findByRole("button", { name: "Price" });
+    expect(
+      screen
+        .getByRole("columnheader", { name: "Price" })
+        .getAttribute("aria-sort"),
+    ).toBe("descending");
+    fireEvent.click(screen.getByRole("button", { name: "Price" }));
+    expect(routing.replace).toHaveBeenCalledWith("/launch?sort=price&dir=asc", {
+      scroll: false,
+    });
   });
 });

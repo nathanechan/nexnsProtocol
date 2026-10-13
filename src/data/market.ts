@@ -8,8 +8,8 @@ export type MarketSort =
   Sort | "change" | "stage" | "price" | "staked" | "value" | "users";
 export const marketSorts: Record<MarketSection, readonly MarketSort[]> = {
   markets: ["volume", "change", "stage", "newest"],
-  launch: ["progress", "price", "volume", "participants", "newest"],
-  live: ["price", "staked", "users"],
+  launch: ["progress", "price", "change", "users", "newest"],
+  live: ["price", "change", "staked", "users", "newest"],
 };
 export const defaultMarketSort = (section: MarketSection): MarketSort =>
   section === "markets"
@@ -26,6 +26,8 @@ export interface MarketRow {
   symbol: string;
   logo: string;
   contract: string;
+  projectId?: string;
+  creatorWallet?: string;
   platform: boolean;
   stage: "CURVE_OPEN" | "OPERATING";
   price: number | null;
@@ -39,6 +41,7 @@ export interface MarketRow {
   participants: number | null;
   liquidity: number | null;
   createdAt: string;
+  operatingAt?: string | null;
 }
 export function marketRow(project: Project): MarketRow {
   const curve = project.lifecycle === "CURVE_OPEN";
@@ -51,6 +54,8 @@ export function marketRow(project: Project): MarketRow {
     symbol: project.symbol,
     logo: project.logo,
     contract: project.tokenContract,
+    projectId: project.projectId,
+    creatorWallet: project.creatorWallet,
     platform: Boolean(project.isPlatformToken),
     stage: curve ? "CURVE_OPEN" : "OPERATING",
     price: curve
@@ -77,6 +82,7 @@ export function marketRow(project: Project): MarketRow {
       : (project.operating?.activeParticipants ?? null),
     liquidity: curve ? null : (project.operating?.liquidity ?? null),
     createdAt: project.createdAt,
+    operatingAt: project.migration.completedAt,
   };
 }
 const descending = (a: number | null, b: number | null) =>
@@ -107,21 +113,21 @@ export function marketRows(
             ? r.participants
             : sort === "price"
               ? r.price
-              : sort === "progress"
-                ? r.progress
-                : sort === "volume"
-                  ? r.volume
-                  : sort === "liquidity"
-                    ? r.liquidity
-                    : Date.parse(r.createdAt);
-    return rows
-      .sort(
-        (a, b) =>
-          Number(b.platform) - Number(a.platform) ||
-          descending(metric(a), metric(b)) ||
-          a.key.localeCompare(b.key),
-      )
-      .slice(0, 100);
+              : sort === "change"
+                ? r.change
+                : sort === "progress"
+                  ? r.progress
+                  : sort === "volume"
+                    ? r.volume
+                    : sort === "liquidity"
+                      ? r.liquidity
+                      : Date.parse(r.createdAt);
+    return rows.sort(
+      (a, b) =>
+        Number(b.platform) - Number(a.platform) ||
+        descending(metric(a), metric(b)) ||
+        a.key.localeCompare(b.key),
+    );
   }
   const metric = (p: Project) =>
     sort === "volume"
@@ -167,3 +173,61 @@ export const marketService: MarketDataService = {
       sort,
     ),
 };
+
+export type DiscoveryTab = "watchlist" | "hot" | "new" | "all";
+export function discoverRows(
+  rows: MarketRow[],
+  section: MarketSection,
+  tab: DiscoveryTab,
+  favorites: readonly string[],
+  sort: string | null,
+  direction: "asc" | "desc",
+  query = "",
+) {
+  const needle = query.trim().toLowerCase();
+  const filtered = rows.filter(
+    (r) =>
+      (tab !== "watchlist" || favorites.includes(r.key)) &&
+      (!needle ||
+        [
+          r.contract,
+          r.key,
+          r.projectId,
+          r.name,
+          r.nameZh,
+          r.nameEn,
+          r.symbol,
+          r.creatorWallet,
+        ].some((v) => v?.toLowerCase().includes(needle))),
+  );
+  const metric = (r: MarketRow): number | null => {
+    if (sort === "price") return r.price;
+    if (sort === "change") return r.change;
+    if (sort === "progress") return r.progress;
+    if (sort === "staked") return r.value;
+    if (sort === "users" || sort === "participants") return r.participants;
+    if (tab === "new")
+      return (
+        Date.parse(section === "live" ? (r.operatingAt ?? "") : r.createdAt) ||
+        null
+      );
+    // Existing participation, progress and committed stake measure interest, not speculation.
+    if (tab === "hot")
+      return (
+        Math.log1p(r.participants ?? 0) +
+        (section === "launch"
+          ? (r.progress ?? 0) * 2
+          : Math.log1p(r.value ?? 0))
+      );
+    return section === "launch" ? r.progress : r.value;
+  };
+  return filtered.sort(
+    (a, b) =>
+      Number(b.platform) - Number(a.platform) ||
+      (metric(a) == null || metric(b) == null
+        ? descending(metric(a), metric(b))
+        : descending(metric(a), metric(b)) *
+          (sort && direction === "asc" ? -1 : 1)) ||
+      a.key.localeCompare(b.key),
+  );
+}

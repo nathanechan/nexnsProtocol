@@ -45,17 +45,14 @@ try {
       assert.deepEqual(
         await page.locator(".market-columns > span").allTextContents(),
         locale === "en"
-          ? ["Token", "Price", "Staked", "Users"]
-          : ["项目", "价格", "质押", "人数"],
+          ? ["Token", "Price", "Change", "Staked", "Users"]
+          : ["项目", "价格", "涨跌", "质押", "人数"],
       );
-      checks.push(`Live ${locale} ${width} four visible headers`);
-      assert.deepEqual(
-        await page.locator(".market-toolbar option").allTextContents(),
-        locale === "en"
-          ? ["Price", "Staked", "Users"]
-          : ["价格", "质押", "人数"],
+      checks.push(`Live ${locale} ${width} five headers`);
+      check(
+        "no legacy sort dropdown",
+        (await page.locator(".market-toolbar select").count()) === 0,
       );
-      checks.push(`Live ${locale} ${width} relevant sorts`);
       const rows = page.locator(".market-row");
       for (const index of [0, 1, 2]) {
         const row = rows.nth(index);
@@ -73,7 +70,8 @@ try {
         );
         check(
           `Live ${locale} ${width} row ${index} single horizontal metrics`,
-          Math.abs(price.y - staked.y) < 2 &&
+          Math.abs(price.y + price.height / 2 - staked.y - staked.height / 2) <
+            2 &&
             Math.abs(staked.y - users.y) < 2 &&
             staked.x >= price.x + price.width - 1 &&
             users.x >= staked.x + staked.width - 1,
@@ -89,8 +87,8 @@ try {
         check(`Live ${locale} ${width} row ${index} compact`, box.height <= 66);
       }
       for (const sort of ["price", "staked", "users"]) {
-        await page.locator(".market-toolbar select").selectOption(sort);
-        await page.waitForURL(`**/live?sort=${sort}`);
+        await page.locator(`.header-${sort} button`).click();
+        await page.waitForURL((u) => u.searchParams.get("sort") === sort);
         await page.waitForTimeout(150);
         const values = await page
           .locator(".market-row:not(.platform-row)")
