@@ -33,7 +33,7 @@ const amount = (v: bigint, s = "USDT") => `${displayAmount(v)} ${s}`;
 export function MyNexus() {
   const { t, locale } = useLocale();
   const date = (value: string | null | undefined) =>
-    value ? localTime(value, locale) : "N/A";
+    value ? localTime(value, locale) : t("暂无记录");
   const projects = useSimulation((s) => s.projects),
     books = useSimulation((s) => s.operatingBooks),
     user = useSimulation((s) => s.currentUser),
@@ -112,12 +112,12 @@ export function MyNexus() {
     </div>
   );
   return (
-    <div className="secondary-page portfolio-page">
+    <div className="secondary-page portfolio-page" data-nexns-ui="v2">
       <PageHeader eyebrow={t("资产")} title={t("资产")} description="" />
       <SummaryStrip
         items={[
           {
-            label: locale === "en" ? "Assets" : "Token资产",
+            label: locale === "en" ? "Token assets" : "代币资产",
             value: value(summary.tokens),
             className: "summary-tokens",
           },
@@ -170,7 +170,6 @@ export function MyNexus() {
                   )}
                 </Link>
                 <span className="portfolio-claim-amount">
-                  <small>{t("可领取")}</small>
                   <strong data-user-text>
                     {amount(BigInt(r.member!.claimable), r.p.symbol)}
                   </strong>

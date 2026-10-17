@@ -67,7 +67,7 @@ function MetadataEditor({ p }: { p: Project }) {
   if (!owner)
     return (
       <DetailCard title={t("项目资料")}>
-        <p>{t("当前为公开分析视图。仅创建者钱包可以更新 Logo 与链接。")}</p>
+        <p>{t("仅创建者可编辑项目资料。")}</p>
         <WalletAddress address={p.creatorWallet} />
         <div className="public-links">
           {t(
@@ -318,7 +318,6 @@ export function CreatorStudio({ projectId }: { projectId: string }) {
           { label: "最近更新", value: date(p.updatedAt ?? p.createdAt) },
         ]}
       />
-      <p className="small-note">{t("公开结果仅供查看。财库按协议运行。")}</p>
     </DetailCard>
   );
   const trendPanels = (
@@ -364,13 +363,11 @@ export function CreatorStudio({ projectId }: { projectId: string }) {
     </>
   );
   return (
-    <div className="secondary-page studio-page">
+    <div className="secondary-page studio-page" data-nexns-ui="v2">
       <PageHeader
         eyebrow={t("CREATOR STUDIO")}
-        title={t(`${projectName(p, locale)} · 工作室`)}
-        description={t(
-          "项目运营与公开分析。创建者可更新标识和链接，协议参数保持固定。",
-        )}
+        title={t("工作室")}
+        description=""
         action={
           <Link className="button secondary" href={projectRoute(p)}>
             {t("查看项目 ↗")}
@@ -378,9 +375,20 @@ export function CreatorStudio({ projectId }: { projectId: string }) {
         }
       />
       <div className="studio-identity card">
+        <span className="studio-project-logo">
+          <ProjectLogo
+            logo={p.logo}
+            identity={key ?? p.projectId}
+            platform={p.isPlatformToken}
+          />
+        </span>
+        <span className="studio-project-name" data-user-text>
+          <strong>{p.symbol}</strong>
+          {p.name !== p.symbol && <small>{projectName(p, locale)}</small>}
+        </span>
         <LifecycleBadge showHealthy state={p.lifecycle} />
         <span>
-          {p.projectId} · {p.symbol} {t("· BSC")}
+          {p.projectId} {t("· BSC")}
         </span>
         <ContractAddress address={p.tokenContract} />
       </div>

@@ -158,8 +158,8 @@ try {
       assert.deepEqual(
         await page.locator(".summary-strip dt").allTextContents(),
         locale === "en"
-          ? ["Assets", "Position", "Staked", "Claimable", "Projects"]
-          : ["Token资产", "仓位", "质押", "可领取", "项目"],
+          ? ["Token assets", "Position", "Staked", "Claimable", "Projects"]
+          : ["代币资产", "仓位", "质押", "可领取", "项目"],
       );
       checks.push(`Portfolio ${locale} ${width} order`);
       const claim = await page.locator(".summary-claimable").evaluate((e) => ({

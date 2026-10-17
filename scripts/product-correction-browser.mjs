@@ -183,7 +183,7 @@ try {
             assert(tabs.height < 60, "single row operating tabs");
             await page.locator(".terminal-actions [role=tab]").first().click();
             const market = await page.locator(".terminal-chart").boundingBox();
-            assert(market.y < actions.y, "chart before actions with shortcut");
+            assert(actions.y < market.y, "Operating actions before chart");
           }
           checks.push(`${locale} mobile priority ${route.slice(-2)}`);
         }

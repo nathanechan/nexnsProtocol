@@ -37,10 +37,8 @@ describe("final acceptance portfolio claim UX", () => {
       [...container.querySelectorAll(".summary-strip dt")].map(
         (n) => n.textContent,
       ),
-    ).toEqual(["Token资产", "仓位", "质押", "可领取", "项目"]);
-    expect(
-      container.querySelector(".portfolio-claimable > strong")?.textContent,
-    ).toBe("可领取");
+    ).toEqual(["代币资产", "仓位", "质押", "可领取", "项目"]);
+    expect(container.querySelector(".portfolio-claimable > strong")).toBeNull();
     expect(screen.getByText("当前暂无可领取资产")).toBeTruthy();
     expect(screen.queryByRole("button", { name: "领取" })).toBeNull();
   });

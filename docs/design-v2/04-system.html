@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>NEXNS · 设计系统 V2</title>
+    <link rel="stylesheet" href="/foundations.css" />
+    <link rel="stylesheet" href="/system.css" />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--nexns-canvas);
+        color: var(--nexns-ink);
+        font-size: 14px;
+        line-height: 1.6;
+      }
+      header,
+      main {
+        max-width: 1152px;
+        margin: auto;
+        padding: 32px 24px;
+      }
+      header {
+        border-bottom: 1px solid var(--nexns-line);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+      }
+      header a {
+        color: var(--nexns-accent);
+        font-size: 12px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 22px;
+        font-weight: 750;
+        letter-spacing: 1px;
+      }
+      .brand img {
+        width: 150px;
+        height: 44px;
+        object-fit: cover;
+      }
+      h1 {
+        font-size: 32px;
+        letter-spacing: -1px;
+        margin: 0 0 12px;
+      }
+      h2 {
+        font-size: 20px;
+        margin: 0 0 8px;
+      }
+      p {
+        color: var(--nexns-secondary);
+        margin: 0 0 20px;
+      }
+      .intro {
+        padding: 16px 0 28px;
+        max-width: 720px;
+      }
+      .eyebrow {
+        font-size: 11px;
+        letter-spacing: 2px;
+        color: var(--nexns-accent);
+        font-weight: 650;
+        margin-bottom: 12px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+      .wide {
+        grid-column: 1/-1;
+      }
+      .nx-surface h2 {
+        margin-bottom: 20px;
+      }
+      .colors {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 12px;
+      }
+      .swatch {
+        height: 56px;
+        border-radius: 8px;
+        border: 1px solid var(--nexns-line);
+        margin-bottom: 10px;
+      }
+      .color strong,
+      .color code {
+        display: block;
+        font-size: 12px;
+      }
+      .color code {
+        color: var(--nexns-secondary);
+      }
+      .row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+      }
+      .field {
+        display: grid;
+        gap: 8px;
+        margin: 18px 0;
+      }
+      .field > span {
+        font-size: 12px;
+        color: var(--nexns-secondary);
+      }
+      .field-error {
+        margin: 0;
+      }
+      .amount {
+        font-size: 30px;
+        min-height: 76px;
+        font-variant-numeric: tabular-nums;
+      }
+      .type-row {
+        border-bottom: 1px solid var(--nexns-line);
+        padding: 14px 0;
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 20px;
+      }
+      .type-row:last-child {
+        border: 0;
+      }
+      .type-row code {
+        font-size: 11px;
+        color: var(--nexns-secondary);
+      }
+      .title-sample {
+        font-size: 28px;
+        font-weight: 700;
+        letter-spacing: -0.6px;
+      }
+      .spacing {
+        display: flex;
+        align-items: end;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+      .spacing > div {
+        display: grid;
+        justify-items: center;
+        gap: 12px;
+        font-size: 11px;
+        color: var(--nexns-secondary);
+      }
+      .spacing i {
+        background: var(--nexns-accent-soft);
+        border: 1px solid #b7cef9;
+        width: 32px;
+        display: block;
+      }
+      .nx-notice {
+        margin: 12px 0;
+      }
+      .spec {
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid var(--nexns-line);
+        font-size: 12px;
+        color: var(--nexns-secondary);
+      }
+      .spec code {
+        color: var(--nexns-ink);
+      }
+      footer {
+        padding: 24px;
+        text-align: center;
+        color: var(--nexns-secondary);
+        font-size: 12px;
+      }
+      dialog {
+        border: 1px solid var(--nexns-line);
+        padding: 24px;
+        border-radius: 12px;
+        max-width: 440px;
+        width: calc(100% - 32px);
+        color: var(--nexns-ink);
+      }
+      dialog::backdrop {
+        background: #101b3266;
+      }
+      dialog h2 {
+        margin-bottom: 16px;
+      }
+      dialog .row {
+        justify-content: flex-end;
+        margin: 20px 0 0;
+      }
+      @media (max-width: 700px) {
+        header,
+        main {
+          padding: 24px 16px;
+        }
+        .grid {
+          grid-template-columns: 1fr;
+        }
+        .wide {
+          grid-column: auto;
+        }
+        .colors {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .type-row {
+          align-items: flex-start;
+          flex-direction: column;
+          gap: 4px;
+        }
+        .nx-surface {
+          padding: 20px !important;
+        }
+        h1 {
+          font-size: 27px;
+        }
+        .row {
+          gap: 8px;
+        }
+        header {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+        .input {
+          font-size: 16px;
+        }
+        .amount {
+          font-size: 30px;
+        }
+      }
+    </style>
+  </head>
+  <body data-nexns-ui="v2">
+    <header>
+      <div class="brand">
+        NEXNS <span class="nx-label">DESIGN SYSTEM / V2</span>
+      </div>
+      <a
+        href="http://localhost:3000/economy/56/0x000000000000000000000000000000000003fc24"
+        >查看真实旗舰 ↗</a
+      >
+    </header>
+    <main>
+      <section class="intro">
+        <div class="eyebrow">04 / FOUNDATIONS</div>
+        <h1>同一套规则，贯穿每一次操作。</h1>
+        <p>
+          品牌色、排版与组件状态的实现参考。此页面直接加载产品中的基础与 V2
+          样式；不连接账户、不执行资金操作。
+        </p>
+      </section>
+      <div class="grid">
+        <section class="nx-surface wide">
+          <h2>品牌与语义</h2>
+          <div class="colors">
+            <div class="color">
+              <div class="swatch" style="background: var(--nexns-accent)"></div>
+              <strong>品牌蓝 / 主要操作</strong><code>#2464EB</code>
+            </div>
+            <div class="color">
+              <div class="swatch" style="background: var(--nexns-ink)"></div>
+              <strong>海军蓝 / 内容</strong><code>#101B32</code>
+            </div>
+            <div class="color">
+              <div class="swatch" style="background: var(--nexns-canvas)"></div>
+              <strong>页面画布</strong><code>#F6F8FB</code>
+            </div>
+            <div class="color">
+              <div
+                class="swatch"
+                style="background: var(--nexns-success)"
+              ></div>
+              <strong>完成 / 正向</strong><code>#23785F</code>
+            </div>
+            <div class="color">
+              <div class="swatch" style="background: var(--nexns-danger)"></div>
+              <strong>错误 / 负向</strong><code>#A43143</code>
+            </div>
+          </div>
+          <div class="spec">
+            品牌蓝只用于交互重点；错误、风险、涨跌分别表达含义。普通项目的自定义品牌不做统一染色。
+          </div>
+        </section>
+        <section class="nx-surface">
+          <h2>按钮与反馈</h2>
+          <div class="row">
+            <button class="button primary" id="load">体验处理中</button
+            ><button class="button secondary" id="open">打开确认示例</button
+            ><button class="button ghost" id="reset">重置</button>
+          </div>
+          <div class="row">
+            <button class="button primary" disabled>暂不可操作</button
+            ><button class="button secondary" disabled>无可用余额</button>
+          </div>
+          <p id="feedback" role="status" aria-live="polite">
+            可使用 Tab 检查键盘焦点。
+          </p>
+          <div class="spec">
+            复用产品 <code>Button</code> 的类名及
+            <code>loading / disabled / aria-busy</code> 约定。此处仅演示状态。
+          </div>
+        </section>
+        <section class="nx-surface">
+          <h2>输入与校验</h2>
+          <label class="field"
+            ><span>参与金额 · USDT</span
+            ><input
+              class="input amount"
+              id="amount"
+              value="1000"
+              inputmode="decimal"
+              aria-describedby="amount-error" /><small
+              class="field-error"
+              id="amount-error"
+              role="alert"
+            ></small></label
+          ><span class="nx-label"
+            >可用 10,000 USDT · 输入更大金额查看错误反馈</span
+          ><label class="field"
+            ><span>禁用输入</span
+            ><input class="input" disabled value="当前不可操作"
+          /></label>
+          <div class="spec">
+            数量、币种和可用余额不分离；未知值不伪装为零。手机普通输入不小于
+            16px。
+          </div>
+        </section>
+        <section class="nx-surface">
+          <h2>排版层级</h2>
+          <div class="type-row">
+            <span class="title-sample"
+              >FIELD <small class="nx-label">Mireva</small></span
+            ><code>标题 28px / 700</code>
+          </div>
+          <div class="type-row">
+            <span class="nx-value"
+              >95,530 <small class="nx-label">FIELD</small></span
+            ><code>主数据 30px / 600</code>
+          </div>
+          <div class="type-row">
+            <span>核对金额与项目身份</span><code>正文 14px</code>
+          </div>
+          <div class="type-row">
+            <span class="nx-label">BSC · 0x0000…fc24</span
+            ><code>辅助信息 12px</code>
+          </div>
+          <div class="spec">
+            数字使用等宽数字特性；同列数字保持对齐，长数值仍需按布局处理换行。名称可重复，合约身份必须可核对。
+          </div>
+        </section>
+        <section class="nx-surface">
+          <h2>状态与边界</h2>
+          <div class="nx-notice" data-tone="success">
+            操作完成 · 实际到账 13.6 FIELD
+          </div>
+          <div class="nx-notice" data-tone="warning">
+            参与资金提交后不可作为本金赎回。
+          </div>
+          <div class="nx-notice" data-tone="error">
+            金额超过可用余额，请调整后重试。
+          </div>
+          <div class="nx-notice">暂无历史记录 · 有记录后显示</div>
+          <div class="spec">
+            不要只依赖颜色区分状态。成功展示实际结果；错误解释问题与恢复路径；风险提示保留必要限制。
+          </div>
+        </section>
+        <section class="nx-surface wide">
+          <h2>间距与空间</h2>
+          <div class="spacing">
+            <div><i style="height: 4px"></i>4</div>
+            <div><i style="height: 8px"></i>8</div>
+            <div><i style="height: 12px"></i>12</div>
+            <div><i style="height: 16px"></i>16</div>
+            <div><i style="height: 20px"></i>20</div>
+            <div><i style="height: 24px"></i>24</div>
+            <div><i style="height: 28px"></i>28</div>
+            <div><i style="height: 32px"></i>32 px</div>
+          </div>
+          <div class="spec">
+            空间按内容关系组织。主面板 12px 圆角、输入框 10px、主要按钮
+            8px；不为所有内容重复增加卡片。
+          </div>
+        </section>
+      </div>
+    </main>
+    <footer>Step 4 · 共享基础已用于旗舰 · 其他页面将在 Step 5 推广</footer>
+    <dialog id="dialog">
+      <h2>确认示例</h2>
+      <p>FIELD · Mireva</p>
+      <div class="nx-value">1,000 <small class="nx-label">USDT</small></div>
+      <div class="nx-notice" data-tone="warning">
+        参与资金提交后不可作为本金赎回。
+      </div>
+      <p>这是组件规范示例，不执行操作。</p>
+      <form method="dialog" class="row">
+        <button class="button secondary">关闭</button
+        ><button class="button primary">返回规范</button>
+      </form>
+    </dialog>
+    <script>
+      const input = document.querySelector("#amount"),
+        error = document.querySelector("#amount-error"),
+        load = document.querySelector("#load"),
+        feedback = document.querySelector("#feedback");
+      let timer;
+      input.addEventListener("input", () => {
+        const n = Number(input.value);
+        const invalid =
+          input.value.trim() !== "" &&
+          (!Number.isFinite(n) || n <= 0 || n > 10000);
+        input.setAttribute("aria-invalid", String(invalid));
+        error.textContent = invalid
+          ? "请输入大于 0 且不超过 10,000 USDT 的金额。"
+          : "";
+      });
+      load.onclick = () => {
+        load.disabled = true;
+        load.setAttribute("aria-busy", "true");
+        load.innerHTML =
+          '<svg class="control-spinner" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7" fill="none" stroke="currentColor" stroke-width="2" opacity=".25"/><path d="M10 3a7 7 0 0 1 7 7" fill="none" stroke="currentColor" stroke-width="2"/></svg>处理中…';
+        feedback.textContent = "正在演示加载状态…";
+        timer = setTimeout(() => {
+          load.disabled = false;
+          load.removeAttribute("aria-busy");
+          load.textContent = "体验处理中";
+          feedback.textContent = "状态演示完成，未执行资金操作。";
+        }, 1200);
+      };
+      document.querySelector("#open").onclick = () =>
+        document.querySelector("#dialog").showModal();
+      document.querySelector("#reset").onclick = () => {
+        clearTimeout(timer);
+        load.disabled = false;
+        load.removeAttribute("aria-busy");
+        load.textContent = "体验处理中";
+        input.value = "1000";
+        input.dispatchEvent(new Event("input"));
+        feedback.textContent = "已重置示例。";
+      };
+    </script>
+  </body>
+</html>

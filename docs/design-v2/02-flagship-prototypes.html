@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>NEXNS · 旗舰方案 A / B</title>
+    <link rel="stylesheet" href="02-prototypes.css" />
+  </head>
+  <body>
+    <aside class="review" aria-label="设计评审工具">
+      <div>
+        <strong>NEXNS / DESIGN STUDY 02</strong
+        ><span>设计预览 · 不执行资金操作</span>
+      </div>
+      <div class="review-controls">
+        <div class="segments" aria-label="方案">
+          <button data-design="a" aria-pressed="true">A 数据工作台</button
+          ><button data-design="b" aria-pressed="false">B 操作聚焦</button>
+        </div>
+        <select id="scenario" aria-label="预览状态">
+          <option value="normal">正常运行</option>
+          <option value="claim">有可领取</option>
+          <option value="empty">暂无历史</option>
+          <option value="protected">价格异常</option>
+        </select>
+      </div>
+    </aside>
+    <div class="product" data-design="a" data-scenario="normal">
+      <header class="nav">
+        <a href="#" aria-label="NEXNS 首页" class="brand"
+          ><svg viewBox="60 60 690 180" aria-hidden="true">
+            <g
+              transform="translate(48 60) scale(1.8)"
+              fill="none"
+              stroke="#2464EB"
+              stroke-width="8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M48 10 L82 30 L82 70 L48 90 L14 70 L14 30 Z" />
+              <path d="M28 67 L28 34 L68 66 L68 33" />
+            </g>
+            <text
+              x="260"
+              y="205"
+              font-family="Arial,Helvetica,sans-serif"
+              font-weight="700"
+              font-size="128"
+              letter-spacing="7"
+              fill="#101B32"
+            >
+              NEXNS
+            </text>
+          </svg></a
+        >
+        <nav aria-label="主导航">
+          <button>发行</button><button class="nav-active">运行</button
+          ><button>资产</button>
+        </nav>
+        <div class="nav-right">
+          <button class="search" aria-label="搜索项目">
+            <svg viewBox="0 0 24 24">
+              <circle cx="10.5" cy="10.5" r="6.5" />
+              <path d="m16 16 5 5" /></svg
+            ><span>搜索项目</span><kbd>⌘ K</kbd></button
+          ><button class="language">简体中文⌄</button
+          ><button class="wallet">0x71…8E4F <i></i></button>
+        </div>
+      </header>
+      <main>
+        <div class="breadcrumbs">
+          <span>运行 <b>/</b> FIELD</span
+          ><button class="text-button switch">切换项目 <span>↗</span></button>
+        </div>
+        <section class="identity">
+          <div class="token-identity">
+            <div class="token-logo">
+              <svg viewBox="0 0 40 40">
+                <path d="m20 5 13 15-13 15L7 20Z M20 5v30 M7 20h26" />
+              </svg>
+            </div>
+            <div>
+              <div class="name-line">
+                <h1>FIELD</h1>
+                <span class="name">Mireva</span
+                ><span class="stage"><i></i>运行中</span>
+              </div>
+              <button class="contract" aria-label="复制项目合约">
+                BSC <span>0x0000…fc24</span>
+                <svg viewBox="0 0 20 20">
+                  <rect x="7" y="7" width="9" height="10" rx="2" />
+                  <path d="M4 13H3V3h10v1" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="headline-price">
+            <span class="eyebrow">参考价格</span>
+            <div>$1.2500 <span class="change">↗ 0.94%</span></div>
+            <small>过去 24 小时</small>
+          </div>
+        </section>
+        <div class="safety" role="status">
+          <span>!</span>
+          <div>
+            <strong>价格暂不可用</strong>
+            <p>估值暂不可用；依赖有效价格的操作暂时停用。</p>
+          </div>
+        </div>
+        <div class="workspace">
+          <section class="market">
+            <div class="market-top">
+              <div>
+                <span class="eyebrow">项目概览</span>
+                <h2 class="b-title">运行概览</h2>
+              </div>
+              <span class="network-tag"><i></i>BSC 网络</span>
+            </div>
+            <dl class="metrics">
+              <div>
+                <dt>总质押</dt>
+                <dd>95.53K <small>FIELD</small></dd>
+              </div>
+              <div>
+                <dt>质押价值</dt>
+                <dd>$119.41K</dd>
+              </div>
+              <div>
+                <dt>流动性</dt>
+                <dd>$417.68K</dd>
+              </div>
+              <div>
+                <dt>参与人数</dt>
+                <dd>282</dd>
+              </div>
+            </dl>
+            <div class="chart-section">
+              <div class="chart-heading">
+                <div>
+                  <span class="eyebrow">质押趋势</span>
+                  <div class="chart-value">
+                    95,530 <span>FIELD</span><small>+4.20%</small>
+                  </div>
+                </div>
+                <div class="ranges" aria-label="时间范围">
+                  <button>24H</button><button aria-pressed="true">7D</button
+                  ><button>30D</button><button>全部</button>
+                </div>
+              </div>
+              <div class="plot">
+                <div class="axis">
+                  <span>100K</span><span>95K</span><span>90K</span
+                  ><span>85K</span>
+                </div>
+                <svg
+                  viewBox="0 0 800 260"
+                  preserveAspectRatio="none"
+                  role="img"
+                  aria-label="质押数量示意趋势，非价格图"
+                >
+                  <defs>
+                    <linearGradient id="area" x1="0" y1="0" x2="0" y2="1">
+                      <stop stop-color="#2464EB" stop-opacity=".14" />
+                      <stop offset="1" stop-color="#2464EB" stop-opacity="0" />
+                    </linearGradient>
+                  </defs>
+                  <g class="grid">
+                    <path d="M0 20H800 M0 90H800 M0 160H800 M0 230H800" />
+                  </g>
+                  <path
+                    class="area"
+                    d="M0 210 65 198 130 165 200 173 265 130 335 145 400 98 465 107 535 65 600 78 670 48 735 55 800 42V260H0Z"
+                  />
+                  <path
+                    class="trend"
+                    d="M0 210 65 198 130 165 200 173 265 130 335 145 400 98 465 107 535 65 600 78 670 48 735 55 800 42"
+                  />
+                  <circle cx="800" cy="42" r="4" fill="#2464EB" />
+                </svg>
+                <div class="chart-empty">
+                  <span>⌁</span><strong>暂无质押历史</strong>
+                  <p>有记录后，趋势将在这里显示。</p>
+                </div>
+              </div>
+              <div class="dates">
+                <span>10月12日</span><span>10月14日</span><span>10月16日</span
+                ><span>10月18日</span>
+              </div>
+              <p class="chart-caption">
+                质押数量 · FIELD <span>示例数据，用于设计比较</span>
+              </p>
+            </div>
+            <button class="mobile-chart-toggle">收起趋势 <span>⌃</span></button>
+            <div class="market-foot">
+              <span><i></i>项目运行中</span
+              ><button class="text-button transparency">查看公开结果 ↗</button>
+            </div>
+          </section>
+          <section class="action" id="action" aria-label="项目操作">
+            <div class="action-head">
+              <span class="eyebrow">我的 FIELD</span
+              ><span class="account-dot">● 已连接</span>
+            </div>
+            <dl class="personal">
+              <div>
+                <dt>仓位</dt>
+                <dd>1,000 <small>USDT</small></dd>
+              </div>
+              <div>
+                <dt>已质押</dt>
+                <dd>1,200 <small>FIELD</small></dd>
+              </div>
+            </dl>
+            <div class="action-tabs" role="tablist" aria-label="选择操作">
+              <button role="tab" aria-selected="true" data-action="participate">
+                参与</button
+              ><button role="tab" aria-selected="false" data-action="stake">
+                质押</button
+              ><button role="tab" aria-selected="false" data-action="claim">
+                领取 <i class="claim-dot"></i>
+              </button>
+            </div>
+            <div class="form" role="tabpanel">
+              <div class="form-title">
+                <h2 id="action-title">参与 FIELD</h2>
+                <span id="action-subtitle">创建新仓位</span>
+              </div>
+              <label for="amount" id="amount-label">参与金额</label>
+              <div class="amount-box">
+                <input
+                  id="amount"
+                  inputmode="decimal"
+                  value="1000"
+                  aria-label="参与金额"
+                /><span class="asset"><i>$</i><b id="asset-unit">USDT</b></span>
+              </div>
+              <div class="available">
+                <span id="available">可用 10,000 USDT</span
+                ><button id="max">全部</button>
+              </div>
+              <div class="quick">
+                <button data-amount="100">100</button
+                ><button data-amount="500">500</button
+                ><button data-amount="1000">1,000</button
+                ><button data-amount="2500">2,500</button>
+              </div>
+              <dl class="quote">
+                <div>
+                  <dt id="quote-label">参与资金</dt>
+                  <dd id="quote-value">1,000 USDT</dd>
+                </div>
+                <div class="receive">
+                  <dt>预计到账</dt>
+                  <dd>13.6 FIELD</dd>
+                </div>
+              </dl>
+              <p class="warning">参与资金提交后不可作为本金赎回。</p>
+              <p class="claim-empty">当前暂无可领取收益</p>
+              <p class="form-error" role="alert"></p>
+              <button class="primary" id="confirm">
+                确认参与 <span>→</span>
+              </button>
+              <p class="form-foot">确认前可核对金额与项目身份</p>
+            </div>
+          </section>
+        </div>
+        <section class="records">
+          <div class="record-tabs" role="tablist" aria-label="项目详情">
+            <button role="tab" aria-selected="true">我的仓位</button
+            ><button role="tab" aria-selected="false">收益记录</button
+            ><button role="tab" aria-selected="false">项目资料</button
+            ><button role="tab" aria-selected="false">公开结果</button>
+          </div>
+          <div class="record-content">
+            <div class="record-title">
+              <h2>我的仓位</h2>
+              <span>1 个活跃仓位</span>
+            </div>
+            <div class="record-row">
+              <div>
+                <small>项目</small><strong>FIELD <span>Mireva</span></strong>
+              </div>
+              <div><small>参与资金</small><strong>1,000 USDT</strong></div>
+              <div><small>剩余额度</small><strong>2,500 USDT</strong></div>
+              <div>
+                <small>状态</small><span class="record-status">活跃</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+      <footer class="product-footer">
+        <span>NEXNS</span><span>示例项目 · 品牌与布局评审</span
+        ><span>BSC / 56</span>
+      </footer>
+      <nav class="mobile-nav" aria-label="手机导航">
+        <button>发行</button><button class="selected">运行</button
+        ><button>资产</button><a href="#action">操作 ↑</a>
+      </nav>
+    </div>
+    <dialog id="confirmation">
+      <form method="dialog">
+        <button class="dialog-close" aria-label="关闭">×</button
+        ><span class="eyebrow">设计预览</span>
+        <h2 id="dialog-title">确认参与</h2>
+        <p>FIELD · Mireva</p>
+        <small class="dialog-contract"
+          >BSC · 0x000000000000000000000000000000000003fc24</small
+        >
+        <div class="dialog-amount" id="dialog-amount"></div>
+        <p id="dialog-note"></p>
+        <p class="preview-note">
+          此页面只用于比较设计，不执行操作，也不改变资产。
+        </p>
+        <button class="primary">返回方案</button>
+      </form>
+    </dialog>
+    <div class="notice" role="status" hidden></div>
+    <script src="02-prototypes.js"></script>
+  </body>
+</html>

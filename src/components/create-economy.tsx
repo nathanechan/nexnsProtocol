@@ -53,7 +53,7 @@ export function CreateEconomy() {
     }
   };
   return (
-    <div className="secondary-page create-page">
+    <div className="secondary-page create-page" data-nexns-ui="v2">
       <PageHeader
         eyebrow={t("创建项目")}
         title={t("创建项目")}
@@ -227,7 +227,7 @@ export function CreateEconomy() {
                     </span>
                   </div>
                 </div>
-                <p data-user-text>{input.description || t("暂无描述")}</p>
+                {input.description && <p data-user-text>{input.description}</p>}
                 <KeyValueList
                   items={[
                     {

@@ -69,8 +69,10 @@ try {
             ) < 2,
           );
           check(
-            "mobile graph before actions",
-            (await graph.boundingBox()).y < (await actions.boundingBox()).y,
+            "mobile stage-specific priority",
+            stage === "operating"
+              ? (await actions.boundingBox()).y < (await graph.boundingBox()).y
+              : (await graph.boundingBox()).y < (await actions.boundingBox()).y,
           );
           await page.locator(".terminal-action-jump").click();
           check(

@@ -75,6 +75,7 @@ function DiscoveryRow({
               className="live-token-name"
               data-token-symbol
               data-user-text
+              title={row.symbol}
             >
               {row.symbol}
             </strong>
@@ -244,9 +245,19 @@ export function DiscoveryMarketPage({
   return (
     <section
       className={`market-page market-surface discovery-surface ${section}`}
+      data-nexns-ui="v2"
     >
       <div className="market-toolbar">
         <h1>{c[section]}</h1>
+        <span className="market-stage-label">
+          {section === "launch"
+            ? locale === "en"
+              ? "Curve Stage"
+              : "曲线阶段"
+            : locale === "en"
+              ? "Operating Stage"
+              : "运行阶段"}
+        </span>
       </div>
       <div className="discovery-tabs" role="tablist" aria-label={c.discovery}>
         {(["watchlist", "hot", "new", "all"] as const).map((value) => (

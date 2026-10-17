@@ -2,6 +2,7 @@
 import { useId, useState } from "react";
 import Image from "next/image";
 import { identitySeed } from "../product/staking-history";
+import { NexnsBrandMark } from "./brand-mark";
 export function ProjectLogo({
   logo,
   identity = logo,
@@ -30,6 +31,10 @@ export function ProjectLogo({
         alt="Logo"
         className="token-mark uploaded"
       />
+    );
+  if (platform)
+    return (
+      <NexnsBrandMark className="token-mark nexns-mark" identity={identity} />
     );
   return (
     <svg

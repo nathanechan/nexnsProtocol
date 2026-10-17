@@ -265,7 +265,10 @@ function LegacyMarketPage({
         ? [c.token, c.price, c.progress, c.remaining, c.volume, c.participants]
         : [c.liveToken, c.price, c.liveStaked, c.liveUsers];
   return (
-    <section className={`market-page market-surface ${section}`}>
+    <section
+      className={`market-page market-surface ${section}`}
+      data-nexns-ui="v2"
+    >
       <div className="market-toolbar">
         <h1>{c[section]}</h1>
         <label>

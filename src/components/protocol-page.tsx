@@ -97,11 +97,11 @@ export function ProtocolPage() {
     </div>
   );
   return (
-    <div className="secondary-page protocol-page">
+    <div className="secondary-page protocol-page" data-nexns-ui="v2">
       <PageHeader
         eyebrow={t("PROTOCOL TRANSPARENCY")}
         title={t("协议透明度")}
-        description={t("项目身份、供应、结算与流动性的公开结果。")}
+        description={t("合约、供应与结算。")}
       />
       <div className="network-context">
         <span>BSC · 56</span>
@@ -166,7 +166,7 @@ export function ProtocolPage() {
                   address={p.tokenContract}
                 />,
                 <LifecycleBadge showHealthy key="stage" state={p.lifecycle} />,
-                "N/A",
+                t("暂无地址"),
               ])}
             />
             {pagination}

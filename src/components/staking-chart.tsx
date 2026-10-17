@@ -185,8 +185,8 @@ export function StakingChart({ project }: { project: Project }) {
       >
         <defs>
           <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stopColor="#635bdf" stopOpacity=".18" />
-            <stop offset="1" stopColor="#635bdf" stopOpacity="0" />
+            <stop offset="0" stopColor="#2464EB" stopOpacity=".14" />
+            <stop offset="1" stopColor="#2464EB" stopOpacity="0" />
           </linearGradient>
         </defs>
         {[0, 0.5, 1].map((v) => (
@@ -204,7 +204,7 @@ export function StakingChart({ project }: { project: Project }) {
           </g>
         ))}
         <path d={`${path} L704,230 L24,230 Z`} fill={`url(#${id})`} />
-        <path d={path} fill="none" stroke="#635bdf" strokeWidth="2.5" />
+        <path d={path} fill="none" stroke="#2464EB" strokeWidth="2.5" />
         <line
           x1={x(selected)}
           x2={x(selected)}
@@ -217,7 +217,7 @@ export function StakingChart({ project }: { project: Project }) {
           cx={x(selected)}
           cy={y(selected)}
           r="4"
-          fill="#635bdf"
+          fill="#2464EB"
           stroke="white"
           strokeWidth="2"
         />

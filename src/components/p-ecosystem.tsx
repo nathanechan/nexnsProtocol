@@ -23,8 +23,15 @@ export function PEcosystem() {
   const projects = useSimulation((s) => s.projects);
   const books = useSimulation((s) => s.operatingBooks);
   const p = Object.values(projects).find((p) => p.isPlatformToken);
+  const connections = Object.values(projects).filter(
+    (q) =>
+      p &&
+      projectKey(q.chainId, q.tokenContract) !==
+        projectKey(p.chainId, p.tokenContract) &&
+      q.migration.resultingPools.some((pool) => pool.pair === "X/NEXUS"),
+  );
   return (
-    <div className="secondary-page core-asset-page">
+    <div className="secondary-page core-asset-page" data-nexns-ui="v2">
       <PageHeader
         eyebrow={t("NEXNS")}
         title={t("NEXNS")}
@@ -102,22 +109,16 @@ export function PEcosystem() {
               </DetailCard>
             </div>
             <DetailCard title={t("已建立生态连接")}>
+              {!connections.length && (
+                <EmptyState title={t("暂无生态连接")} description="" />
+              )}
               {t(
-                Object.values(projects)
-                  .filter(
-                    (q) =>
-                      projectKey(q.chainId, q.tokenContract) !==
-                        projectKey(p.chainId, p.tokenContract) &&
-                      q.migration.resultingPools.some(
-                        (pool) => pool.pair === "X/NEXUS",
-                      ),
-                  )
-                  .map((q) => (
-                    <div className="ecosystem-row" key={q.projectId}>
-                      <EconomyLink p={q} />
-                      <ContractAddress address={q.tokenContract} />
-                    </div>
-                  )),
+                connections.map((q) => (
+                  <div className="ecosystem-row" key={q.projectId}>
+                    <EconomyLink p={q} />
+                    <ContractAddress address={q.tokenContract} />
+                  </div>
+                )),
               )}
             </DetailCard>
           </>

@@ -1,4 +1,9 @@
 export const messages: Record<string, string> = {
+  暂无生态连接: "No ecosystem connections yet",
+  暂无记录: "No records yet",
+  暂无地址: "Address unavailable",
+  "仅创建者可编辑项目资料。": "Only the creator can edit project details.",
+  "合约、供应与结算。": "Contracts, supply and settlements.",
   协议流动性结果已建立: "Protocol liquidity established",
   选择图片: "Choose image",
   代币资产估值: "Token assets value",

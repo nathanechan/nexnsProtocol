@@ -291,8 +291,9 @@ export function TokenTerminal({
   void initialActivities;
   return (
     <div
-      className={`token-terminal project-page ${curve ? "terminal-curve" : "terminal-operating"}`}
+      className={`token-terminal project-page ${curve ? "terminal-curve" : "terminal-operating"} ${op ? "terminal-flagship" : ""}`}
       data-lifecycle={project.lifecycle}
+      data-nexns-ui="v2"
     >
       <div className="terminal-navigation">
         <Link href={op ? "/live" : "/launch"}>
@@ -349,7 +350,7 @@ export function TokenTerminal({
         </span>
         <div className="terminal-identity">
           <h1>
-            <span data-token-symbol data-user-text>
+            <span data-token-symbol data-user-text title={project.symbol}>
               {project.symbol}
             </span>
             {project.name !== project.symbol && (
@@ -428,45 +429,50 @@ export function TokenTerminal({
       {shareStatus && <p role="status">{shareStatus}</p>}
       <div className="terminal-layout">
         <dl className="terminal-market-strip">
-          {stats.map(([label, value], index) => (
-            <div key={label}>
-              <dt>
-                {op
-                  ? (locale === "en"
-                      ? ["Price", "Staked", "Value", "Liquidity", "Users"]
-                      : ["价格", "总质押", "质押价值", "流动性", "参与人数"])[
-                      index
-                    ]
-                  : t(label)}
-              </dt>
-              <dd>
-                {op && index === 1 ? (
-                  <>
+          {stats.map(([label, value], index) =>
+            op && index === 0 ? null : (
+              <div key={label}>
+                <dt>
+                  {op
+                    ? (locale === "en"
+                        ? ["Price", "Staked", "Value", "Liquidity", "Users"]
+                        : ["价格", "总质押", "质押价值", "流动性", "参与人数"])[
+                        index
+                      ]
+                    : t(label)}
+                </dt>
+                <dd>
+                  {op && index === 1 ? (
+                    <>
+                      <AnimatedAmount
+                        value={project.operating?.totalStaked ?? 0}
+                      />{" "}
+                      <span data-user-text>{project.symbol}</span>
+                    </>
+                  ) : op &&
+                    index === 2 &&
+                    project.operating?.tokenPrice != null ? (
                     <AnimatedAmount
-                      value={project.operating?.totalStaked ?? 0}
-                    />{" "}
-                    <span data-user-text>{project.symbol}</span>
-                  </>
-                ) : op &&
-                  index === 2 &&
-                  project.operating?.tokenPrice != null ? (
-                  <AnimatedAmount
-                    value={stakedValue(
-                      project.operating.totalStaked,
-                      project.operating.tokenPrice,
-                    )!}
-                    currency
-                  />
-                ) : op &&
-                  index === 0 &&
-                  project.operating?.tokenPrice != null ? (
-                  <AnimatedAmount value={project.operating.tokenPrice} price />
-                ) : (
-                  value
-                )}
-              </dd>
-            </div>
-          ))}
+                      value={stakedValue(
+                        project.operating.totalStaked,
+                        project.operating.tokenPrice,
+                      )!}
+                      currency
+                    />
+                  ) : op &&
+                    index === 0 &&
+                    project.operating?.tokenPrice != null ? (
+                    <AnimatedAmount
+                      value={project.operating.tokenPrice}
+                      price
+                    />
+                  ) : (
+                    value
+                  )}
+                </dd>
+              </div>
+            ),
+          )}
         </dl>
         <section className="terminal-workspace">
           {curve ? (

@@ -91,7 +91,7 @@ try {
     Number(
       await page
         .locator(".terminal-market-strip > div")
-        .nth(2)
+        .nth(1)
         .locator("[data-value]")
         .getAttribute("data-value"),
     ),
@@ -107,12 +107,12 @@ try {
   );
   assert.deepEqual(
     await page.locator(".terminal-market-strip dt").allTextContents(),
-    ["价格", "总质押", "质押价值", "流动性", "参与人数"],
+    ["总质押", "质押价值", "流动性", "参与人数"],
   );
   checks.push(
     "terminal/List reconciliation",
     "chart/latest reconciliation",
-    "five Chinese metrics",
+    "four Chinese metrics with header price",
   );
   await page.getByRole("tab", { name: "活动", exact: true }).click();
   assert((await page.locator(".activity-feed").innerText()).includes("参与"));
@@ -128,14 +128,12 @@ try {
     staked,
   );
   assert.equal(
-    Number(
-      await page
-        .locator(".terminal-market-strip > div")
-        .nth(0)
-        .locator("[data-value]")
-        .getAttribute("data-value"),
-    ),
-    after,
+    await page.locator(".terminal-price strong").innerText(),
+    "$" +
+      new Intl.NumberFormat("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: after >= 1 ? 2 : after >= 0.001 ? 4 : 8,
+      }).format(after),
   );
   checks.push("price and stake persist on refresh");
   await page.evaluate(() => localStorage.setItem("nexns-locale", "en"));
@@ -143,9 +141,9 @@ try {
   await page.waitForFunction(() => document.documentElement.lang === "en");
   assert.deepEqual(
     await page.locator(".terminal-market-strip dt").allTextContents(),
-    ["Price", "Staked", "Value", "Liquidity", "Users"],
+    ["Staked", "Value", "Liquidity", "Users"],
   );
-  checks.push("five English metrics");
+  checks.push("four English metrics with header price");
   assert.deepEqual(errors, []);
   console.log(
     JSON.stringify({ checks: checks.length, passed: checks, errors }, null, 2),

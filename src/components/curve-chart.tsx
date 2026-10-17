@@ -43,8 +43,8 @@ export function CurveChart({ project }: { project: Project }) {
           >
             <defs>
               <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#426ce6" stopOpacity={0.2} />
-                <stop offset="100%" stopColor="#426ce6" stopOpacity={0} />
+                <stop offset="0%" stopColor="#2464EB" stopOpacity={0.14} />
+                <stop offset="100%" stopColor="#2464EB" stopOpacity={0} />
               </linearGradient>
             </defs>
             <CartesianGrid stroke="#edf0f6" vertical={false} />
@@ -77,13 +77,13 @@ export function CurveChart({ project }: { project: Project }) {
               x={project.curve.netReserve}
               y={project.curve.curvePrice}
               r={5}
-              fill="#426ce6"
+              fill="#2464EB"
               stroke="#fff"
             />
             <Area
               type="monotone"
               dataKey="price"
-              stroke="#426ce6"
+              stroke="#2464EB"
               strokeWidth={2.5}
               fill={`url(#${id})`}
               isAnimationActive={false}

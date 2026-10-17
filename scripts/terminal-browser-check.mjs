@@ -118,7 +118,7 @@ try {
             .click();
           if (width <= 768)
             assert(
-              (await page.locator(".terminal-chart").boundingBox()).y <
+              (await page.locator(".terminal-chart").boundingBox()).y >
                 (await page.locator(".terminal-actions").boundingBox()).y &&
                 (await page.locator(".terminal-details").boundingBox()).y >
                   (await page.locator(".terminal-actions").boundingBox()).y,

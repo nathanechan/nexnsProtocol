@@ -112,11 +112,7 @@ describe("creator studio permissions and outcomes", () => {
     render(<CreatorStudio projectId="NX-0001" />);
     expect(screen.getByText("曲线进度")).toBeDefined();
     expect(screen.getByText("净储备")).toBeDefined();
-    expect(
-      screen.getByText(
-        "当前为公开分析视图。仅创建者钱包可以更新 Logo 与链接。",
-      ),
-    ).toBeDefined();
+    expect(screen.getByText("仅创建者可编辑项目资料。")).toBeDefined();
   });
   it("uses an Operating-specific dashboard with ten modules", () => {
     active();
@@ -255,7 +251,7 @@ describe("protocol transparency", () => {
         name: `复制合约地址 ${"0x" + "1".repeat(40)}`,
       }),
     ).toBeDefined();
-    expect(screen.getAllByText("N/A").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("暂无地址").length).toBeGreaterThan(0);
   });
   it("keeps price status separate from lifecycle", () => {
     render(<ProtocolPage />);

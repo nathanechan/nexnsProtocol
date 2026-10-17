@@ -1,0 +1,294 @@
+/* V2 flagship geometry. Shared roles live in system-v2.css. */
+.token-terminal.terminal-flagship .terminal-navigation {
+  margin-bottom: 20px;
+}
+.token-terminal.terminal-flagship .terminal-header {
+  padding: 0 0 24px;
+}
+.token-terminal.terminal-flagship .terminal-identity h1 {
+  font-size: var(--nexns-type-title);
+  font-weight: 700;
+}
+.token-terminal.terminal-flagship .terminal-identity h1 [data-token-name] {
+  font-size: 14px;
+  color: var(--nexns-secondary);
+}
+.token-terminal.terminal-flagship .terminal-header-meta {
+  font-size: 12px;
+  margin-top: 8px;
+}
+.token-terminal.terminal-flagship .terminal-price strong {
+  font-size: 32px;
+  color: var(--nexns-ink);
+  letter-spacing: -1px;
+}
+.token-terminal.terminal-flagship .terminal-price > span {
+  font-size: 12px;
+}
+.token-terminal.terminal-flagship .terminal-layout {
+  gap: 0 28px;
+}
+.token-terminal.terminal-flagship .terminal-market-strip {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0;
+  padding: 24px;
+  border-radius: 12px 12px 0 0;
+  border-bottom: 0;
+  box-shadow: none;
+}
+.token-terminal.terminal-flagship .terminal-market-strip > div {
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.token-terminal.terminal-flagship .terminal-market-strip dt {
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+.token-terminal.terminal-flagship .terminal-market-strip dd {
+  font-size: 19px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--nexns-ink);
+}
+.token-terminal.terminal-flagship .terminal-market-strip dd [data-user-text] {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--nexns-secondary);
+}
+.token-terminal.terminal-flagship .terminal-workspace {
+  gap: 28px;
+}
+.token-terminal.terminal-flagship .terminal-chart {
+  border-radius: 0 0 12px 12px;
+  border-top: 1px solid var(--nexns-line);
+  padding: 24px;
+  box-shadow: none;
+}
+.token-terminal.terminal-flagship .trend-heading h2 {
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+.token-terminal.terminal-flagship .trend-heading strong {
+  font-size: var(--nexns-type-value);
+  color: var(--nexns-ink);
+}
+.token-terminal.terminal-flagship .trend-heading strong small {
+  font-size: 12px;
+  color: var(--nexns-secondary);
+}
+.token-terminal.terminal-flagship .trend-ranges {
+  background: transparent;
+}
+.token-terminal.terminal-flagship .trend-ranges button {
+  min-height: 32px;
+  font-size: 11px;
+  color: var(--nexns-secondary);
+  border-radius: 5px;
+}
+.token-terminal.terminal-flagship .trend-ranges button[aria-pressed="true"] {
+  background: var(--nexns-accent-soft);
+  color: var(--nexns-accent);
+  box-shadow: none;
+}
+.token-terminal.terminal-flagship .terminal-actions {
+  padding: 24px;
+  border-radius: 12px;
+  border-color: #d8e1ef;
+  box-shadow: var(--nexns-shadow-panel);
+}
+.token-terminal.terminal-flagship .terminal-user-state {
+  padding: 0 0 20px;
+  background: transparent;
+  border-radius: 0;
+  border-bottom: 1px solid var(--nexns-line);
+  gap: 16px;
+  margin-bottom: 14px;
+}
+.token-terminal.terminal-flagship .terminal-user-state dt {
+  font-size: 12px;
+  margin-bottom: 7px;
+}
+.token-terminal.terminal-flagship .terminal-user-state dd {
+  font-size: 16px;
+  color: var(--nexns-ink);
+}
+.token-terminal.terminal-flagship
+  .terminal-actions
+  > .product-tabs
+  > .product-tablist {
+  background: white;
+  border-radius: 0;
+  padding: 0;
+  gap: 12px;
+  border-bottom: 1px solid var(--nexns-line);
+}
+.token-terminal.terminal-flagship
+  .terminal-actions
+  > .product-tabs
+  > .product-tablist
+  button {
+  background: transparent;
+  min-height: 44px;
+  color: var(--nexns-secondary);
+  border-radius: 0;
+  box-shadow: none;
+}
+.token-terminal.terminal-flagship
+  .terminal-actions
+  > .product-tabs
+  > .product-tablist
+  button[aria-selected="true"] {
+  color: var(--nexns-accent);
+  border-bottom: 2px solid var(--nexns-accent);
+}
+.token-terminal.terminal-flagship .terminal-actions .card h3 {
+  font-size: 17px;
+  margin: 22px 0 20px;
+  color: var(--nexns-ink);
+}
+.token-terminal.terminal-flagship .terminal-actions .operating-form > label {
+  font-size: 12px;
+  color: var(--nexns-secondary);
+}
+.token-terminal.terminal-flagship .terminal-actions .operating-form .input {
+  background: var(--nexns-surface-soft);
+  border-color: var(--nexns-control-line);
+  font-size: var(--nexns-type-value);
+  letter-spacing: -0.6px;
+  font-weight: 500;
+  min-height: 78px;
+  padding: 14px 16px;
+  color: var(--nexns-ink);
+}
+.token-terminal.terminal-flagship .terminal-actions .trade-available {
+  font-size: 12px;
+  margin: 12px 0 16px;
+}
+.token-terminal.terminal-flagship .terminal-actions .key-values > div {
+  padding: 10px 0;
+  font-size: 12px;
+}
+.token-terminal.terminal-flagship
+  .terminal-actions
+  > .product-tabs
+  > [role="tabpanel"] {
+  min-height: 300px;
+}
+.token-terminal.terminal-flagship .terminal-actions .operation-confirm {
+  min-height: 48px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+.token-terminal.terminal-flagship .terminal-details {
+  background: transparent;
+  border: 0;
+  border-top: 1px solid #dbe2ed;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
+}
+.token-terminal.terminal-flagship .terminal-details .product-tablist {
+  background: transparent;
+  padding: 0;
+  gap: 20px;
+}
+.token-terminal.terminal-flagship .terminal-details .product-tablist button {
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--nexns-secondary);
+  border-radius: 0;
+  padding: 14px 0;
+  box-shadow: none;
+  font-size: 13px;
+}
+.token-terminal.terminal-flagship
+  .terminal-details
+  .product-tablist
+  button[aria-selected="true"] {
+  color: var(--nexns-ink);
+  border-bottom: 2px solid var(--nexns-ink);
+}
+@media (min-width: 901px) {
+  .token-terminal.terminal-flagship .terminal-layout {
+    grid-template-columns: minmax(0, 1fr) 360px;
+  }
+}
+@media (max-width: 900px) {
+  .token-terminal.terminal-flagship .terminal-layout {
+    gap: 18px;
+  }
+  .token-terminal.terminal-flagship .terminal-actions {
+    order: 0;
+    width: 100%;
+    position: static;
+    padding: 20px;
+  }
+  .token-terminal.terminal-flagship .terminal-market-strip {
+    order: 1;
+    padding: 18px;
+    border: 1px solid var(--nexns-line);
+    border-radius: 12px;
+  }
+  .token-terminal.terminal-flagship .terminal-chart {
+    order: 2;
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .token-terminal.terminal-flagship .terminal-details {
+    order: 3;
+  }
+  .token-terminal.terminal-flagship
+    .terminal-actions
+    > .product-tabs
+    > .product-tablist {
+    position: sticky;
+    top: 70px;
+  }
+}
+@media (max-width: 600px) {
+  .token-terminal.terminal-flagship .terminal-header {
+    padding-bottom: 20px;
+  }
+  .token-terminal.terminal-flagship .terminal-logo {
+    width: 40px;
+    height: 40px;
+  }
+  .token-terminal.terminal-flagship .terminal-identity h1 {
+    font-size: 22px;
+  }
+  .token-terminal.terminal-flagship .terminal-identity h1 [data-token-name] {
+    font-size: 12px;
+  }
+  .token-terminal.terminal-flagship .terminal-price strong {
+    font-size: 23px;
+  }
+  .token-terminal.terminal-flagship .terminal-user-state {
+    padding-bottom: 16px;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .token-terminal.terminal-flagship .terminal-user-state dt {
+    font-size: 11px;
+  }
+  .token-terminal.terminal-flagship .terminal-user-state dd {
+    font-size: 14px;
+  }
+  .token-terminal.terminal-flagship .terminal-actions .card h3 {
+    margin: 18px 0 16px;
+  }
+  .token-terminal.terminal-flagship .terminal-market-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
+  .token-terminal.terminal-flagship .terminal-market-strip dd {
+    font-size: 17px;
+  }
+  .token-terminal.terminal-flagship
+    .terminal-actions
+    > .product-tabs
+    > [role="tabpanel"] {
+    min-height: 300px;
+  }
+}
