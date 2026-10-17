@@ -1,0 +1,788 @@
+/* Step 4: shared Curve, migration and Operating terminal surfaces. */
+.token-terminal .terminal-header {
+  padding: 4px 0 28px;
+  border: 0;
+  background: none;
+  gap: 15px;
+}
+.token-terminal .terminal-logo {
+  width: 50px;
+  height: 50px;
+  border-radius: 15px;
+}
+.token-terminal .terminal-identity h1 {
+  font-size: 29px;
+  font-weight: 650;
+  letter-spacing: -0.8px;
+}
+.token-terminal .terminal-identity h1 small {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: #8894a7;
+}
+.token-terminal .terminal-header-meta {
+  margin-top: 5px;
+  gap: 9px;
+  font-size: 10px;
+}
+.token-terminal .terminal-price strong {
+  font-size: 29px;
+  font-weight: 600;
+  letter-spacing: -1px;
+}
+.token-terminal .terminal-price > span {
+  font-size: 11px;
+  color: #4c8e7c;
+}
+.token-terminal .terminal-layout {
+  gap: 22px;
+}
+.token-terminal .terminal-market-strip {
+  margin: 0 0 2px;
+  padding: 22px 26px;
+  background: white;
+  border: 1px solid #e3e9f2;
+  border-radius: 15px;
+  box-shadow: 0 3px 12px #20345402;
+}
+.token-terminal .terminal-market-strip > div {
+  border: 0;
+  padding: 0 20px;
+  border-right: 1px solid #edf1f6;
+}
+.token-terminal .terminal-market-strip > div:first-child {
+  padding-left: 0;
+}
+.token-terminal .terminal-market-strip > div:last-child {
+  border: 0;
+}
+.token-terminal .terminal-market-strip dt {
+  font-size: 11px;
+  color: var(--nexns-muted);
+  margin-bottom: 7px;
+}
+.token-terminal .terminal-market-strip dd {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.35px;
+  color: #263b5c;
+}
+.token-terminal .terminal-workspace {
+  gap: 22px;
+}
+.token-terminal .terminal-chart,
+.token-terminal .terminal-details {
+  background: white;
+  border: 1px solid #e3e9f2;
+  border-radius: 18px;
+  padding: 25px;
+  box-shadow: 0 5px 20px #20345403;
+  overflow: hidden;
+}
+.token-terminal .trend-heading h2 {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--nexns-muted);
+  margin-bottom: 10px;
+}
+.token-terminal .trend-heading strong {
+  font-size: 29px;
+  font-weight: 600;
+  letter-spacing: -0.8px;
+}
+.token-terminal .trend-heading strong small {
+  font-size: 11px;
+  color: #7f8ca0;
+  font-weight: 500;
+}
+.token-terminal .trend-ranges {
+  gap: 3px;
+  background: #f3f5f9;
+  padding: 3px;
+  border-radius: 8px;
+}
+.token-terminal .trend-ranges button {
+  border-radius: 6px;
+  min-width: 34px;
+  font-size: 10px;
+  padding: 5px;
+  border: 0;
+}
+.token-terminal .trend-ranges button[aria-pressed="true"] {
+  background: white;
+  color: #3c5ed5;
+  box-shadow: 0 1px 4px #1d335c12;
+}
+.token-terminal .trend-readout {
+  color: var(--nexns-muted);
+  font-size: 10px;
+  margin: 15px 0 7px;
+}
+.token-terminal .terminal-actions {
+  border: 1px solid #dce4ef;
+  border-radius: 18px;
+  background: white;
+  padding: 22px;
+  box-shadow: 0 7px 26px #20345406;
+}
+.token-terminal .terminal-user-state {
+  padding: 0 0 18px;
+  margin: 0 0 18px;
+  border-bottom: 1px solid #edf1f6;
+  gap: 12px;
+}
+.token-terminal .terminal-user-state dt {
+  color: var(--nexns-muted);
+  font-size: 10px;
+}
+.token-terminal .terminal-user-state dd {
+  color: #2c4263;
+  font-size: 14px;
+  font-weight: 600;
+}
+.token-terminal .product-tablist {
+  border-bottom: 1px solid #edf0f5;
+  gap: 17px;
+}
+.token-terminal .product-tablist button {
+  font-size: 12px;
+  padding: 10px 0;
+  color: var(--nexns-muted);
+  font-weight: 500;
+}
+.token-terminal .product-tablist button[aria-selected="true"] {
+  color: #365ce0;
+  border-bottom-color: #5475e9;
+}
+.token-terminal .terminal-actions .product-tablist {
+  background: #f2f5fa;
+  border: 0;
+  padding: 4px;
+  border-radius: 10px;
+  gap: 4px;
+}
+.token-terminal .terminal-actions .product-tablist button {
+  flex: 1;
+  padding: 9px 5px;
+  border: 0;
+  border-radius: 7px;
+}
+.token-terminal
+  .terminal-actions
+  .product-tablist
+  button[aria-selected="true"] {
+  color: #314e88;
+  background: white;
+  box-shadow: 0 1px 4px #243c6010;
+}
+.token-terminal .terminal-actions .operating-form {
+  padding-top: 20px;
+}
+.token-terminal .terminal-actions input {
+  min-height: 56px;
+  font-size: 22px;
+  font-weight: 500;
+  color: #203654;
+  background: #f8faff;
+  border: 1px solid #e1e7f1;
+  border-radius: 11px;
+  padding: 12px 14px;
+  transition:
+    border-color 150ms,
+    box-shadow 150ms;
+}
+.token-terminal .terminal-actions label {
+  color: #6e7f96;
+  font-size: 11px;
+}
+.token-terminal .terminal-actions .trade-available {
+  color: var(--nexns-muted);
+  font-size: 10px;
+  margin: 8px 0 20px;
+}
+.token-terminal .terminal-actions .button {
+  min-height: 44px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 13px;
+  transition:
+    background 150ms,
+    transform 100ms,
+    box-shadow 150ms;
+}
+@media (max-width: 900px) {
+  .token-terminal .terminal-market-strip {
+    padding: 18px;
+  }
+  .token-terminal .terminal-market-strip > div {
+    padding: 0 10px;
+  }
+  .token-terminal .terminal-market-strip dd {
+    font-size: 14px;
+  }
+  .token-terminal .terminal-chart,
+  .token-terminal .terminal-details,
+  .token-terminal .terminal-actions {
+    padding: 20px;
+  }
+}
+@media (max-width: 768px) {
+  .token-terminal .terminal-header {
+    padding-bottom: 20px;
+    gap: 10px;
+  }
+  .token-terminal .terminal-logo {
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+  }
+  .token-terminal .terminal-identity h1 {
+    font-size: 23px;
+  }
+  .token-terminal .terminal-price strong {
+    font-size: 25px;
+  }
+  .token-terminal .terminal-market-strip {
+    padding: 17px 14px;
+    gap: 17px 8px;
+    border-radius: 13px;
+  }
+  .token-terminal .terminal-market-strip > div {
+    padding: 0;
+    border: 0;
+  }
+  .token-terminal .terminal-market-strip dt {
+    font-size: 10px;
+  }
+  .token-terminal .terminal-market-strip dd {
+    font-size: 13px;
+  }
+  .token-terminal .terminal-layout,
+  .token-terminal .terminal-workspace {
+    gap: 16px;
+  }
+  .token-terminal .terminal-chart,
+  .token-terminal .terminal-details,
+  .token-terminal .terminal-actions {
+    border-radius: 14px;
+    padding: 17px;
+  }
+  .token-terminal .trend-heading strong {
+    font-size: 24px;
+  }
+  .token-terminal .trend-heading {
+    gap: 16px;
+  }
+  .token-terminal .trend-ranges {
+    align-self: flex-start;
+  }
+  .token-terminal .trend-ranges button {
+    min-width: 30px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .token-terminal *,
+  body:has(.visual-lab) .button {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+.token-terminal .terminal-market-strip dt {
+  white-space: nowrap;
+}
+.token-terminal .terminal-user-state dt {
+  min-height: 20px;
+  line-height: 20px;
+}
+.token-terminal .terminal-actions > .product-tabs > [role="tabpanel"] {
+  min-height: 0;
+}
+.token-terminal .terminal-actions .operating-form {
+  min-height: 0;
+}
+.token-terminal .terminal-actions .operation-confirm {
+  margin-top: 24px;
+}
+@media (min-width: 901px) {
+  .token-terminal .terminal-layout {
+    grid-template-columns: minmax(0, 1fr) 334px;
+  }
+  .token-terminal .terminal-market-strip,
+  .token-terminal .terminal-workspace {
+    grid-column: 1;
+  }
+  .token-terminal .terminal-actions {
+    grid-column: 2;
+  }
+}
+@media (max-width: 900px) {
+  .token-terminal .terminal-market-strip {
+    order: 0;
+  }
+  .token-terminal .terminal-workspace {
+    display: contents;
+  }
+  .token-terminal .terminal-chart {
+    order: 1;
+  }
+  .token-terminal .terminal-actions {
+    order: 2;
+  }
+  .token-terminal .terminal-details {
+    order: 3;
+  }
+  .token-terminal .terminal-header {
+    display: grid;
+    grid-template-columns: 38px minmax(0, 1fr) auto;
+    align-items: center;
+  }
+  .token-terminal .terminal-identity {
+    min-width: 0;
+  }
+  .token-terminal .terminal-identity h1 {
+    display: block;
+  }
+  .token-terminal .terminal-identity h1 small {
+    display: block;
+    font-size: 10px;
+    margin-top: 3px;
+  }
+  .token-terminal .terminal-header-meta {
+    flex-wrap: wrap;
+    font-size: 9px;
+  }
+  .token-terminal .terminal-price {
+    grid-column: 3;
+    grid-row: 1;
+    margin: 0;
+  }
+  .token-terminal .terminal-header > button {
+    display: none;
+  }
+  .token-terminal .terminal-user-state {
+    margin-bottom: 14px;
+    padding-bottom: 14px;
+  }
+}
+.token-terminal .terminal-price strong {
+  color: #203654;
+}
+.token-terminal .terminal-details {
+  min-width: 0;
+  width: 100%;
+}
+.token-terminal .terminal-details .product-tabs {
+  min-width: 0;
+  max-width: 100%;
+} /* Production layout and action details, using the shared foundation tokens. */
+.token-terminal {
+  max-width: 1240px;
+  margin: 0 auto;
+}
+.terminal-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 24px;
+  font-size: 12px;
+  color: var(--nexns-muted);
+}
+.terminal-navigation > a:hover {
+  color: var(--nexns-accent);
+}
+.terminal-navigation-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.terminal-navigation .button {
+  min-height: 34px;
+  padding: 7px 11px;
+  font-size: 11px;
+}
+.terminal-action-jump {
+  display: none;
+}
+.token-terminal .terminal-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.token-terminal .terminal-identity {
+  min-width: 0;
+}
+.token-terminal .terminal-identity h1 {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  flex-wrap: wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.3;
+}
+.token-terminal .terminal-identity h1 > [data-token-name] {
+  color: var(--nexns-secondary);
+  font-size: 14px;
+  line-height: 1.5;
+  letter-spacing: 0;
+}
+.token-terminal .terminal-header-meta {
+  flex-wrap: wrap;
+}
+.token-terminal .terminal-price {
+  flex-shrink: 0;
+}
+.token-terminal .terminal-price > span {
+  color: var(--nexns-secondary);
+}
+.token-terminal .terminal-actions {
+  position: sticky;
+  top: 88px;
+  align-self: start;
+  max-height: none;
+  overflow: visible;
+  scroll-margin-top: 84px;
+}
+.token-terminal .terminal-actions .card {
+  padding: 0;
+}
+.token-terminal .terminal-actions > .product-tabs > [role="tabpanel"] {
+  padding-top: 0;
+}
+.token-terminal .terminal-actions .operating-form {
+  gap: 0;
+}
+.token-terminal .terminal-actions .trade-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-height: 0;
+}
+.token-terminal .terminal-actions .trade-preview > label {
+  margin: 12px 0 0;
+}
+.token-terminal .terminal-actions .trade-preview > .button {
+  margin-top: 20px;
+}
+.token-terminal .terminal-actions .trade-preview .trade-available {
+  margin: 10px 0 14px;
+}
+.token-terminal .terminal-actions .field-error {
+  margin-top: 7px;
+}
+.token-terminal .terminal-actions .field-error:empty {
+  margin: 0;
+}
+.token-terminal .terminal-actions .key-values {
+  font-size: 12px;
+  margin-top: 14px;
+}
+.token-terminal .terminal-actions .key-values > div {
+  padding: 9px 0;
+  gap: 12px;
+}
+.token-terminal .terminal-actions .key-values dt {
+  color: var(--nexns-muted);
+}
+.token-terminal .terminal-actions .key-values dd {
+  font-size: 12px;
+  color: #253d5e;
+  font-weight: 600;
+}
+.token-terminal .terminal-actions .operation-confirm {
+  width: 100%;
+  margin-top: 20px;
+}
+.token-terminal .terminal-actions .trade-available .button {
+  min-height: 28px;
+  padding: 4px 7px;
+  font-size: 11px;
+}
+.token-terminal .terminal-actions .trade-status:not(:empty) {
+  margin: 16px 0 0;
+  font-size: 12px;
+}
+.token-terminal .terminal-user-state > div {
+  min-width: 0;
+}
+.token-terminal .terminal-user-state dt {
+  font-size: 11px;
+}
+.token-terminal .terminal-user-state dd {
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.token-terminal .terminal-user-state > div:last-child dd {
+  color: #4261bc;
+}
+.token-terminal .terminal-progress {
+  margin: 0 0 20px;
+  gap: 14px;
+}
+.token-terminal .terminal-progress > strong {
+  font-size: 22px;
+}
+.token-terminal .terminal-progress > div {
+  height: 4px;
+  border-radius: 4px;
+}
+.token-terminal .terminal-progress i {
+  height: 4px;
+  border-radius: 4px;
+}
+.token-terminal .chart-canvas {
+  min-height: 280px;
+}
+.token-terminal .terminal-details .product-tablist {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  max-width: 100%;
+}
+.token-terminal .terminal-details .product-tablist button {
+  flex: 0 0 auto;
+  padding: 9px 12px;
+}
+.token-terminal .terminal-details .empty {
+  padding: 24px 0;
+}
+.token-terminal .terminal-migration {
+  border: 1px solid var(--nexns-line);
+  border-radius: 18px;
+  padding: 26px;
+  background: white;
+}
+.dialog:has(.terminal-switcher) {
+  width: min(520px, calc(100vw - 32px));
+}
+.dialog .terminal-switcher {
+  display: block;
+  position: static;
+  width: 100%;
+  max-height: 58dvh;
+  overflow: auto;
+  margin-top: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: white;
+}
+.dialog .terminal-switcher .product-tablist {
+  margin: 12px 0;
+}
+.dialog .terminal-switcher .switcher-row {
+  min-height: 56px;
+  border-radius: 9px;
+  padding: 8px;
+}
+.dialog .terminal-switcher .switcher-row:hover {
+  background: #f5f7fd;
+}
+.dialog .terminal-switcher .switcher-row[aria-current="page"] {
+  background: var(--nexns-accent-soft);
+}
+.trade-status.operation-pending:not(:empty) {
+  color: #36518c;
+  background: #f1f5ff;
+  border-color: #e0e8fb;
+}
+@media (min-width: 901px) {
+  .token-terminal .terminal-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    grid-template-rows: auto 1fr;
+  }
+  .token-terminal .terminal-market-strip {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .token-terminal .terminal-workspace {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .token-terminal .terminal-actions {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+}
+@media (max-width: 900px) {
+  .terminal-navigation {
+    margin-bottom: 20px;
+  }
+  .terminal-action-jump {
+    display: inline-flex;
+    color: var(--nexns-accent);
+    padding: 6px 0;
+  }
+  .token-terminal .terminal-header {
+    grid-template-columns: 38px minmax(0, 1fr) auto;
+  }
+  .token-terminal .terminal-header-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+  }
+  .token-terminal .terminal-header-actions .button {
+    min-height: 32px;
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+  .token-terminal .terminal-header-actions .button.ghost {
+    padding: 6px;
+  }
+  .token-terminal .terminal-identity h1 {
+    display: flex;
+    gap: 5px 8px;
+  }
+  .token-terminal .terminal-identity h1 > [data-token-name] {
+    font-size: 12px;
+    max-width: 18ch;
+    margin: 0;
+  }
+  .token-terminal .terminal-actions {
+    position: static;
+    width: 100%;
+    top: auto;
+  }
+  .token-terminal .terminal-actions input {
+    font-size: 21px;
+  }
+  .token-terminal .terminal-actions .product-tablist button {
+    min-height: 40px;
+  }
+  .token-terminal .terminal-market-strip {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .token-terminal .terminal-market-strip > div {
+    min-width: 0;
+  }
+  .token-terminal .terminal-market-strip dt {
+    font-size: 10px;
+  }
+  .token-terminal .terminal-market-strip dd {
+    font-size: 13px;
+  }
+  .token-terminal .terminal-progress {
+    flex-wrap: wrap;
+  }
+  .token-terminal .terminal-progress small {
+    flex-basis: 100%;
+  }
+  .token-terminal .chart-canvas {
+    min-height: 230px;
+  }
+  .token-terminal .terminal-migration {
+    padding: 20px;
+    border-radius: 14px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .terminal-navigation a {
+    scroll-behavior: auto;
+  }
+}
+
+.token-terminal .terminal-price > span.positive {
+  color: var(--nexns-success);
+}
+.token-terminal .terminal-price > span.negative {
+  color: var(--nexns-danger);
+}
+.token-terminal:is(
+    [data-lifecycle="MIGRATION_READY"],
+    [data-lifecycle="MIGRATING"]
+  )
+  .terminal-market-strip {
+  display: none;
+}
+@media (min-width: 901px) {
+  .token-terminal:is(
+      [data-lifecycle="MIGRATION_READY"],
+      [data-lifecycle="MIGRATING"]
+    )
+    .terminal-workspace {
+    grid-row: 1;
+  }
+}
+
+.token-terminal {
+  position: relative;
+}
+.token-terminal .terminal-chart,
+.token-terminal .terminal-migration {
+  width: 100%;
+  min-width: 0;
+}
+@media (max-width: 900px) {
+  .token-terminal .terminal-header {
+    position: static;
+  }
+  .token-terminal .terminal-navigation-actions {
+    padding-right: 40px;
+  }
+  .token-terminal .terminal-header-actions {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+  .token-terminal .terminal-header-actions .dex-link {
+    display: none;
+  }
+}
+/* Stable action baseline across Participate / Stake / Claim, without the old oversized panel. */
+.token-terminal .terminal-actions > .product-tabs > [role="tabpanel"] {
+  display: flex;
+  flex-direction: column;
+  min-height: 350px;
+}
+.token-terminal .terminal-actions .card,
+.token-terminal .terminal-actions .product-tabs {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+.token-terminal .terminal-actions .product-tabs > [role="tabpanel"] {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.token-terminal .terminal-actions .operating-form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.token-terminal .terminal-actions .operating-form .operation-confirm {
+  margin-top: auto;
+}
+.token-terminal .terminal-actions .operating-form > .key-values {
+  margin-bottom: 18px;
+}
+.token-terminal
+  .terminal-actions
+  > .product-tabs
+  > [role="tabpanel"]
+  > .operating-layout {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 6px;
+}
+.token-terminal .terminal-actions .stake-rules {
+  margin-top: 0;
+}
+.token-terminal .terminal-actions .stake-rules > summary {
+  padding: 4px 0;
+  line-height: 18px;
+}
+@media (max-width: 900px) {
+  .token-terminal .terminal-actions > .product-tabs > .product-tablist {
+    position: sticky;
+    top: 70px;
+    z-index: 6;
+  }
+}
+
+.token-terminal .terminal-market-strip dd {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}

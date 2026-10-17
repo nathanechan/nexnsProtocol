@@ -24,11 +24,47 @@ export const priceLabels: Record<PriceStatus, string> = {
 export function Button({
   variant = "primary",
   className = "",
+  loading = false,
+  disabled,
+  children,
   ...props
 }: ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: "primary" | "secondary" | "ghost";
+  loading?: boolean;
 }) {
-  return <button className={`button ${variant} ${className}`} {...props} />;
+  return (
+    <button
+      {...props}
+      className={`button ${variant} ${className}`}
+      disabled={disabled || loading}
+      aria-busy={loading || props["aria-busy"] || undefined}
+    >
+      {loading && (
+        <svg
+          className="control-spinner"
+          viewBox="0 0 20 20"
+          fill="none"
+          aria-hidden="true"
+        >
+          <circle
+            cx="10"
+            cy="10"
+            r="7"
+            stroke="currentColor"
+            strokeWidth="2"
+            opacity=".25"
+          />
+          <path
+            d="M10 3a7 7 0 0 1 7 7"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
+        </svg>
+      )}
+      {children}
+    </button>
+  );
 }
 export function Input(props: InputHTMLAttributes<HTMLInputElement>) {
   return <input {...props} className={`input ${props.className ?? ""}`} />;
@@ -432,6 +468,8 @@ export function Modal({
   children,
   open,
   onOpenChange,
+  busy = false,
+  footer,
 }: {
   trigger: ReactNode;
   title: string;
@@ -439,6 +477,8 @@ export function Modal({
   children: ReactNode;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  busy?: boolean;
+  footer?: ReactNode;
 }) {
   const { t } = useLocale();
 
@@ -453,9 +493,22 @@ export function Modal({
             {t(description)}
           </DialogPrimitive.Description>
           {t(children)}
-          <DialogPrimitive.Close asChild>
-            <Button variant="secondary">{t("关闭")}</Button>
-          </DialogPrimitive.Close>
+          {footer ? (
+            <div className="dialog-actions">
+              <DialogPrimitive.Close asChild>
+                <Button variant="secondary" disabled={busy}>
+                  {t("关闭")}
+                </Button>
+              </DialogPrimitive.Close>
+              {t(footer)}
+            </div>
+          ) : (
+            <DialogPrimitive.Close asChild>
+              <Button variant="secondary" disabled={busy}>
+                {t("关闭")}
+              </Button>
+            </DialogPrimitive.Close>
+          )}
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>

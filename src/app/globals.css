@@ -876,34 +876,6 @@ button:disabled {
   align-items: center;
   gap: 6px;
 }
-.button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 10px 16px;
-  border: 1px solid transparent;
-  border-radius: 9px;
-  font-weight: 600;
-  font-size: 13px;
-  min-height: 42px;
-}
-.primary {
-  background: var(--blue);
-  color: white;
-}
-.secondary {
-  background: white;
-  border-color: var(--line);
-  color: var(--ink);
-}
-.ghost {
-  background: transparent;
-  color: var(--muted);
-}
-.button:hover {
-  filter: brightness(0.96);
-}
 .mode-strip {
   border-bottom: 1px solid var(--line);
   background: #edf3ff;
@@ -1213,15 +1185,6 @@ dd {
   background: white;
   border: 1px solid var(--line);
   border-radius: 7px;
-}
-.input {
-  width: 100%;
-  min-width: 0;
-  border: 1px solid #ccd6e5;
-  border-radius: 9px;
-  padding: 12px 14px;
-  background: white;
-  color: var(--ink);
 }
 label {
   display: flex;

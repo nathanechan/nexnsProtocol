@@ -32,7 +32,8 @@ export function EconomyLink({ p, tab }: { p: Project; tab?: string }) {
         />
       </span>
       <span data-user-text>
-        {projectName(p, locale)} · {p.symbol}
+        {p.symbol}
+        {p.name !== p.symbol && <> · {projectName(p, locale)}</>}
       </span>{" "}
       ↗
     </Link>

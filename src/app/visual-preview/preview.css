@@ -1,0 +1,191 @@
+/* Direction study only. These tokens and selectors do not apply to production routes. */
+body:has(.visual-lab) {
+  --canvas: #f4f6fa;
+  --ink: #17253d;
+  --muted: #718096;
+  --line: #e9edf3;
+  --blue: #4164ed;
+  background: var(--canvas);
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "Microsoft YaHei",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+body:has(.visual-lab) .app-header {
+  background: rgb(255 255 255 / 94%);
+  border-bottom: 1px solid #e9edf3;
+}
+body:has(.visual-lab) .topbar {
+  min-height: 76px;
+}
+body:has(.visual-lab) .brand {
+  letter-spacing: -0.7px;
+}
+body:has(.visual-lab) .button {
+  border-radius: 10px;
+  min-height: 38px;
+  box-shadow: none;
+}
+.visual-lab {
+  --radius: 18px;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding-top: 18px;
+}
+.direction-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 36px;
+  padding: 10px 0 18px;
+  border-bottom: 1px solid #e1e6ef;
+  color: #68768d;
+  font-size: 11px;
+}
+.direction-toolbar > div,
+.direction-toolbar nav,
+.direction-toolbar a {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.direction-toolbar strong {
+  font-size: 12px;
+  font-weight: 600;
+  color: #354661;
+}
+.direction-dot {
+  height: 6px;
+  width: 6px;
+  background: #7c83d9;
+  border-radius: 50%;
+}
+.direction-caption {
+  margin-left: 8px;
+  color: #8590a3;
+}
+.direction-toolbar nav {
+  background: #e9edf4;
+  padding: 4px;
+  border-radius: 10px;
+  gap: 3px;
+}
+.direction-toolbar nav a {
+  padding: 7px 12px;
+  border-radius: 7px;
+}
+.direction-toolbar nav a[aria-current="page"] {
+  background: white;
+  color: #283d65;
+  box-shadow: 0 1px 4px #17253d0b;
+}
+.direction-kicker {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  color: #7c8a9f;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+}
+.direction-kicker > span:last-child {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 10px;
+  letter-spacing: 0.2px;
+  color: #718098;
+}
+.direction-kicker svg {
+  color: #4c9c8b;
+}
+.direction-footnote {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 25px 1px;
+  font-size: 10px;
+  color: #8a97aa;
+}
+.direction-footnote span,
+.direction-footnote a {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+@media (max-width: 768px) {
+  body:has(.visual-lab) .topbar {
+    min-height: 60px;
+  }
+  .visual-lab {
+    padding-top: 7px;
+  }
+  .direction-toolbar {
+    margin-bottom: 26px;
+    padding-bottom: 13px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .direction-caption {
+    display: none;
+  }
+  .direction-toolbar nav a {
+    padding: 7px 10px;
+    font-size: 10px;
+  }
+  .direction-toolbar strong {
+    font-size: 10px;
+  }
+  .direction-kicker {
+    margin-bottom: 12px;
+    font-size: 9px;
+  }
+  .direction-footnote {
+    font-size: 9px;
+    align-items: flex-start;
+  }
+}
+.direction-project-picker {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin: 0 0 18px;
+  font-size: 10px;
+  color: #8996a8;
+}
+.direction-project-picker select {
+  font-size: 11px;
+  color: #5c6f8b;
+  background: transparent;
+  border: 1px solid #e0e6ef;
+  padding: 6px 9px;
+  border-radius: 7px;
+  max-width: 210px;
+}
+@media (max-width: 900px) {
+  .direction-project-picker {
+    margin-bottom: 14px;
+  }
+}
+.direction-content {
+  position: relative;
+}
+.direction-content:has(.direction-project-picker)
+  .direction-kicker
+  > span:last-child {
+  visibility: hidden;
+}
+.direction-project-picker {
+  position: absolute;
+  top: -6px;
+  right: 0;
+  margin: 0;
+  flex-direction: row;
+}

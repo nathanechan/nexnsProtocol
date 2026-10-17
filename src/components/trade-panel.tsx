@@ -241,6 +241,16 @@ export function TradePanel({ project }: { project: Project }) {
             ) : null,
           )}
           <Modal
+            busy={processing}
+            footer={
+              <Button
+                loading={processing}
+                disabled={processing || !review}
+                onClick={execute}
+              >
+                {t(processing ? "处理中…" : "确认交易")}
+              </Button>
+            }
             open={open}
             onOpenChange={(v) => {
               if (!processing) setOpen(v);
@@ -276,15 +286,13 @@ export function TradePanel({ project }: { project: Project }) {
                   : []
               }
             />
-            <Button disabled={processing || !review} onClick={execute}>
-              {t(processing ? "处理中…" : "确认交易")}
-            </Button>
+
             <p role="status" aria-live="polite">
               {t(processing ? "正在处理交易…" : "")}
             </p>
           </Modal>
           <p
-            className={`trade-status ${message.includes("成功") ? "operation-success" : ""}`}
+            className={`trade-status ${processing ? "operation-pending" : message.includes("成功") ? "operation-success" : message ? "operation-error" : ""}`}
             role="status"
             aria-live="polite"
           >

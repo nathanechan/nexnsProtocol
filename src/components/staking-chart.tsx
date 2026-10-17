@@ -89,11 +89,17 @@ export function StakingChart({ project }: { project: Project }) {
             <small data-user-text>{project.symbol}</small>
           </strong>
           <span
-            className={period != null && period < 0 ? "negative" : "positive"}
+            className={
+              period == null || period === 0
+                ? ""
+                : period < 0
+                  ? "negative"
+                  : "positive"
+            }
           >
             {period == null
               ? "—"
-              : `${period >= 0 ? "+" : ""}${period.toFixed(2)}%`}
+              : `${period > 0 ? "+" : ""}${period.toFixed(2)}%`}
           </span>
         </div>
         <div
@@ -119,9 +125,7 @@ export function StakingChart({ project }: { project: Project }) {
         {stamp(selected.time, true)} ·{" "}
         {selected.amount.toLocaleString(locale, { maximumFractionDigits: 4 })}{" "}
         <span data-user-text>{project.symbol}</span> ·{" "}
-        {change == null
-          ? "—"
-          : `${change >= 0 ? "+" : ""}${change.toFixed(2)}%`}
+        {change == null ? "—" : `${change > 0 ? "+" : ""}${change.toFixed(2)}%`}
       </div>
       <svg
         viewBox="0 0 760 270"

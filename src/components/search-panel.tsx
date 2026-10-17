@@ -189,8 +189,14 @@ export function SearchPanel({
                               }
                             }}
                           >
-                            {projectName(r.project, locale)}{" "}
-                            <small>{r.project.symbol}</small>
+                            <span data-token-symbol data-user-text>
+                              {r.project.symbol}
+                            </span>{" "}
+                            {r.project.name !== r.project.symbol && (
+                              <small data-token-name data-user-text>
+                                {projectName(r.project, locale)}
+                              </small>
+                            )}
                             <span className="sr-only">
                               {t(" ")}
                               {t("· BSC ·")}

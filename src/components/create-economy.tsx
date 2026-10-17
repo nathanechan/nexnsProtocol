@@ -277,7 +277,11 @@ export function CreateEconomy() {
               step < 2 ? (
                 <Button onClick={next}>{t("下一步")}</Button>
               ) : (
-                <Button disabled={status !== "idle"} onClick={create}>
+                <Button
+                  loading={status === "processing"}
+                  disabled={status !== "idle"}
+                  onClick={create}
+                >
                   {t(status === "processing" ? "创建中…" : "创建项目")}
                 </Button>
               ),

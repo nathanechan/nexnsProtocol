@@ -118,7 +118,7 @@ export function PositionLots({ project }: { project: Project }) {
                     items={[
                       {
                         label: "项目",
-                        value: `${project.name} · ${project.symbol}`,
+                        value: `${project.symbol} · ${project.name}`,
                       },
                       { label: "参与资金", value: amount(l.principal, "USDT") },
                       {
@@ -386,6 +386,16 @@ export function OperatingActionForm({
           ),
         )}
         <Modal
+          busy={processing}
+          footer={
+            <Button
+              loading={processing}
+              disabled={processing || !review}
+              onClick={execute}
+            >
+              {t(processing ? "处理中…" : "确认操作")}
+            </Button>
+          }
           open={open}
           onOpenChange={(v) => {
             if (!processing) setOpen(v);
@@ -414,9 +424,7 @@ export function OperatingActionForm({
               </p>
             ),
           )}
-          <Button disabled={processing || !review} onClick={execute}>
-            {t(processing ? "处理中…" : "确认操作")}
-          </Button>
+
           <p role="status" aria-live="polite">
             {t(processing ? "正在处理操作…" : "")}
           </p>
@@ -424,7 +432,7 @@ export function OperatingActionForm({
         <p
           role="status"
           aria-live="polite"
-          className={`trade-status ${status.includes("成功") || status.includes("complete ·") ? "operation-success" : ""}`}
+          className={`trade-status ${processing ? "operation-pending" : status.includes("成功") || status.includes("complete ·") ? "operation-success" : status ? "operation-error" : ""}`}
         >
           {t(status)}
         </p>

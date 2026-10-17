@@ -154,7 +154,22 @@ describe("market presentation", () => {
           ? ["Token", "Price", "Change", "Staked", "Users"]
           : ["项目", "价格", "涨跌", "质押", "人数"],
       );
+      expect(
+        container
+          .querySelector("[role=columnheader]")
+          ?.getAttribute("aria-sort"),
+      ).toBe("none");
       for (const row of container.querySelectorAll(".market-row")) {
+        const source = mockProjects.find((p) =>
+          row.getAttribute("href")?.endsWith(p.tokenContract),
+        );
+        expect(row.querySelector("[data-token-symbol]")?.textContent).toBe(
+          source!.symbol,
+        );
+        if (!source!.isPlatformToken)
+          expect(row.querySelector("[data-token-name]")?.textContent).toBe(
+            source!.name,
+          );
         expect(row.children).toHaveLength(5);
         expect(
           row.querySelector(

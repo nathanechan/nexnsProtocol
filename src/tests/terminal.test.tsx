@@ -145,6 +145,9 @@ describe("token terminal", () => {
         .getByRole("tab", { name: "Positions" })
         .getAttribute("aria-selected"),
     ).toBe("true");
+    fireEvent.click(
+      screen.getByRole("button", { name: "Switch project", exact: true }),
+    );
     const selector = screen.getByLabelText("Token switcher");
     expect(
       within(selector)
@@ -206,6 +209,12 @@ describe("token terminal", () => {
   it("Curve preserves chart, Buy/Sell, holdings and identity in one shell", () => {
     show(0);
     expect(document.querySelector(".terminal-layout")).toBeDefined();
+    expect(document.querySelector("h1 [data-token-symbol]")?.textContent).toBe(
+      mockProjects[0].symbol,
+    );
+    expect(document.querySelector("h1 [data-token-name]")?.textContent).toBe(
+      mockProjects[0].name,
+    );
     expect(screen.getByRole("heading", { level: 1 }).textContent).toContain(
       "Velqen",
     );
@@ -256,16 +265,19 @@ describe("token terminal", () => {
     const listen = vi.fn();
     window.addEventListener("nexns-open-search", listen);
     fireEvent.click(
-      within(screen.getByLabelText("Token switcher")).getByRole("button", {
-        name: "Search",
-      }),
+      screen.getByRole("button", { name: "Switch project", exact: true }),
     );
-    expect(listen).toHaveBeenCalledTimes(1);
-    window.removeEventListener("nexns-open-search", listen);
     await waitFor(() =>
       expect(document.querySelectorAll(".switcher-row").length).toBeGreaterThan(
         0,
       ),
     );
+    fireEvent.click(
+      within(screen.getByLabelText("Token switcher")).getByRole("button", {
+        name: "Search",
+      }),
+    );
+    await waitFor(() => expect(listen).toHaveBeenCalledTimes(1));
+    window.removeEventListener("nexns-open-search", listen);
   });
 });

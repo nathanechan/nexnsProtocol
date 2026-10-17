@@ -2,6 +2,11 @@ import type { Metadata } from "next";
 import { LocaleProvider } from "../i18n/locale";
 import { AppShell } from "../components/app-shell";
 import "./globals.css";
+import "./design-system.css";
+import "./market-surfaces.css";
+import "./terminal-surfaces.css";
+import "./account-surfaces.css";
+import "./final-polish.css";
 import { SimulationProvider } from "../components/simulation-provider";
 export const metadata: Metadata = {
   title: "NEXNS",

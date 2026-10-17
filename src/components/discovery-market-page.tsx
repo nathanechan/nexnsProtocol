@@ -71,12 +71,21 @@ function DiscoveryRow({
             />
           </span>
           <span className="market-token">
-            <strong className="live-token-name" data-user-text>
-              {row.platform ? "NEXNS" : projectName(row, locale)}
+            <strong
+              className="live-token-name"
+              data-token-symbol
+              data-user-text
+            >
+              {row.symbol}
             </strong>
             {!row.platform && (
-              <small className="live-token-symbol" data-user-text>
-                {row.symbol}
+              <small
+                className="live-token-symbol"
+                data-token-name
+                data-user-text
+                title={projectName(row, locale)}
+              >
+                {projectName(row, locale)}
               </small>
             )}
           </span>
@@ -130,9 +139,11 @@ function DiscoveryRow({
 export function DiscoveryMarketPage({
   section,
   service = marketService,
+  navigationPath,
 }: {
   section: MarketSection;
   service?: MarketDataService;
+  navigationPath?: string;
 }) {
   const { locale } = useLocale();
   const c = marketCopy[locale];
@@ -216,7 +227,9 @@ export function DiscoveryMarketPage({
         "dir",
         requested === value && direction === "desc" ? "asc" : "desc",
       );
-    router.replace(`/${section}?${next}`, { scroll: false });
+    router.replace(`${navigationPath ?? `/${section}`}?${next}`, {
+      scroll: false,
+    });
   };
   const columns = [
     { label: c.liveToken, sort: null },
@@ -254,7 +267,7 @@ export function DiscoveryMarketPage({
               key={i}
               role="columnheader"
               aria-sort={
-                requested === column.sort
+                column.sort && requested === column.sort
                   ? direction === "asc"
                     ? "ascending"
                     : "descending"

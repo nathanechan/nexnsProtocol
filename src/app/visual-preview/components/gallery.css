@@ -1,0 +1,91 @@
+.control-gallery {
+  max-width: 1120px;
+  margin: 0 auto;
+}
+.foundation-kicker {
+  color: #7d8a9d;
+  font-size: 10px;
+  letter-spacing: 1.6px;
+  margin-bottom: 14px;
+}
+.foundation-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 32px;
+}
+.foundation-heading h1 {
+  margin: 0 0 6px;
+  font-size: 32px;
+  font-weight: 650;
+  letter-spacing: -1px;
+}
+.foundation-heading p {
+  margin: 0;
+  font-size: 12px;
+  color: var(--nexns-muted);
+}
+.foundation-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+.foundation-card {
+  background: white;
+  border: 1px solid var(--nexns-line);
+  border-radius: var(--nexns-radius-panel);
+  padding: 26px;
+  min-width: 0;
+}
+.foundation-card h2 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 18px;
+}
+.foundation-card > p {
+  font-size: 12px;
+  line-height: 1.7;
+}
+.foundation-card > label {
+  font-size: 12px;
+  color: var(--nexns-secondary);
+}
+.foundation-card > label + label {
+  margin-top: 16px;
+}
+.foundation-controls {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 16px 0;
+}
+.foundation-card .product-tabs {
+  margin-top: 22px;
+}
+.foundation-tab-copy {
+  color: var(--nexns-muted);
+  font-size: 12px;
+  padding: 12px 0;
+}
+.foundation-note {
+  color: var(--nexns-muted);
+  font-size: 11px;
+  margin-top: 24px;
+}
+@media (max-width: 768px) {
+  .foundation-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .foundation-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .foundation-heading h1 {
+    font-size: 27px;
+  }
+  .foundation-card {
+    padding: 20px;
+  }
+}

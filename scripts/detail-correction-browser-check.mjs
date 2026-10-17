@@ -52,14 +52,14 @@ try {
     description,
   );
   await page.locator(".language-switch").selectOption("zh-CN");
-  assert.equal(await page.locator("h1 [data-user-text]").textContent(), name);
+  assert.equal(await page.locator("h1 [data-token-name]").textContent(), name);
   assert.equal(
     await page.locator(".project-description").textContent(),
     description,
   );
   await page.reload();
-  await page.locator("h1 [data-user-text]").waitFor();
-  assert.equal(await page.locator("h1 [data-user-text]").textContent(), name);
+  await page.locator("h1 [data-token-name]").waitFor();
+  assert.equal(await page.locator("h1 [data-token-name]").textContent(), name);
   checks.push(
     "single metadata fields, raw creation/review/language/reload preservation",
   );
@@ -95,7 +95,7 @@ try {
         await page
           .locator(".terminal-actions")
           .evaluate((e) => getComputedStyle(e).borderLeftWidth),
-        width === 1440 ? "1px" : "0px",
+        "1px",
       );
       assert.equal(
         await panel.evaluate((e) => getComputedStyle(e).animationName),

@@ -157,6 +157,12 @@ try {
           await page.evaluate(() => scrollTo(0, 0));
           const header = await page.locator(".terminal-header").boundingBox();
           assert(header.height <= 125, "compact header");
+          const shortcut = page.locator(".terminal-action-jump");
+          assert(
+            (await shortcut.boundingBox()).y < 500,
+            "early action shortcut",
+          );
+          await shortcut.click();
           if (route.endsWith("1".repeat(40))) {
             const tabs = await page
               .locator(".terminal-actions [role=tablist]")
@@ -176,13 +182,8 @@ try {
             assert(actions.y + actions.height < 450, "early operating actions");
             assert(tabs.height < 60, "single row operating tabs");
             await page.locator(".terminal-actions [role=tab]").first().click();
-            const market = await page
-              .locator(".terminal-workspace")
-              .boundingBox();
-            assert(
-              market.y > actions.y + actions.height,
-              "actions before market",
-            );
+            const market = await page.locator(".terminal-chart").boundingBox();
+            assert(market.y < actions.y, "chart before actions with shortcut");
           }
           checks.push(`${locale} mobile priority ${route.slice(-2)}`);
         }

@@ -64,7 +64,7 @@ export function ProjectCard({
         </div>
         <div className="identity-body">
           <h3>
-            {projectName(project, locale)} <small>{project.symbol}</small>
+            {project.symbol} <small>{projectName(project, locale)}</small>
           </h3>
           <div className="identity-meta">
             <span>{t("BSC")}</span>

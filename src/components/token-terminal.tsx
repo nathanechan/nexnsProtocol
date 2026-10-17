@@ -30,6 +30,7 @@ import {
   PriceStatusBadge,
   KeyValueList,
   Button,
+  Modal,
 } from "./ui";
 import { ProductTabs } from "./product-tabs";
 import { ProjectLogo } from "./project-logo";
@@ -47,7 +48,15 @@ import {
   useOperating,
 } from "./operating-panels";
 import { PublicInfo, ProjectActivity } from "./project-details";
-function TokenSwitcher({ current }: { current: Project }) {
+function TokenSwitcher({
+  current,
+  onSearch,
+  onSelect,
+}: {
+  current: Project;
+  onSearch?: () => void;
+  onSelect?: () => void;
+}) {
   const { locale, t } = useLocale();
   const [stage, setStage] = useState(
     current.lifecycle === "OPERATING" ? "live" : "launch",
@@ -55,6 +64,8 @@ function TokenSwitcher({ current }: { current: Project }) {
   useEffect(() => {
     setStage(current.lifecycle === "OPERATING" ? "live" : "launch");
   }, [current.lifecycle]);
+  const openSearch =
+    onSearch ?? (() => window.dispatchEvent(new Event("nexns-open-search")));
   const revision = useSimulation((s) => s.revision);
   const projects = useSimulation((s) => s.projects);
   const load = useCallback(() => {
@@ -73,6 +84,7 @@ function TokenSwitcher({ current }: { current: Project }) {
       <Link
         key={r.key}
         href={r.href}
+        onClick={onSelect}
         className="switcher-row"
         aria-current={
           r.key === projectKey(current.chainId, current.tokenContract)
@@ -101,12 +113,19 @@ function TokenSwitcher({ current }: { current: Project }) {
   return (
     <aside
       className="terminal-switcher"
+      onKeyDown={(event) => {
+        if (
+          (event.ctrlKey || event.metaKey) &&
+          event.key.toLowerCase() === "k"
+        ) {
+          event.preventDefault();
+          event.stopPropagation();
+          openSearch();
+        }
+      }}
       aria-label={locale === "zh-CN" ? "代币切换" : "Token switcher"}
     >
-      <Button
-        variant="ghost"
-        onClick={() => window.dispatchEvent(new Event("nexns-open-search"))}
-      >
+      <Button variant="ghost" onClick={openSearch}>
         {t("搜索")}
       </Button>
       <ProductTabs
@@ -173,6 +192,7 @@ export function TokenTerminal({
   const activities = all.filter((a) => a.projectKey === key);
   const ledger = useSimulation((s) => s.curves[key]);
   const [shareStatus, setShareStatus] = useState("");
+  const [switchOpen, setSwitchOpen] = useState(false);
   const [action, setAction] = useState("participate"),
     [detail, setDetail] = useState(op ? "positions" : "activity");
   useEffect(() => {
@@ -272,7 +292,53 @@ export function TokenTerminal({
   return (
     <div
       className={`token-terminal project-page ${curve ? "terminal-curve" : "terminal-operating"}`}
+      data-lifecycle={project.lifecycle}
     >
+      <div className="terminal-navigation">
+        <Link href={op ? "/live" : "/launch"}>
+          {locale === "zh-CN"
+            ? op
+              ? "← 运行"
+              : "← 发行"
+            : op
+              ? "← Live"
+              : "← Launch"}
+        </Link>
+        <div className="terminal-navigation-actions">
+          {(curve || op) && (
+            <a className="terminal-action-jump" href="#project-actions">
+              {locale === "zh-CN" ? "操作 ↓" : "Actions ↓"}
+            </a>
+          )}
+          <Modal
+            open={switchOpen}
+            onOpenChange={setSwitchOpen}
+            title={locale === "zh-CN" ? "切换项目" : "Switch project"}
+            description={
+              locale === "zh-CN"
+                ? "选择发行或运行项目。"
+                : "Choose a Launch or Live project."
+            }
+            trigger={
+              <Button variant="secondary">
+                {locale === "zh-CN" ? "切换项目" : "Switch project"}
+              </Button>
+            }
+          >
+            <TokenSwitcher
+              current={project}
+              onSelect={() => setSwitchOpen(false)}
+              onSearch={() => {
+                setSwitchOpen(false);
+                window.setTimeout(
+                  () => window.dispatchEvent(new Event("nexns-open-search")),
+                  0,
+                );
+              }}
+            />
+          </Modal>
+        </div>
+      </div>
       <header className="terminal-header">
         <span className="terminal-logo" aria-hidden>
           <ProjectLogo
@@ -283,8 +349,14 @@ export function TokenTerminal({
         </span>
         <div className="terminal-identity">
           <h1>
-            <span data-user-text>{project.name}</span>
-            <small>{project.symbol}/USDT</small>
+            <span data-token-symbol data-user-text>
+              {project.symbol}
+            </span>
+            {project.name !== project.symbol && (
+              <small data-token-name data-user-text title={project.name}>
+                {project.name}
+              </small>
+            )}
           </h1>
           <div className="terminal-header-meta">
             {!curve && !op && <LifecycleBadge state={project.lifecycle} />}
@@ -308,42 +380,53 @@ export function TokenTerminal({
           <strong key={quotePrice ?? "unavailable"}>
             {marketPrice(quotePrice)}
           </strong>
-          <span>
-            {marketChange(op ? (project.operating?.change24h ?? null) : null)}
-          </span>
-        </div>
-        <Button
-          variant="ghost"
-          aria-label={t("分享项目")}
-          onClick={async () => {
-            try {
-              await navigator.clipboard.writeText(location.href);
-              setShareStatus(t("项目链接已复制"));
-            } catch {
-              setShareStatus(t("复制失败，请从地址栏复制项目链接"));
-            }
-          }}
-        >
-          ↗
-        </Button>
-        {op && (
-          <Button
-            className="dex-link"
-            variant="secondary"
-            disabled
-            title={
-              locale === "zh-CN"
-                ? "交易市场暂不可用"
-                : "Trading market unavailable"
+          <span
+            className={
+              op && (project.operating?.change24h ?? 0) > 0
+                ? "positive"
+                : op && (project.operating?.change24h ?? 0) < 0
+                  ? "negative"
+                  : ""
             }
           >
-            {locale === "zh-CN" ? "去交易 ↗" : "Trade on DEX ↗"}
+            {op && project.operating?.change24h != null
+              ? marketChange(project.operating.change24h)
+              : "—"}
+          </span>
+        </div>
+        <div className="terminal-header-actions">
+          <Button
+            variant="ghost"
+            aria-label={t("分享项目")}
+            onClick={async () => {
+              try {
+                await navigator.clipboard.writeText(location.href);
+                setShareStatus(t("项目链接已复制"));
+              } catch {
+                setShareStatus(t("复制失败，请从地址栏复制项目链接"));
+              }
+            }}
+          >
+            ↗
           </Button>
-        )}
+          {op && (
+            <Button
+              className="dex-link"
+              variant="secondary"
+              disabled
+              title={
+                locale === "zh-CN"
+                  ? "交易市场暂不可用"
+                  : "Trading market unavailable"
+              }
+            >
+              {locale === "zh-CN" ? "去交易 ↗" : "Trade on DEX ↗"}
+            </Button>
+          )}
+        </div>
       </header>
       {shareStatus && <p role="status">{shareStatus}</p>}
       <div className="terminal-layout">
-        <TokenSwitcher current={project} />
         <dl className="terminal-market-strip">
           {stats.map(([label, value], index) => (
             <div key={label}>
@@ -485,6 +568,7 @@ export function TokenTerminal({
           </section>
         </section>
         <aside
+          id="project-actions"
           className="terminal-actions"
           aria-label={locale === "zh-CN" ? "项目操作" : "Project actions"}
         >

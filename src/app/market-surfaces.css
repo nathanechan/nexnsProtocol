@@ -1,0 +1,284 @@
+/* Step 3: discovery pages and shared navigation; financial terminal geometry stays unchanged. */
+.app-header {
+  background: rgb(255 255 255 / 96%);
+  border-bottom: 1px solid var(--nexns-line);
+}
+.app-header .brand {
+  letter-spacing: -0.6px;
+}
+.desktop-primary a {
+  border-radius: 8px;
+  transition:
+    background 140ms,
+    color 140ms;
+}
+.desktop-primary a:hover {
+  background: #f3f6fb;
+}
+.desktop-primary a[aria-current="page"] {
+  color: #3657c9;
+}
+.header-actions .language-switch {
+  border-radius: 8px;
+}
+.mobile-primary {
+  border-top-color: var(--nexns-line);
+  box-shadow: 0 -4px 20px rgb(23 37 61 / 3%);
+}
+.mobile-primary a {
+  border-radius: 10px;
+  transition:
+    background 140ms,
+    color 140ms;
+}
+.discovery-surface {
+  max-width: 1240px;
+  margin: 0 auto;
+}
+.discovery-surface .market-toolbar {
+  margin: 0 0 24px;
+}
+.discovery-surface .market-toolbar h1 {
+  font-size: 32px;
+  line-height: 1.3;
+  font-weight: 650;
+  letter-spacing: -0.9px;
+}
+.discovery-surface .discovery-tabs {
+  gap: 5px;
+  border: 0;
+  margin: 0 0 22px;
+}
+.discovery-surface .discovery-tabs button {
+  padding: 9px 18px;
+  min-height: 38px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--nexns-secondary);
+  transition:
+    background 140ms,
+    color 140ms;
+}
+.discovery-surface .discovery-tabs button[aria-selected="true"] {
+  background: #203454;
+  color: white;
+  box-shadow: 0 2px 7px rgb(23 37 61 / 9%);
+}
+.discovery-surface .discovery-tabs button:hover:not([aria-selected="true"]) {
+  background: #e9eef7;
+  color: var(--nexns-ink);
+}
+.discovery-surface .market-list {
+  background: white;
+  border: 1px solid var(--nexns-line);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgb(23 37 61 / 2%);
+  overflow: hidden;
+}
+.discovery-surface .market-columns {
+  min-height: 46px;
+  background: #fbfcfe;
+  color: #63738a;
+  border-bottom: 1px solid #e9eef6;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 10px 24px 10px 52px;
+}
+.discovery-surface .market-columns button {
+  min-height: 24px;
+  padding: 2px 0;
+}
+.discovery-surface .market-columns button:hover {
+  color: #3657c9;
+}
+.discovery-surface .market-columns [aria-sort="ascending"],
+.discovery-surface .market-columns [aria-sort="descending"] {
+  color: #3657c9;
+}
+.discovery-surface .market-columns b {
+  font-weight: 500;
+}
+.discovery-surface .discovery-project-row {
+  min-height: 64px;
+  padding: 10px 24px 10px 52px;
+  background: white;
+  border-bottom: 1px solid #eef2f7;
+  transition: background 140ms;
+}
+.discovery-surface .discovery-project-row:hover {
+  background: #f6f9ff;
+}
+.discovery-surface .discovery-project-row:active {
+  background: #eef3ff;
+}
+.discovery-surface .market-identity {
+  gap: 11px;
+}
+.discovery-surface .market-logo {
+  width: 33px;
+  height: 33px;
+  flex: 0 0 33px;
+  border-radius: 10px;
+  background: #f3f5fb;
+}
+.discovery-surface .live-token-name {
+  display: block;
+  font-size: 14px;
+  line-height: 1.4;
+  font-weight: 650;
+  letter-spacing: 0.1px;
+  color: #243853;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.discovery-surface .live-token-symbol {
+  display: block;
+  font-size: 11px;
+  line-height: 1.4;
+  margin-top: 2px;
+  color: var(--nexns-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.discovery-surface .market-cell {
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  color: #334b6c;
+}
+.discovery-surface .market-price {
+  color: #1d3353;
+  font-weight: 600;
+}
+.discovery-surface .market-progress-track {
+  height: 3px;
+  max-width: 112px;
+  margin: 6px 0 0 auto;
+  border-radius: 3px;
+  background: #edf1f8;
+  overflow: hidden;
+}
+.discovery-surface .market-progress-track i {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #96a7ef, #5674df);
+}
+.discovery-surface .watch-star {
+  color: #8a98ae;
+  font-size: 19px;
+  transition: color 140ms;
+}
+.discovery-surface .watch-star:hover {
+  color: #4164ed;
+}
+.discovery-surface .watch-star[aria-pressed="true"] {
+  color: #4967cf;
+}
+.discovery-surface .market-feedback {
+  font-size: 13px;
+  color: var(--nexns-muted);
+  padding: 28px 24px;
+  min-height: 0;
+}
+.terminal-identity h1 > [data-token-name] {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--nexns-secondary);
+  max-width: 38ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.identity-body .search-result [data-token-symbol] {
+  font-weight: 650;
+}
+.identity-body .search-result [data-token-name] {
+  color: var(--nexns-muted);
+  font-weight: 400;
+}
+@media (max-width: 768px) {
+  .discovery-surface .market-toolbar {
+    margin-bottom: 20px;
+  }
+  .discovery-surface .market-toolbar h1 {
+    font-size: 28px;
+  }
+  .discovery-surface .discovery-tabs {
+    gap: 3px;
+    margin-bottom: 17px;
+  }
+  .discovery-surface .discovery-tabs button {
+    padding: 8px 13px;
+    min-height: 36px;
+    font-size: 12px;
+  }
+  .discovery-surface .market-list {
+    border-radius: 13px;
+  }
+  .discovery-surface .market-columns {
+    min-height: 45px;
+    padding: 7px 10px 7px 30px;
+    font-size: 10px;
+  }
+  .discovery-surface .market-columns button {
+    min-height: 0;
+    padding: 0;
+  }
+  .discovery-surface .market-columns .header-price {
+    align-self: start;
+  }
+  .discovery-surface .market-columns .header-change {
+    padding-top: 14px;
+  }
+  .discovery-surface .discovery-project-row {
+    min-height: 64px;
+    padding: 9px 10px 9px 30px;
+  }
+  .discovery-surface .market-identity {
+    gap: 6px;
+  }
+  .discovery-surface .market-logo {
+    width: 25px;
+    height: 25px;
+    flex-basis: 25px;
+    border-radius: 8px;
+  }
+  .discovery-surface .live-token-name {
+    font-size: 12px;
+  }
+  .discovery-surface .live-token-symbol {
+    font-size: 10px;
+  }
+  .discovery-surface .market-cell {
+    font-size: 11px;
+  }
+  .discovery-surface .mobile-change {
+    font-size: 10px;
+    margin-top: 2px;
+  }
+  .discovery-surface .market-progress-track {
+    height: 2px;
+    max-width: 54px;
+    margin-top: 5px;
+  }
+  .discovery-surface .watch-star {
+    font-size: 18px;
+  }
+  .terminal-identity h1 > [data-token-name] {
+    max-width: 20ch;
+    font-size: 11px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .desktop-primary a,
+  .mobile-primary a,
+  .discovery-surface .discovery-tabs button,
+  .discovery-surface .discovery-project-row,
+  .discovery-surface .watch-star {
+    transition: none;
+  }
+}

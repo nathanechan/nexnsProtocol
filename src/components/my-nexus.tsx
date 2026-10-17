@@ -144,7 +144,7 @@ export function MyNexus() {
         ]}
       />
       <div className="portfolio-claimable">
-        <strong>{t("可领取")}</strong>
+        {claimRows.length > 0 && <strong>{t("可领取")}</strong>}
         <div className="portfolio-reward-list">
           {claimRows.length ? (
             claimRows.map((r) => (
@@ -160,8 +160,14 @@ export function MyNexus() {
                   className="portfolio-claim-identity"
                   href={projectRoute(r.p)}
                 >
-                  <strong data-user-text>{projectName(r.p, locale)}</strong>
-                  <small data-user-text>{r.p.symbol}</small>
+                  <strong data-token-symbol data-user-text>
+                    {r.p.symbol}
+                  </strong>
+                  {r.p.name !== r.p.symbol && (
+                    <small data-token-name data-user-text>
+                      {projectName(r.p, locale)}
+                    </small>
+                  )}
                 </Link>
                 <span className="portfolio-claim-amount">
                   <small>{t("可领取")}</small>
@@ -409,7 +415,7 @@ export function MyNexus() {
             {rewards.map((r) => (
               <section className="reward-history" key={r.key}>
                 <strong data-user-text>
-                  {projectName(r.p, locale)} · {r.p.symbol}
+                  {r.p.symbol} · {projectName(r.p, locale)}
                 </strong>
                 <details>
                   <summary>{t("历史结算")}</summary>

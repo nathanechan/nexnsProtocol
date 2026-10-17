@@ -128,6 +128,10 @@ try {
       }
     }
   }
+  // Keep visual market time constant while checking exact user stake deltas across reload.
+  await page.clock.setFixedTime(
+    new Date(Math.floor(Date.now() / 30000) * 30000 + 5000),
+  );
   await page.evaluate(() => localStorage.setItem("nexns-locale", "zh-CN"));
   await page.goto(base + "/economy/56/" + op);
   const headline = page.locator(".trend-heading [data-value]");

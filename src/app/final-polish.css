@@ -1,0 +1,64 @@
+/* Final pass: focus stays clear of persistent navigation and mobile text inputs
+   avoid browser auto-zoom. No execution timing or data animations are changed. */
+html {
+  scroll-padding-top: 88px;
+}
+.dialog {
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+.product-menu a,
+.product-menu button,
+.mobile-primary a,
+.desktop-primary a {
+  transition:
+    background var(--nexns-motion-fast),
+    color var(--nexns-motion-fast);
+}
+.product-tablist button,
+.discovery-tabs button {
+  scroll-margin-inline: 12px;
+}
+@media (max-width: 768px) {
+  html {
+    scroll-padding-top: 84px;
+    scroll-padding-bottom: calc(84px + env(safe-area-inset-bottom));
+  }
+  input.input,
+  textarea,
+  select.input {
+    font-size: 16px;
+  }
+  .input,
+  textarea,
+  select,
+  .wizard-actions,
+  .operation-confirm {
+    scroll-margin-block: 16px;
+  }
+  .dialog {
+    scroll-padding-block: 16px;
+  }
+  .dialog input,
+  .dialog textarea,
+  .dialog select {
+    font-size: 16px;
+  }
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  .dialog {
+    max-height: calc(100dvh - 20px);
+    padding-block: 16px;
+  }
+  .dialog-actions {
+    margin-top: 16px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .product-menu a,
+  .product-menu button,
+  .mobile-primary a,
+  .desktop-primary a {
+    transition: none;
+  }
+}

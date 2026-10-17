@@ -187,7 +187,7 @@ function MetadataEditor({ p }: { p: Project }) {
           </p>
         </details>
         <LinkEditor p={p} logo={logo} />
-        <Button type="submit" disabled={busy}>
+        <Button type="submit" loading={busy} disabled={busy}>
           {t(busy ? "保存中…" : "保存资料")}
         </Button>
         <p className="small-note">

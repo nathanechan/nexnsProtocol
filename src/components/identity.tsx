@@ -19,7 +19,8 @@ export function ProjectIdentity({ project }: { project: Project }) {
       </div>
       <div className="identity-body">
         <Link className="project-link" href={projectRoute(project)}>
-          {project.name} <span>{project.symbol}</span>
+          {project.symbol}{" "}
+          {project.name !== project.symbol && <span>{project.name}</span>}
         </Link>
         <div className="identity-meta">
           <span>

@@ -68,7 +68,7 @@ try {
         );
         assert.equal(
           await page.locator(".terminal-switcher").isVisible(),
-          width === 1440,
+          false,
         );
         const header = await page.locator(".terminal-header").boundingBox();
         assert(header.height < 145);
@@ -77,10 +77,9 @@ try {
             name: locale === "en" ? "Buy" : "买入",
             exact: true,
           });
-          assert((await buy.boundingBox()).y < 500);
-          assert(
-            (await page.getByRole("textbox").first().boundingBox()).y < 620,
-          );
+          if (width <= 900) await page.locator(".terminal-action-jump").click();
+          assert(await buy.isVisible());
+          assert(await page.getByRole("textbox").first().isVisible());
           assert.equal(await page.locator(".curve-chart").count(), 1);
           if (width <= 768)
             assert(
@@ -88,11 +87,18 @@ try {
                 (await buy.boundingBox()).y,
             );
         } else if (stage === "operating") {
+          if (width <= 900) await page.locator(".terminal-action-jump").click();
           const tabs = page.getByRole("tablist", {
             name: locale === "en" ? "Terminal actions" : "终端操作",
           });
           assert.equal(await tabs.getByRole("tab").count(), 3);
-          assert((await tabs.boundingBox()).y < 430);
+          const panelBox = await page
+            .locator(".terminal-actions")
+            .boundingBox();
+          assert(
+            (await tabs.boundingBox()).y >= panelBox.y &&
+              (await tabs.boundingBox()).y < panelBox.y + 240,
+          );
           for (const name of locale === "en"
             ? ["Participate", "Stake", "Claim"]
             : ["参与", "质押", "领取"]) {
@@ -112,8 +118,10 @@ try {
             .click();
           if (width <= 768)
             assert(
-              (await page.locator(".terminal-actions").boundingBox()).y <
-                (await page.locator(".terminal-workspace").boundingBox()).y,
+              (await page.locator(".terminal-chart").boundingBox()).y <
+                (await page.locator(".terminal-actions").boundingBox()).y &&
+                (await page.locator(".terminal-details").boundingBox()).y >
+                  (await page.locator(".terminal-actions").boundingBox()).y,
             );
         } else
           assert.equal(
@@ -135,6 +143,9 @@ try {
   await page.setViewportSize({ width: 1440, height: 900 });
   await seed("全新曲线");
   await page.goto(url);
+  await page
+    .getByRole("button", { name: "Switch project", exact: true })
+    .click();
   await page
     .locator(".terminal-switcher")
     .getByRole("button", { name: "Search", exact: true })
