@@ -3,6 +3,7 @@ import { useId, useState } from "react";
 import Image from "next/image";
 import { identitySeed } from "../product/staking-history";
 import { NexnsBrandMark } from "./brand-mark";
+import { fixtureBrand } from "../product/fixture-brand";
 export function ProjectLogo({
   logo,
   identity = logo,
@@ -35,6 +36,24 @@ export function ProjectLogo({
   if (platform)
     return (
       <NexnsBrandMark className="token-mark nexns-mark" identity={identity} />
+    );
+  const tile = fixtureBrand(identity, logo);
+  if (tile != null)
+    return (
+      <span
+        role="img"
+        aria-label="Token logo"
+        className="token-mark fixture-brand"
+        style={{
+          backgroundImage: "url(/market/token-atlas.png)",
+          backgroundSize: "400% 400%",
+          backgroundPosition: `${((tile % 4) * 100) / 3}% ${(Math.floor(tile / 4) * 100) / 3}%`,
+          display: "block",
+          width: "100%",
+          height: "100%",
+          borderRadius: "50%",
+        }}
+      />
     );
   return (
     <svg

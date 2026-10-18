@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="color-scheme" content="dark light" />
+    <title>NEXNS · 运行</title>
+    <link rel="stylesheet" href="market.css" />
+  </head>
+  <body>
+    <svg class="icon-sprite" aria-hidden="true">
+      <defs>
+        <symbol id="i-search" viewBox="0 0 24 24">
+          <circle cx="10.5" cy="10.5" r="6.5" />
+          <path d="m16 16 4 4" />
+        </symbol>
+        <symbol id="i-arrow" viewBox="0 0 24 24">
+          <path d="M5 17 18 4M5 4h13v13" />
+        </symbol>
+        <symbol id="i-star" viewBox="0 0 24 24">
+          <path
+            d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"
+          />
+        </symbol>
+        <symbol id="i-fire" viewBox="0 0 24 24">
+          <path
+            d="M13 3c1 5-4 5-2 9 2-1 3-3 3-4 5 4 6 7 3 11-3 4-10 2-11-2C4 12 8 9 8 9c-1 4 1 5 2 5-2-6 1-7 3-11Z"
+          />
+        </symbol>
+        <symbol id="i-sun" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="4" />
+          <path
+            d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"
+          />
+        </symbol>
+        <symbol id="i-moon" viewBox="0 0 24 24">
+          <path d="M20 15A8.5 8.5 0 0 1 9 4a8.5 8.5 0 1 0 11 11Z" />
+        </symbol>
+        <symbol id="i-close" viewBox="0 0 24 24">
+          <path d="m6 6 12 12M6 18 18 6" />
+        </symbol>
+        <symbol id="i-copy" viewBox="0 0 24 24">
+          <rect x="8" y="8" width="12" height="12" rx="2" />
+          <path d="M15 8V4H4v11h4" />
+        </symbol>
+        <symbol id="i-chevron" viewBox="0 0 24 24">
+          <path d="m8 5 7 7-7 7" />
+        </symbol>
+      </defs>
+    </svg>
+    <header class="header">
+      <a href="#live" class="brand" aria-label="NEXNS"
+        ><svg viewBox="230 145 880 980" aria-hidden="true">
+          <image href="assets/nexns-logo.png" width="1306" height="1205" /></svg
+        ><b>NEXNS</b></a
+      >
+      <nav class="nav" aria-label="主导航">
+        <a href="#launch" data-stage="launch">发行</a
+        ><a href="#live" data-stage="live">运行</a
+        ><a
+          href="http://localhost:3000/portfolio"
+          target="_blank"
+          rel="noopener"
+          data-i18n="assets"
+          >资产</a
+        >
+      </nav>
+      <div class="header-right">
+        <span class="network"><i></i> BNB Chain</span
+        ><button class="icon-button" id="theme" aria-label="切换主题">
+          <svg><use href="#i-sun" /></svg></button
+        ><button class="icon-button" id="search-button" aria-label="搜索">
+          <svg><use href="#i-search" /></svg></button
+        ><button class="language" id="language">EN</button
+        ><a
+          class="create"
+          href="http://localhost:3000/create"
+          target="_blank"
+          rel="noopener"
+          data-i18n="create"
+          >＋ 创建</a
+        ><button class="wallet" id="wallet" data-i18n="wallet">钱包</button>
+      </div>
+    </header>
+    <section class="tape" aria-label="近期市场活动">
+      <span class="tape-label"
+        ><i class="live-dot"></i><span data-i18n="latest">最新成交</span></span
+      >
+      <div id="tape-items"></div>
+    </section>
+    <main>
+      <section class="spotlight" id="spotlight" aria-label="重点项目"></section>
+      <section class="market">
+        <div class="toolbar">
+          <div class="filters" role="tablist" aria-label="市场筛选">
+            <button data-filter="hot" role="tab" aria-selected="true">
+              <svg><use href="#i-fire" /></svg
+              ><span data-i18n="hot">热门</span></button
+            ><button
+              data-filter="new"
+              role="tab"
+              aria-selected="false"
+              data-i18n="new"
+            >
+              最新</button
+            ><button data-filter="watch" role="tab" aria-selected="false">
+              <svg><use href="#i-star" /></svg
+              ><span data-i18n="watch">自选</span
+              ><small id="watch-count"></small></button
+            ><button
+              data-filter="all"
+              role="tab"
+              aria-selected="false"
+              data-i18n="all"
+            >
+              全部
+            </button>
+          </div>
+          <div class="tools">
+            <span class="market-status"
+              ><i class="live-dot"></i
+              ><span data-i18n="market">市场</span></span
+            ><label class="search"
+              ><svg><use href="#i-search" /></svg
+              ><input
+                id="search"
+                placeholder="搜索代币或合约"
+                aria-label="搜索代币或合约"
+              /><kbd>⌘ K</kbd
+              ><button id="clear-search" aria-label="清空搜索" hidden>
+                ×
+              </button></label
+            >
+          </div>
+        </div>
+        <div class="market-table">
+          <div class="column-head" role="row">
+            <span class="rank">#</span><span data-i18n="token">代币</span
+            ><span class="trend-label" data-i18n="trend">走势</span
+            ><button data-sort="price">
+              <span data-i18n="price">价格</span><small>↕</small></button
+            ><button data-sort="change">
+              <span data-i18n="change">24h 涨跌</span><small>↕</small></button
+            ><button class="volume" data-sort="volume">
+              <span data-i18n="volume">24h 成交量</span><small>↕</small></button
+            ><button class="stage-metric" data-sort="metric">
+              <span id="metric-label">流动性</span><small>↕</small></button
+            ><button class="addresses" data-sort="addresses">
+              <span data-i18n="addresses">地址</span><small>↕</small></button
+            ><span class="save-label"></span>
+          </div>
+          <div id="rows" role="list" aria-label="代币列表"></div>
+          <div id="empty" class="empty" hidden>
+            <svg><use href="#i-search" /></svg
+            ><strong data-i18n="noresults">暂无匹配的代币</strong>
+            <p data-i18n="trysearch">尝试其他简称或合约地址</p>
+            <button id="reset" data-i18n="reset">重置筛选</button>
+          </div>
+        </div>
+        <footer class="table-footer">
+          <span><i class="live-dot"></i> BNB Chain</span
+          ><span
+            >USDT <span class="footer-separator">/</span>
+            <span data-i18n="currency">计价</span></span
+          ><button id="back-top" data-i18n="backtop">返回顶部 ↑</button>
+        </footer>
+      </section>
+    </main>
+    <dialog id="project-dialog">
+      <button class="dialog-close icon-button" aria-label="关闭">
+        <svg><use href="#i-close" /></svg>
+      </button>
+      <div id="project-details"></div>
+    </dialog>
+    <dialog id="wallet-dialog">
+      <button class="dialog-close icon-button" aria-label="关闭">
+        <svg><use href="#i-close" /></svg>
+      </button>
+      <h2 data-i18n="wallet">钱包</h2>
+      <p data-i18n="walletview">在资产页查看余额、仓位与领取记录。</p>
+      <a
+        class="primary-link"
+        href="http://localhost:3000/portfolio"
+        target="_blank"
+        rel="noopener"
+        data-i18n="viewassets"
+        >查看资产</a
+      >
+    </dialog>
+    <div class="toast" id="toast" role="status" hidden></div>
+    <nav class="bottom-nav" aria-label="底部导航">
+      <a href="#launch" data-stage="launch"
+        ><svg><use href="#i-fire" /></svg
+        ><span data-i18n="launch">发行</span></a
+      ><a href="#live" data-stage="live"
+        ><svg><use href="#i-arrow" /></svg><span data-i18n="live">运行</span></a
+      ><a href="http://localhost:3000/portfolio" target="_blank" rel="noopener"
+        ><svg><use href="#i-star" /></svg
+        ><span data-i18n="assets">资产</span></a
+      >
+    </nav>
+    <script src="market.js"></script>
+  </body>
+</html>

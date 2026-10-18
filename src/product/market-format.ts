@@ -23,7 +23,7 @@ export function marketPrice(v: number | null): string {
     "$" +
     new Intl.NumberFormat("en-US", {
       minimumFractionDigits: 2,
-      maximumFractionDigits: v! >= 1 ? 2 : v! >= 0.001 ? 4 : 8,
+      maximumFractionDigits: v! >= 10 ? 2 : v! >= 0.001 ? 4 : 8,
     }).format(v!)
   );
 }

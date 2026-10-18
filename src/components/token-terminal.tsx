@@ -229,8 +229,12 @@ export function TokenTerminal({
           </div>
         </div>
         <div className="terminal-price">
-          <strong key={quotePrice ?? "unavailable"}>
-            {marketPrice(quotePrice)}
+          <strong>
+            {quotePrice == null ? (
+              "N/A"
+            ) : (
+              <AnimatedAmount value={quotePrice} price />
+            )}
           </strong>
           <span
             className={

@@ -15,6 +15,9 @@ import "./terminal-v3.css";
 import "./site-v3.css";
 import "./live-polish.css";
 import "./info-refinement.css";
+import "./market-pulse.css";
+import "./terminal-round3.css";
+import "./market-finish.css";
 import { SimulationProvider } from "../components/simulation-provider";
 export const metadata: Metadata = {
   title: "NEXNS",

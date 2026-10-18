@@ -6,6 +6,7 @@ import {
   cleanup,
   fireEvent,
   waitFor,
+  act,
 } from "@testing-library/react";
 import {
   discoverRows,
@@ -22,6 +23,7 @@ import {
 import { MarketPage } from "../components/market-page";
 import { LocaleProvider } from "../i18n/locale";
 import { mockProjects, platformProject } from "../data/mock";
+import { simulationStore } from "../simulation/store";
 const routing = vi.hoisted(() => ({ replace: vi.fn(), query: "" }));
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: routing.replace }),
@@ -70,6 +72,7 @@ describe("market read models", () => {
       "price",
       "change",
       "staked",
+      "volume",
       "users",
       "newest",
     ]);
@@ -151,8 +154,16 @@ describe("market presentation", () => {
         ),
       ).toEqual(
         locale === "en"
-          ? ["Token", "Trend", "Price", "Change", "Staked", "Addresses"]
-          : ["项目", "走势", "价格", "涨跌", "质押", "地址"],
+          ? [
+              "Token",
+              "Trend",
+              "Price",
+              "Change",
+              "24h volume",
+              "Staked",
+              "Addresses",
+            ]
+          : ["项目", "走势", "价格", "涨跌", "24h 成交量", "质押", "地址"],
       );
       expect(
         container
@@ -167,12 +178,15 @@ describe("market presentation", () => {
           source!.symbol,
         );
         expect(row.querySelector("[data-token-name]")).toBeNull();
-        expect(row.children).toHaveLength(6);
+        expect(row.children).toHaveLength(7);
         expect(
           row.querySelector(
-            ".market-metric,.market-volume,.market-liquidity,.stake-sparkline",
+            ".market-metric,.market-liquidity,.stake-sparkline",
           ),
         ).toBeNull();
+        expect(row.querySelector(".market-volume")?.textContent).toBe(
+          compactMarketNumber(source!.operating!.volume24h, true),
+        );
         const value = row.querySelector(
           ".market-staked .market-value",
         )!.textContent!;
@@ -252,6 +266,46 @@ describe("market presentation", () => {
 });
 
 describe("discovery interactions", () => {
+  it("keeps focus prices and row prices synchronized on clock-only updates", async () => {
+    const before = simulationStore.getState();
+    const now = Date.now();
+    try {
+      act(() => simulationStore.getState().advanceMarket(now));
+      const view = render(
+        <LocaleProvider initialLocale="en">
+          <MarketPage section="live" />
+        </LocaleProvider>,
+      );
+      await waitFor(() =>
+        expect(
+          view.container.querySelectorAll(".market-focus-card"),
+        ).toHaveLength(3),
+      );
+      const card = view.container.querySelectorAll(".market-focus-card")[2];
+      const href = card.getAttribute("href");
+      const initial = card
+        .querySelector(".amount-tick")!
+        .getAttribute("data-value");
+      const revision = simulationStore.getState().revision;
+      act(() => simulationStore.getState().advanceMarket(now + 600_000));
+      await waitFor(() => {
+        const updated = card
+          .querySelector(".amount-tick")!
+          .getAttribute("data-value");
+        expect(updated).not.toBe(initial);
+        expect(
+          view.container
+            .querySelector(
+              `.market-row[href="${href}"] .market-price .amount-tick`,
+            )
+            ?.getAttribute("data-value"),
+        ).toBe(updated);
+      });
+      expect(simulationStore.getState().revision).toBe(revision);
+    } finally {
+      simulationStore.setState(before, true);
+    }
+  });
   it.each(["launch", "live"] as const)(
     "sorts all numeric headers both directions in %s",
     (section) => {

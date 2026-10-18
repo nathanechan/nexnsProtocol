@@ -215,7 +215,11 @@ export function ecosystemActivity(p: Project, live: LiveState): Activity[] {
       type: "PARTICIPATE",
       wallet,
       timestamp: new Date(source.epoch + event * interval).toISOString(),
-      displayValues: { summary: `参与 ${100 + (seed % 900)} USDT` },
+      displayValues: {
+        summary: `参与 ${100 + (seed % 900)} USDT`,
+        amount: String(100 + (seed % 900)),
+        paidAsset: "USDT",
+      },
     };
   });
 }

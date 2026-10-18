@@ -34,6 +34,7 @@ import {
   displayNumber,
   decimal,
   UNIT,
+  parseAmount,
 } from "../domain/economics/amount";
 import { date, percent, money, number } from "../product/format";
 import {
@@ -51,6 +52,7 @@ import {
 } from "./ui";
 import { FinancialIdentity } from "./financial-identity";
 import { ProductTabs } from "./product-tabs";
+import { AmountPresets, ActionFeedback } from "./action-controls";
 export function useOperating(project: Project) {
   const key = projectKey(project.chainId, project.tokenContract);
   const stored = useSimulation((s) => s.operatingBooks[key]);
@@ -315,7 +317,7 @@ export function OperatingActionForm({
         claim: "Claim complete · Received",
       };
       setStatus(
-        `${(locale === "en" ? en : zh)[kind]} ${kind === "claim" ? received : review.input} ${asset}`,
+        `${(locale === "en" ? en : zh)[kind]} ${displayAmount(parseAmount(kind === "claim" ? received : review.input))} ${asset}`,
       );
       setInput("");
       setOpen(false);
@@ -364,12 +366,24 @@ export function OperatingActionForm({
           <Button
             variant="ghost"
             aria-label={t("使用全部")}
-            onClick={() => setInput(decimal(available))}
+            onClick={() => {
+              setInput(decimal(available));
+              setStatus("");
+            }}
             disabled={available === 0n || processing}
           >
             MAX
           </Button>
         </div>
+        <AmountPresets
+          available={available}
+          currency={kind === "participate"}
+          disabled={processing}
+          onSelect={(value) => {
+            setInput(value);
+            setStatus("");
+          }}
+        />
         <p
           className="field-error"
           id={`${id}-error`}
@@ -430,13 +444,11 @@ export function OperatingActionForm({
             {t(processing ? "正在处理操作…" : "")}
           </p>
         </Modal>
-        <p
-          role="status"
-          aria-live="polite"
-          className={`trade-status ${processing ? "operation-pending" : status.includes("成功") || status.includes("complete ·") ? "operation-success" : status ? "operation-error" : ""}`}
-        >
-          {t(status)}
-        </p>
+        <ActionFeedback
+          message={status}
+          pending={processing}
+          success={status.includes("成功") || status.includes("complete ·")}
+        />
       </div>
     </DetailCard>
   );

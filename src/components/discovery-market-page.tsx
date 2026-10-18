@@ -26,6 +26,7 @@ import { compactMarketNumber, marketChange } from "../product/market-format";
 import { curvePercent } from "../product/format";
 import { AnimatedAmount } from "./animated-amount";
 import { ProjectLogo } from "./project-logo";
+import { MarketPulse } from "./market-pulse";
 
 const storageKey = "nexns-watchlist-v1";
 function DiscoveryRow({
@@ -91,6 +92,32 @@ function DiscoveryRow({
             >
               {row.symbol}
             </strong>
+            <small className="market-age">
+              {(() => {
+                const age = Math.max(
+                  0,
+                  (live?.now ?? Date.now()) -
+                    Date.parse(
+                      row.stage === "OPERATING"
+                        ? (row.operatingAt ?? row.createdAt)
+                        : row.createdAt,
+                    ),
+                );
+                const days = Math.floor(age / 86400000);
+                const hours = Math.floor(age / 3600000);
+                return days > 0
+                  ? locale === "en"
+                    ? `${days}d`
+                    : `${days} 天`
+                  : hours > 0
+                    ? locale === "en"
+                      ? `${hours}h`
+                      : `${hours} 小时`
+                    : locale === "en"
+                      ? "<1h"
+                      : "不足 1 小时";
+              })()}
+            </small>
             {row.stage === "CURVE_OPEN" && (row.progress ?? 0) >= 0.9 && (
               <small className="completion-label">
                 {locale === "en" ? "Near completion" : "临近完成"} ↗
@@ -117,6 +144,15 @@ function DiscoveryRow({
         </span>
         <span className="market-cell market-change">
           <span className="market-value">{change}</span>
+        </span>
+        <span className="market-cell market-volume">
+          <span className="market-value">
+            {row.volume == null ? (
+              "—"
+            ) : (
+              <AnimatedAmount value={row.volume} currency />
+            )}
+          </span>
         </span>
         {row.stage === "CURVE_OPEN" ? (
           <span className="market-cell market-progress-cell">
@@ -167,6 +203,8 @@ export function DiscoveryMarketPage({
   const revision = useSimulation((s) => s.revision);
   const hydrated = useSimulation((s) => s.hydrated);
   const [favorites, setFavorites] = useState<string[]>([]);
+  const [clientReady, setClientReady] = useState(false);
+  useEffect(() => setClientReady(true), []);
   useEffect(() => {
     const read = () => {
       try {
@@ -227,12 +265,13 @@ export function DiscoveryMarketPage({
   const marketActivities = useSimulation((s) => s.activities);
   const marketLive = useSimulation((s) => s.liveMarket);
   const enriched = (state.data ?? []).map((row) => {
-    const project = marketProjects[row.key];
-    if (!project || row.stage !== "CURVE_OPEN") return row;
+    const project = service === marketService ? marketProjects[row.key] : null;
+    const current = project ? marketRow(project) : row;
+    if (!project || current.stage !== "CURVE_OPEN") return current;
     const history = marketHistory(project, marketActivities, marketLive);
     return history.length >= 2
-      ? { ...row, change: history.at(-1)! / history[0] - 1 }
-      : row;
+      ? { ...current, change: history.at(-1)! / history[0] - 1 }
+      : current;
   });
   const rows = discoverRows(
     enriched,
@@ -262,6 +301,7 @@ export function DiscoveryMarketPage({
     { label: locale === "en" ? "Trend" : "走势", sort: null },
     { label: c.price, sort: "price" },
     { label: c.listChange, sort: "change" },
+    { label: locale === "en" ? "24h volume" : "24h 成交量", sort: "volume" },
     {
       label: section === "launch" ? c.listProgress : c.liveStaked,
       sort: section === "launch" ? "progress" : "staked",
@@ -277,6 +317,26 @@ export function DiscoveryMarketPage({
       <div className="market-toolbar">
         <h1 className="sr-only">{c[section]}</h1>
       </div>
+      {clientReady && state.data && !state.error && (
+        <MarketPulse
+          rows={enriched}
+          activities={marketActivities}
+          now={marketLive?.now}
+          histories={Object.fromEntries(
+            enriched.map((row) => [
+              row.key,
+              marketProjects[row.key]
+                ? marketHistory(
+                    marketProjects[row.key],
+                    marketActivities,
+                    marketLive,
+                  )
+                : [],
+            ]),
+          )}
+          launch={section === "launch"}
+        />
+      )}
       <div className="market-control-bar">
         <label className="market-local-search">
           <Search size={16} />

@@ -23,6 +23,7 @@ import { date, price, curvePercent } from "../product/format";
 import { Button, DetailCard, Input, KeyValueList, Modal } from "./ui";
 import { FinancialIdentity } from "./financial-identity";
 import { ProductTabs } from "./product-tabs";
+import { AmountPresets, ActionFeedback } from "./action-controls";
 export function CurveHoldings({ project }: { project: Project }) {
   const { t } = useLocale();
 
@@ -221,6 +222,15 @@ export function TradePanel({ project }: { project: Project }) {
               MAX
             </Button>
           </div>
+          <AmountPresets
+            available={available}
+            currency={side === "buy"}
+            disabled={processing}
+            onSelect={(value) => {
+              setInput(value);
+              setMessage("");
+            }}
+          />
           <p
             id={`${id}-error`}
             className="field-error"
@@ -303,13 +313,11 @@ export function TradePanel({ project }: { project: Project }) {
               {t(processing ? "正在处理交易…" : "")}
             </p>
           </Modal>
-          <p
-            className={`trade-status ${processing ? "operation-pending" : message.includes("成功") ? "operation-success" : message ? "operation-error" : ""}`}
-            role="status"
-            aria-live="polite"
-          >
-            {t(message)}
-          </p>
+          <ActionFeedback
+            message={message}
+            pending={processing}
+            success={message.includes("成功")}
+          />
         </div>
       </ProductTabs>
     </DetailCard>
