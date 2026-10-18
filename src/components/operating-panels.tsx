@@ -425,13 +425,6 @@ export function OperatingActionForm({
         >
           <FinancialIdentity project={project} action={title} />
           <KeyValueList items={items} />
-          {t(
-            kind === "participate" && (
-              <p className="principal-notice">
-                {t("参与资金提交后不可作为本金赎回。")}
-              </p>
-            ),
-          )}
 
           <p role="status" aria-live="polite">
             {t(processing ? "正在处理操作…" : "")}

@@ -399,3 +399,102 @@ body[data-nexns-app] .secondary-page .result-bar.negative {
     scroll-behavior: auto !important;
   }
 }
+/* Shared transaction surfaces also render outside route containers (Radix portals). */
+body[data-nexns-app] .financial-identity {
+  background: var(--theme-soft);
+  color: var(--theme-ink);
+  border-color: var(--theme-line);
+}
+body[data-nexns-app] :is(.financial-identity, .dialog) .key-values dt {
+  color: var(--theme-muted);
+}
+body[data-nexns-app] :is(.financial-identity, .dialog) .key-values dd {
+  color: var(--theme-ink);
+}
+body[data-nexns-app] :is(.financial-identity, .dialog) .key-values > div {
+  border-color: var(--theme-line);
+}
+body[data-nexns-app] .dialog :is(.card, .terminal-switcher) {
+  background: var(--theme-surface);
+  color: var(--theme-ink);
+  border-color: var(--theme-line);
+}
+body[data-nexns-app] .portfolio-page .portfolio-claim-form {
+  background: var(--theme-surface);
+  color: var(--theme-ink);
+  border-color: var(--theme-line);
+}
+body[data-nexns-app] .secondary-page .compact-results table {
+  background: var(--theme-surface);
+}
+body[data-nexns-app] .key-values .receive-result {
+  background: var(--theme-blue-soft);
+  color: var(--theme-ink);
+  border-color: var(--theme-line);
+}
+body[data-nexns-app] .cap-notice {
+  background: var(--theme-blue-soft);
+  color: var(--theme-ink);
+  border-color: var(--theme-line);
+}
+body[data-nexns-app]
+  :is(.operation-pending, .trade-status.operation-pending):not(:empty) {
+  background: var(--theme-blue-soft);
+  color: var(--theme-blue);
+  border-color: var(--theme-line);
+}
+body[data-nexns-app]
+  :is(.operation-success, .trade-status.operation-success):not(:empty) {
+  background: var(--theme-success-soft);
+  color: var(--theme-up);
+  border-color: var(--theme-line);
+}
+body[data-nexns-app]
+  :is(.operation-error, .trade-status.operation-error):not(:empty) {
+  background: var(--theme-danger-soft);
+  color: var(--theme-down);
+  border-color: var(--theme-line);
+}
+body[data-nexns-app] .market-columns {
+  background: var(--theme-soft);
+  color: var(--theme-muted);
+  border-color: var(--theme-line);
+}
+body[data-nexns-app] .skip-link {
+  background: var(--theme-surface);
+  color: var(--theme-ink);
+}
+/* The chart library's canvas table must not inherit a white HTML table base. */
+body[data-nexns-app] .trading-canvas table {
+  background: var(--theme-surface);
+}
+/* Header interaction states must outrank legacy .button.* hover rules. */
+body[data-nexns-app]
+  .app-header
+  :is(
+    .desktop-primary a,
+    .header-actions .button,
+    .theme-toggle,
+    .brand,
+    .language-switch
+  ):is(:hover, :focus-visible):not(:disabled) {
+  background: var(--theme-soft);
+  color: var(--theme-blue);
+  border-color: var(--theme-line);
+}
+body[data-nexns-app]
+  .desktop-primary
+  a[aria-current="page"]:is(:hover, :focus-visible),
+body[data-nexns-app]
+  .mobile-primary
+  a[aria-current="page"]:is(:hover, :focus-visible) {
+  background: var(--theme-blue-soft);
+  color: var(--theme-blue);
+}
+body[data-nexns-app] .product-menu a:is(:hover, :focus-visible),
+body[data-nexns-app]
+  .mobile-primary
+  a:not([aria-current]):is(:hover, :focus-visible) {
+  background: var(--theme-soft);
+  color: var(--theme-blue);
+}
