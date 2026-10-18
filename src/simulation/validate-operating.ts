@@ -20,6 +20,15 @@ export function validateOperatingBook(book: OperatingBook, key: ProjectKey) {
     !/^\d{4}-\d{2}-\d{2}$/.test(book.day)
   )
     throw new Error("Invalid saved Operating identity");
+  if (
+    book.presentationClock &&
+    (!Number.isFinite(book.presentationClock.updatedAt) ||
+      book.presentationClock.updatedAt < 0 ||
+      !Number.isFinite(book.presentationClock.elapsedMs) ||
+      book.presentationClock.elapsedMs < 0 ||
+      book.presentationClock.elapsedMs > 60000)
+  )
+    throw new Error("Invalid presentation clock");
   const minted = value(book.lifetimeMinted);
   if (minted < 1000000n * UNIT || minted > MAX_SUPPLY)
     throw new Error("Invalid issuance");

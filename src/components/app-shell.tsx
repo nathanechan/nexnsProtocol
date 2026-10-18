@@ -14,6 +14,7 @@ import {
   Languages,
 } from "lucide-react";
 import { ProjectLogo } from "./project-logo";
+import { ThemeToggle } from "./theme-toggle";
 import { GlobalSearch } from "./global-search";
 import { Button, Container, EmptyState, Modal } from "./ui";
 import { useSimulation } from "../simulation/store";
@@ -139,6 +140,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             ))}
           </nav>
           <div className="header-actions">
+            <ThemeToggle english={locale === "en"} />
             <GlobalSearch />
             <select
               className="language-switch desktop-language"

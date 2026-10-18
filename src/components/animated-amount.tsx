@@ -11,11 +11,13 @@ export function AnimatedAmount({
   price?: boolean;
 }) {
   const [display, setDisplay] = useState(value);
+  const [direction, setDirection] = useState("");
   const previous = useRef(value);
   useEffect(() => {
     const startValue = previous.current;
     previous.current = value;
     if (startValue === value) return;
+    setDirection(value > startValue ? "tick-up" : "tick-down");
     if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
       setDisplay(value);
       return;
@@ -33,7 +35,12 @@ export function AnimatedAmount({
   const format = (n: number) =>
     price ? marketPrice(n) : compactMarketNumber(n, currency);
   return (
-    <span aria-label={format(value)} data-value={value}>
+    <span
+      key={value}
+      className={`amount-tick ${direction}`}
+      aria-label={format(value)}
+      data-value={value}
+    >
       <span aria-hidden>{format(display)}</span>
     </span>
   );

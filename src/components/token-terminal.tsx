@@ -1,15 +1,12 @@
 "use client";
 import { AnimatedAmount } from "./animated-amount";
 import { stakedValue } from "../simulation/live-market";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { Project, Activity } from "../domain/models";
 import { projectKey } from "../domain/identity";
 import { useLocale } from "../i18n/locale";
-import { projectName } from "../product/metadata";
 import { useSimulation } from "../simulation/store";
-import { marketService, marketRow, type MarketRow } from "../data/market";
-import { useResource } from "../product/use-resource";
 import {
   marketPrice,
   marketChange,
@@ -29,13 +26,12 @@ import {
   LifecycleBadge,
   PriceStatusBadge,
   KeyValueList,
-  Button,
-  Modal,
 } from "./ui";
 import { ProductTabs } from "./product-tabs";
 import { ProjectLogo } from "./project-logo";
-import { StakingChart } from "./staking-chart";
-import { CurveChart } from "./curve-chart";
+import { OperatingCharts } from "./operating-charts";
+import { CurveMarketChart } from "./curve-market-chart";
+import { marketHistory } from "../product/market-history";
 import { TradePanel, CurveHoldings } from "./trade-panel";
 import {
   OperatingActionForm,
@@ -48,106 +44,6 @@ import {
   useOperating,
 } from "./operating-panels";
 import { PublicInfo, ProjectActivity } from "./project-details";
-function TokenSwitcher({
-  current,
-  onSearch,
-  onSelect,
-}: {
-  current: Project;
-  onSearch?: () => void;
-  onSelect?: () => void;
-}) {
-  const { locale, t } = useLocale();
-  const [stage, setStage] = useState(
-    current.lifecycle === "OPERATING" ? "live" : "launch",
-  );
-  useEffect(() => {
-    setStage(current.lifecycle === "OPERATING" ? "live" : "launch");
-  }, [current.lifecycle]);
-  const openSearch =
-    onSearch ?? (() => window.dispatchEvent(new Event("nexns-open-search")));
-  const revision = useSimulation((s) => s.revision);
-  const projects = useSimulation((s) => s.projects);
-  const load = useCallback(() => {
-    void revision;
-    return marketService.list(
-      stage === "launch" ? "launch" : "live",
-      stage === "launch" ? "progress" : "staked",
-    );
-  }, [stage, revision]);
-  const state = useResource(load);
-  const row = (original: MarketRow) => {
-    const r = projects[original.key]
-      ? marketRow(projects[original.key])
-      : original;
-    return (
-      <Link
-        key={r.key}
-        href={r.href}
-        onClick={onSelect}
-        className="switcher-row"
-        aria-current={
-          r.key === projectKey(current.chainId, current.tokenContract)
-            ? "page"
-            : undefined
-        }
-      >
-        <span className="switcher-logo" aria-hidden>
-          <ProjectLogo logo={r.logo} identity={r.key} platform={r.platform} />
-        </span>
-        <span>
-          <strong>{r.symbol}</strong>
-          {!r.platform && <small>{projectName(r, locale)}</small>}
-        </span>
-        <span>
-          <b>{marketPrice(r.price)}</b>
-          <small>
-            {r.stage === "CURVE_OPEN"
-              ? curvePercent(r.progress)
-              : marketChange(r.change)}
-          </small>
-        </span>
-      </Link>
-    );
-  };
-  return (
-    <aside
-      className="terminal-switcher"
-      onKeyDown={(event) => {
-        if (
-          (event.ctrlKey || event.metaKey) &&
-          event.key.toLowerCase() === "k"
-        ) {
-          event.preventDefault();
-          event.stopPropagation();
-          openSearch();
-        }
-      }}
-      aria-label={locale === "zh-CN" ? "代币切换" : "Token switcher"}
-    >
-      <Button variant="ghost" onClick={openSearch}>
-        {t("搜索")}
-      </Button>
-      <ProductTabs
-        label={locale === "zh-CN" ? "切换项目阶段" : "Token stage filter"}
-        items={[
-          { value: "launch", label: locale === "zh-CN" ? "发行" : "Launch" },
-          { value: "live", label: locale === "zh-CN" ? "运行" : "Live" },
-        ]}
-        value={stage}
-        onChange={setStage}
-      >
-        {state.error ? (
-          <Button onClick={state.retry}>{t("重试")}</Button>
-        ) : state.loading ? (
-          <p role="status">{locale === "zh-CN" ? "加载中" : "Loading"}</p>
-        ) : (
-          state.data?.map(row)
-        )}
-      </ProductTabs>
-    </aside>
-  );
-}
 function UserState({ project }: { project: Project }) {
   const { t } = useLocale();
   const s = useOperating(project);
@@ -189,10 +85,15 @@ export function TokenTerminal({
   const key = projectKey(project.chainId, project.tokenContract);
   const wallet = useSimulation((s) => s.currentUser.wallet);
   const all = useSimulation((s) => s.activities);
+  const live = useSimulation((s) => s.liveMarket);
+  const history = curve ? marketHistory(project, all, live) : [];
+  const quoteChange = op
+    ? project.operating?.change24h
+    : history.length >= 2
+      ? history.at(-1)! / history[0] - 1
+      : null;
   const activities = all.filter((a) => a.projectKey === key);
   const ledger = useSimulation((s) => s.curves[key]);
-  const [shareStatus, setShareStatus] = useState("");
-  const [switchOpen, setSwitchOpen] = useState(false);
   const [action, setAction] = useState("participate"),
     [detail, setDetail] = useState(op ? "positions" : "activity");
   useEffect(() => {
@@ -264,7 +165,7 @@ export function TokenTerminal({
           ),
         ],
         ["24H 成交量", compactMarketNumber(project.curve.volume24h, true)],
-        ["参与人数", number(project.curve.participants)],
+        ["参与地址", number(project.curve.participants)],
       ]
     : [
         ["价格", marketPrice(project.operating?.tokenPrice ?? null)],
@@ -291,55 +192,10 @@ export function TokenTerminal({
   void initialActivities;
   return (
     <div
-      className={`token-terminal project-page ${curve ? "terminal-curve" : "terminal-operating"} ${op ? "terminal-flagship" : ""}`}
+      className={`terminal-v3 token-terminal project-page ${curve ? "terminal-curve" : "terminal-operating"} ${op ? "terminal-flagship" : ""}`}
       data-lifecycle={project.lifecycle}
       data-nexns-ui="v2"
     >
-      <div className="terminal-navigation">
-        <Link href={op ? "/live" : "/launch"}>
-          {locale === "zh-CN"
-            ? op
-              ? "← 运行"
-              : "← 发行"
-            : op
-              ? "← Live"
-              : "← Launch"}
-        </Link>
-        <div className="terminal-navigation-actions">
-          {(curve || op) && (
-            <a className="terminal-action-jump" href="#project-actions">
-              {locale === "zh-CN" ? "操作 ↓" : "Actions ↓"}
-            </a>
-          )}
-          <Modal
-            open={switchOpen}
-            onOpenChange={setSwitchOpen}
-            title={locale === "zh-CN" ? "切换项目" : "Switch project"}
-            description={
-              locale === "zh-CN"
-                ? "选择发行或运行项目。"
-                : "Choose a Launch or Live project."
-            }
-            trigger={
-              <Button variant="secondary">
-                {locale === "zh-CN" ? "切换项目" : "Switch project"}
-              </Button>
-            }
-          >
-            <TokenSwitcher
-              current={project}
-              onSelect={() => setSwitchOpen(false)}
-              onSearch={() => {
-                setSwitchOpen(false);
-                window.setTimeout(
-                  () => window.dispatchEvent(new Event("nexns-open-search")),
-                  0,
-                );
-              }}
-            />
-          </Modal>
-        </div>
-      </div>
       <header className="terminal-header">
         <span className="terminal-logo" aria-hidden>
           <ProjectLogo
@@ -353,11 +209,6 @@ export function TokenTerminal({
             <span data-token-symbol data-user-text title={project.symbol}>
               {project.symbol}
             </span>
-            {project.name !== project.symbol && (
-              <small data-token-name data-user-text title={project.name}>
-                {project.name}
-              </small>
-            )}
           </h1>
           <div className="terminal-header-meta">
             {!curve && !op && <LifecycleBadge state={project.lifecycle} />}
@@ -383,60 +234,27 @@ export function TokenTerminal({
           </strong>
           <span
             className={
-              op && (project.operating?.change24h ?? 0) > 0
+              (quoteChange ?? 0) > 0
                 ? "positive"
-                : op && (project.operating?.change24h ?? 0) < 0
+                : (quoteChange ?? 0) < 0
                   ? "negative"
                   : ""
             }
           >
-            {op && project.operating?.change24h != null
-              ? marketChange(project.operating.change24h)
-              : "—"}
+            {quoteChange != null ? marketChange(quoteChange) : "—"}
           </span>
         </div>
-        <div className="terminal-header-actions">
-          <Button
-            variant="ghost"
-            aria-label={t("分享项目")}
-            onClick={async () => {
-              try {
-                await navigator.clipboard.writeText(location.href);
-                setShareStatus(t("项目链接已复制"));
-              } catch {
-                setShareStatus(t("复制失败，请从地址栏复制项目链接"));
-              }
-            }}
-          >
-            ↗
-          </Button>
-          {op && (
-            <Button
-              className="dex-link"
-              variant="secondary"
-              disabled
-              title={
-                locale === "zh-CN"
-                  ? "交易市场暂不可用"
-                  : "Trading market unavailable"
-              }
-            >
-              {locale === "zh-CN" ? "去交易 ↗" : "Trade on DEX ↗"}
-            </Button>
-          )}
-        </div>
       </header>
-      {shareStatus && <p role="status">{shareStatus}</p>}
       <div className="terminal-layout">
         <dl className="terminal-market-strip">
           {stats.map(([label, value], index) =>
-            op && index === 0 ? null : (
+            (op || curve) && index === 0 ? null : (
               <div key={label}>
                 <dt>
                   {op
                     ? (locale === "en"
-                        ? ["Price", "Staked", "Value", "Liquidity", "Users"]
-                        : ["价格", "总质押", "质押价值", "流动性", "参与人数"])[
+                        ? ["Price", "Staked", "Value", "Liquidity", "Addresses"]
+                        : ["价格", "总质押", "质押价值", "流动性", "参与地址"])[
                         index
                       ]
                     : t(label)}
@@ -491,10 +309,10 @@ export function TokenTerminal({
                   {money(project.curve.targetReserve)}
                 </small>
               </div>
-              <CurveChart project={project} />
+              <CurveMarketChart project={project} />
             </section>
           ) : op ? (
-            <StakingChart project={project} />
+            <OperatingCharts project={project} />
           ) : (
             <section className="terminal-migration" role="status">
               <h2>
@@ -540,36 +358,38 @@ export function TokenTerminal({
               value={detail}
               onChange={setDetail}
             >
-              {detail === "positions" ? (
-                <PositionLots project={project} />
-              ) : detail === "contribution" ? (
-                <ContributionPanel project={project} />
-              ) : detail === "rewards" ? (
-                <RewardsPanel project={project} resultOnly />
-              ) : detail === "transparency" && op ? (
-                <>
-                  <TransparencyPanel project={project} />
-                  <section className="terminal-history">
-                    <h3>{t("生命周期")}</h3>
-                    <p>
-                      {t("已进入运行阶段 · 迁移完成于")}{" "}
-                      {date(project.migration.completedAt)}
-                    </p>
-                    <KeyValueList
-                      items={project.migration.resultingPools.map((pool) => ({
-                        label: poolLabel(pool.pair, project.symbol),
-                        value: money(pool.liquidity),
-                      }))}
-                    />
-                  </section>
-                </>
-              ) : detail === "info" || detail === "transparency" ? (
-                <PublicInfo project={project} />
-              ) : op ? (
-                <OperatingActivity project={project} />
-              ) : (
-                <ProjectActivity activities={activities} />
-              )}
+              <div className="terminal-detail-content">
+                {detail === "positions" ? (
+                  <PositionLots project={project} />
+                ) : detail === "contribution" ? (
+                  <ContributionPanel project={project} />
+                ) : detail === "rewards" ? (
+                  <RewardsPanel project={project} resultOnly />
+                ) : detail === "transparency" && op ? (
+                  <>
+                    <TransparencyPanel project={project} />
+                    <section className="terminal-history">
+                      <h3>{t("生命周期")}</h3>
+                      <p>
+                        {t("已进入运行阶段 · 迁移完成于")}{" "}
+                        {date(project.migration.completedAt)}
+                      </p>
+                      <KeyValueList
+                        items={project.migration.resultingPools.map((pool) => ({
+                          label: poolLabel(pool.pair, project.symbol),
+                          value: money(pool.liquidity),
+                        }))}
+                      />
+                    </section>
+                  </>
+                ) : detail === "info" || detail === "transparency" ? (
+                  <PublicInfo project={project} />
+                ) : op ? (
+                  <OperatingActivity project={project} />
+                ) : (
+                  <ProjectActivity activities={activities} />
+                )}
+              </div>
             </ProductTabs>
           </section>
         </section>
@@ -584,7 +404,6 @@ export function TokenTerminal({
             </>
           ) : op ? (
             <>
-              <UserState project={project} />
               <ProductTabs
                 label={locale === "zh-CN" ? "终端操作" : "Terminal actions"}
                 items={actionItems}
@@ -599,6 +418,10 @@ export function TokenTerminal({
                   <OperatingActionForm project={project} kind="claim" />
                 ) : null}
               </ProductTabs>
+              <details className="terminal-personal">
+                <summary>{locale === "en" ? "My assets" : "我的资产"}</summary>
+                <UserState project={project} />
+              </details>
             </>
           ) : (
             <section className="terminal-transition">

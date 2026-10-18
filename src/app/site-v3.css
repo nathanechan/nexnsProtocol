@@ -1,0 +1,401 @@
+/* Shared theme roles. Data/execution components remain independent of theme. */
+body[data-nexns-app] .secondary-page .compact-results :is(tbody, tr, td) {
+  background: var(--theme-surface);
+}
+body[data-nexns-app] .secondary-page .compact-results tr:hover td {
+  background: var(--theme-soft);
+}
+body[data-nexns-app] .secondary-page :is(.empty, .empty-state) {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  gap: 8px;
+}
+body[data-nexns-app] .secondary-page :is(.empty, .empty-state) :is(h3, p) {
+  margin: 0;
+  text-align: left;
+}
+:root {
+  --theme-canvas: #f5f7fa;
+  --theme-surface: #fff;
+  --theme-soft: #f0f3f8;
+  --theme-ink: #142035;
+  --theme-muted: #59687e;
+  --theme-line: #dfe5ee;
+  --theme-blue: #2464eb;
+  --theme-blue-soft: #edf3ff;
+  --theme-up: #087c56;
+  --theme-down: #c62b50;
+  --theme-warning: #805d13;
+  --theme-success-soft: #e5f5ed;
+  --theme-danger-soft: #fff0f3;
+  --theme-warning-soft: #fff8e8;
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --theme-canvas: #090b0f;
+  --theme-surface: #101217;
+  --theme-soft: #191c23;
+  --theme-ink: #f5f7fb;
+  --theme-muted: #a1a7b6;
+  --theme-line: #2c303a;
+  --theme-blue: #78a3ff;
+  --theme-blue-soft: #152446;
+  --theme-up: #39f5a6;
+  --theme-down: #ff6c8d;
+  --theme-warning: #edc778;
+  --theme-success-soft: #123026;
+  --theme-danger-soft: #351923;
+  --theme-warning-soft: #30291b;
+}
+body[data-nexns-app],
+body[data-nexns-app] [data-nexns-ui] {
+  --m-bg: var(--theme-canvas);
+  --m-surface: var(--theme-surface);
+  --m-soft: var(--theme-soft);
+  --m-text: var(--theme-ink);
+  --m-muted: var(--theme-muted);
+  --m-line: var(--theme-line);
+  --m-blue: var(--theme-blue);
+  --m-up: var(--theme-up);
+  --m-down: var(--theme-down);
+  --nexns-canvas: var(--theme-canvas);
+  --nexns-surface: var(--theme-surface);
+  --nexns-surface-soft: var(--theme-soft);
+  --nexns-ink: var(--theme-ink);
+  --nexns-muted: var(--theme-muted);
+  --nexns-secondary: var(--theme-muted);
+  --nexns-line: var(--theme-line);
+  --nexns-control-line: var(--theme-line);
+  --nexns-accent: #2464eb;
+  --nexns-accent-hover: var(--theme-blue);
+  --nexns-accent-soft: var(--theme-blue-soft);
+  --nexns-success: var(--theme-up);
+  --nexns-danger: var(--theme-down);
+  --nexns-warning: var(--theme-warning);
+  --nexns-success-soft: var(--theme-success-soft);
+  --nexns-danger-soft: var(--theme-danger-soft);
+  --nexns-warning-soft: var(--theme-warning-soft);
+  --nexns-radius-panel: 10px;
+  --canvas: var(--theme-canvas);
+  --surface: var(--theme-surface);
+  --ink: var(--theme-ink);
+  --muted: var(--theme-muted);
+  --line: var(--theme-line);
+  --blue: var(--theme-blue);
+}
+body[data-nexns-app] {
+  background: var(--theme-canvas);
+  color: var(--theme-ink);
+}
+body[data-nexns-app]
+  :is(.app-header, .mobile-primary, .product-menu, .dialog, .app-footer) {
+  background: var(--theme-surface);
+  color: var(--theme-ink);
+  border-color: var(--theme-line);
+}
+body[data-nexns-app]
+  :is(
+    .brand,
+    .desktop-primary a,
+    .header-actions,
+    .product-menu a,
+    .language-switch
+  ) {
+  color: var(--theme-ink);
+}
+body[data-nexns-app] .desktop-primary a[aria-current="page"] {
+  color: var(--theme-blue);
+}
+body[data-nexns-app] .mobile-primary a {
+  color: var(--theme-muted);
+}
+body[data-nexns-app] .mobile-primary a[aria-current] {
+  background: var(--theme-blue-soft);
+  color: var(--theme-blue);
+}
+body[data-nexns-app] .theme-toggle {
+  background: var(--theme-surface);
+  color: var(--theme-ink);
+  border-color: var(--theme-line);
+}
+body[data-nexns-app] .button.primary {
+  background: #2464eb;
+  color: #fff;
+  border-color: #2464eb;
+  border-radius: 8px;
+}
+body[data-nexns-app] .button.secondary {
+  background: var(--theme-surface);
+  color: var(--theme-ink);
+  border-color: var(--theme-line);
+  border-radius: 8px;
+}
+body[data-nexns-app] .button.ghost {
+  color: var(--theme-blue);
+  background: transparent;
+}
+body[data-nexns-app] .button:disabled:not([aria-busy="true"]) {
+  background: var(--theme-soft);
+  border-color: var(--theme-line);
+  color: var(--theme-muted);
+  box-shadow: none;
+}
+body[data-nexns-app] :is(.input, select, textarea, .search-input-wrap) {
+  background: var(--theme-soft);
+  border-color: var(--theme-line);
+  color: var(--theme-ink);
+}
+body[data-nexns-app] :is(.input, textarea)::placeholder {
+  color: var(--theme-muted);
+  opacity: 0.8;
+}
+body[data-nexns-app]
+  :is(input, select, textarea, button, a, summary):focus-visible {
+  outline: 2px solid var(--theme-blue);
+  outline-offset: 3px;
+}
+body[data-nexns-app]
+  :is(.dialog h2, .dialog h3, .dialog strong, .search-result strong) {
+  color: var(--theme-ink);
+}
+body[data-nexns-app]
+  :is(.dialog p, .dialog small, .search-result small, .search-hint) {
+  color: var(--theme-muted);
+}
+body[data-nexns-app] :is(.search-results, .search-result, .empty-state) {
+  background: var(--theme-surface);
+  color: var(--theme-ink);
+  border-color: var(--theme-line);
+}
+body[data-nexns-app] .search-result:hover {
+  background: var(--theme-soft);
+}
+body[data-nexns-app] .positive {
+  color: var(--theme-up);
+}
+body[data-nexns-app] .negative {
+  color: var(--theme-down);
+}
+body[data-nexns-app] .field-error {
+  color: var(--theme-down);
+}
+body[data-nexns-app] .text-link {
+  color: var(--theme-blue);
+}
+body[data-nexns-app] .secondary-page[data-nexns-ui] {
+  padding-top: 16px;
+}
+body[data-nexns-app]
+  .secondary-page
+  :is(
+    .page-header h1,
+    h2,
+    h3,
+    .metric strong,
+    .summary-strip dd,
+    .key-values dd,
+    .studio-project-name strong
+  ) {
+  color: var(--theme-ink);
+}
+body[data-nexns-app]
+  .secondary-page
+  :is(
+    .page-header p,
+    .small-note,
+    .summary-strip dt,
+    .key-values dt,
+    .muted,
+    .metric span,
+    .metric small
+  ) {
+  color: var(--theme-muted);
+}
+body[data-nexns-app]
+  .secondary-page
+  :is(
+    .card,
+    .metric,
+    .compact-results,
+    .summary-strip,
+    .portfolio-claimable,
+    .reward-history,
+    .secondary-events,
+    .project-metrics,
+    .wizard-preview,
+    .wizard-review,
+    .metadata-form,
+    .link-editor
+  ) {
+  background: var(--theme-surface);
+  border-color: var(--theme-line);
+  box-shadow: none;
+  border-radius: 10px;
+}
+body[data-nexns-app] .secondary-page .page-header {
+  margin-bottom: 22px;
+}
+body[data-nexns-app] .secondary-page .page-header h1 {
+  font-size: 27px;
+  letter-spacing: -0.7px;
+}
+body[data-nexns-app]
+  .secondary-page
+  :is(
+    .summary-strip dd,
+    .metric strong,
+    .key-values dd,
+    .compact-results td:not(:first-child)
+  ) {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.4px;
+}
+body[data-nexns-app] .secondary-page .summary-tokens dd {
+  font-size: 30px;
+  color: var(--theme-ink);
+}
+body[data-nexns-app] .secondary-page .product-tablist {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  width: max-content;
+  max-width: 100%;
+  padding: 4px;
+  margin: 18px 0;
+  background: var(--theme-soft);
+  border: 1px solid var(--theme-line);
+  border-radius: 9px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+body[data-nexns-app] .secondary-page .product-tablist button {
+  min-height: 36px;
+  padding: 8px 13px;
+  border: 0;
+  border-radius: 6px;
+  color: var(--theme-muted);
+  background: none;
+  white-space: nowrap;
+  box-shadow: none;
+  font-size: 12px;
+}
+body[data-nexns-app]
+  .secondary-page
+  .product-tablist
+  button[aria-selected="true"] {
+  background: #2464eb;
+  color: #fff;
+  border: 0;
+  box-shadow: none;
+}
+body[data-nexns-app]
+  .secondary-page
+  .product-tablist
+  button:hover:not([aria-selected="true"]) {
+  background: var(--theme-surface);
+  color: var(--theme-ink);
+}
+body[data-nexns-app] .secondary-page .compact-results :is(th, caption) {
+  background: var(--theme-surface);
+  color: var(--theme-muted);
+  border-color: var(--theme-line);
+}
+body[data-nexns-app] .secondary-page .compact-results :is(td, tr, table) {
+  color: var(--theme-ink);
+  border-color: var(--theme-line);
+}
+body[data-nexns-app] .secondary-page .compact-results th {
+  background: var(--theme-soft);
+}
+body[data-nexns-app]
+  .secondary-page
+  :is(
+    .key-values > div,
+    .activity-feed li,
+    .portfolio-claim-row,
+    .studio-identity,
+    .lot-list details,
+    .disclosure
+  ) {
+  border-color: var(--theme-line);
+}
+body[data-nexns-app] .secondary-page .portfolio-claim-row .button {
+  background: #2464eb;
+  color: #fff;
+  border-color: #2464eb;
+}
+body[data-nexns-app]
+  .secondary-page
+  .portfolio-claimable:has(.portfolio-claim-empty) {
+  background: transparent;
+  color: var(--theme-muted);
+}
+body[data-nexns-app] .secondary-page .badge {
+  background: var(--theme-soft);
+  color: var(--theme-muted);
+  border-color: var(--theme-line);
+}
+body[data-nexns-app] .secondary-page .wizard-steps {
+  background: var(--theme-soft);
+  border-color: var(--theme-line);
+  border-radius: 8px;
+}
+body[data-nexns-app] .secondary-page .wizard-steps li {
+  color: var(--theme-muted);
+  border-color: var(--theme-line);
+}
+body[data-nexns-app] .secondary-page .wizard-steps li.active {
+  color: var(--theme-blue);
+  background: var(--theme-blue-soft);
+}
+body[data-nexns-app]
+  .secondary-page
+  :is(.file-upload-control, .file-upload-control > span) {
+  background: var(--theme-soft);
+  color: var(--theme-blue);
+  border-color: var(--theme-line);
+}
+body[data-nexns-app] .secondary-page :is(.action-rules, .create-rules) {
+  color: var(--theme-muted);
+  background: var(--theme-soft);
+  border-color: var(--theme-line);
+}
+body[data-nexns-app] .secondary-page .result-bar {
+  background: #2464eb;
+}
+body[data-nexns-app] .secondary-page .result-bar.negative {
+  background: var(--theme-down);
+}
+@media (max-width: 600px) {
+  body[data-nexns-app] .secondary-page .page-header h1 {
+    font-size: 24px;
+  }
+  body[data-nexns-app] .secondary-page .summary-tokens dd {
+    font-size: 23px;
+  }
+  body[data-nexns-app] .secondary-page .product-tablist {
+    width: 100%;
+  }
+  body[data-nexns-app] .secondary-page .product-tablist button {
+    padding: 8px 10px;
+    font-size: 11px;
+  }
+  body[data-nexns-app] .secondary-page .card {
+    padding: 16px;
+  }
+  body[data-nexns-app] .secondary-page .input {
+    font-size: 16px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  body[data-nexns-app] *,
+  body[data-nexns-app] *::before,
+  body[data-nexns-app] *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

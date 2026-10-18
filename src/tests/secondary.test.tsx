@@ -167,10 +167,9 @@ describe("secondary product boundaries", () => {
         .seedScenario(k, stage === "curve" ? "fresh" : "operating");
       render(<PEcosystem />);
       expect(
-        screen
-          .getByRole("link", { name: "进入 NEXNS 终端 ↗" })
-          .getAttribute("href"),
-      ).toBe(projectRoute(simulationStore.getState().projects[k]));
+        screen.queryByRole("link", { name: "进入 NEXNS 终端 ↗" }),
+      ).toBeNull();
+
       expect(screen.queryByText("NEXNS/NEXNS")).toBeNull();
       expect(screen.getByText("已销毁")).toBeDefined();
       expect(

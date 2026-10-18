@@ -5,7 +5,6 @@ import { useSimulation } from "../simulation/store";
 import { projectKey } from "../domain/identity";
 import { displayAmount } from "../domain/economics/amount";
 import { supplyResult, publicOutcomes } from "../product/read-model";
-import { projectName } from "../product/metadata";
 import { date, money, price } from "../product/format";
 import {
   ContractAddress,
@@ -26,7 +25,7 @@ const modules = [
   { value: "events", label: "公开事件" },
 ];
 export function ProtocolPage() {
-  const { t, locale } = useLocale();
+  const { t } = useLocale();
   const projectMap = useSimulation((s) => s.projects),
     books = useSimulation((s) => s.operatingBooks),
     activities = useSimulation((s) => s.activities);
@@ -57,7 +56,7 @@ export function ProtocolPage() {
         onChange={setSelected}
         options={projects.map((p) => ({
           value: projectKey(p.chainId, p.tokenContract),
-          label: `${projectName(p, locale)} · ${p.symbol} · ${p.projectId}`,
+          label: `${p.symbol} · ${p.projectId}`,
         }))}
       />
       {p && <EconomyLink p={p} />}

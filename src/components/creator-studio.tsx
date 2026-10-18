@@ -384,7 +384,6 @@ export function CreatorStudio({ projectId }: { projectId: string }) {
         </span>
         <span className="studio-project-name" data-user-text>
           <strong>{p.symbol}</strong>
-          {p.name !== p.symbol && <small>{projectName(p, locale)}</small>}
         </span>
         <LifecycleBadge showHealthy state={p.lifecycle} />
         <span>

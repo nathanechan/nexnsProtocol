@@ -15,7 +15,6 @@ import {
 } from "../product/read-model";
 import { compactUsdtValue } from "../product/market-format";
 import { portfolioSummary } from "../product/portfolio";
-import { projectName } from "../product/metadata";
 import { projectRoute } from "../domain/identity";
 import { localTime } from "../product/format";
 import { ProductTabs } from "./product-tabs";
@@ -163,11 +162,6 @@ export function MyNexus() {
                   <strong data-token-symbol data-user-text>
                     {r.p.symbol}
                   </strong>
-                  {r.p.name !== r.p.symbol && (
-                    <small data-token-name data-user-text>
-                      {projectName(r.p, locale)}
-                    </small>
-                  )}
                 </Link>
                 <span className="portfolio-claim-amount">
                   <strong data-user-text>
@@ -249,7 +243,7 @@ export function MyNexus() {
                   { value: "all", label: "全部项目" },
                   ...rows.map((r) => ({
                     value: r.key,
-                    label: `${projectName(r.p, locale)} · ${r.p.projectId}`,
+                    label: `${r.p.symbol} · ${r.p.projectId}`,
                   })),
                 ]}
               />
@@ -413,9 +407,7 @@ export function MyNexus() {
             />
             {rewards.map((r) => (
               <section className="reward-history" key={r.key}>
-                <strong data-user-text>
-                  {r.p.symbol} · {projectName(r.p, locale)}
-                </strong>
+                <strong data-user-text>{r.p.symbol}</strong>
                 <details>
                   <summary>{t("历史结算")}</summary>
                   <CompactResults

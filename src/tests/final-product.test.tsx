@@ -79,7 +79,11 @@ describe("final personal center", () => {
     tab("质押");
     expect(screen.getByText("完整覆盖")).toBeDefined();
     expect(
-      screen.getByRole("link", { name: /Velqen/ }).getAttribute("href"),
+      screen
+        .getByRole("link", {
+          name: new RegExp(simulationStore.getState().projects[key].symbol),
+        })
+        .getAttribute("href"),
     ).toContain("?tab=stake");
     expect(screen.queryByRole("button", { name: "确认质押" })).toBeNull();
   });

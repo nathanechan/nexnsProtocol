@@ -63,7 +63,7 @@ export function CreateEconomy() {
         <section className="card wizard">
           <ol className="wizard-steps" aria-label={t("创建步骤")}>
             {t(
-              ["项目身份", "公开链接", "确认创建"].map((label, i) => (
+              ["项目信息", "项目链接", "确认创建"].map((label, i) => (
                 <li
                   key={label}
                   aria-current={step === i ? "step" : undefined}
@@ -75,7 +75,7 @@ export function CreateEconomy() {
               )),
             )}
           </ol>
-          <h2>{t(["定义项目身份", "添加公开链接", "确认你的项目"][step])}</h2>
+          <h2>{t(["项目信息", "项目链接", "确认创建"][step])}</h2>
           <p className="small-note">
             {t(
               step === 0

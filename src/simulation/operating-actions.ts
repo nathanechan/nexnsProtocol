@@ -33,6 +33,7 @@ import type {
 } from "../domain/economics/operating-models";
 export interface OperatingActions {
   participate: (key: ProjectKey, input: string, referral?: string) => void;
+  enablePromotion: (key: ProjectKey, referral: string) => void;
   stakeTokens: (key: ProjectKey, input: string, unstake?: boolean) => void;
   claimReward: (key: ProjectKey, input: string) => void;
   settleDay: (key: ProjectKey) => void;
@@ -129,7 +130,9 @@ export function bindSponsor(
     if (proposed === wallet) throw new Error("不能推荐自己");
     if (
       !book.members[proposed] ||
-      (!book.members[proposed].bound && proposed !== book.root)
+      ((!book.members[proposed].bound ||
+        book.members[proposed].promotionEnabled === false) &&
+        proposed !== book.root)
     )
       throw new Error("推荐人尚未加入当前项目");
   }
@@ -372,6 +375,36 @@ export function operatingActions(
     }
   };
   return {
+    enablePromotion: (key, referral) => {
+      const s = get();
+      const { book } = ensure(s, key);
+      if (
+        !referral.trim() &&
+        !book.members[s.currentUser.wallet]?.bound &&
+        s.currentUser.wallet !== book.root
+      )
+        throw new Error("请填写邀请链接或邀请码");
+      const sponsor = bindSponsor(
+        book,
+        s.currentUser.wallet,
+        referral.trim() || undefined,
+      );
+      fail(s);
+      const member =
+        book.members[s.currentUser.wallet] ?? emptyMember(s.currentUser.wallet);
+      member.sponsor = sponsor;
+      member.bound = true;
+      member.promotionEnabled = true;
+      book.members[member.wallet] = member;
+      commit(
+        s,
+        key,
+        book,
+        s.exactBalances,
+        "LIFECYCLE",
+        "邀请关系已绑定，推广已开启",
+      );
+    },
     participate: (key, input, referral) => {
       const s = get();
       const { p, book } = ensure(s, key);
@@ -382,12 +415,19 @@ export function operatingActions(
       const asset = balanceKey(p.chainId, "USDT");
       const available = BigInt(s.exactBalances[asset] ?? "0");
       if (amount > available) throw new Error("USDT 余额不足");
-      const sponsor = bindSponsor(book, s.currentUser.wallet, referral);
-      fail(s);
       const m =
         book.members[s.currentUser.wallet] ?? emptyMember(s.currentUser.wallet);
-      m.sponsor = sponsor;
-      m.bound = true;
+      const shouldBind = !m.bound && m.lots.length === 0 && !!referral;
+      const sponsor = shouldBind
+        ? bindSponsor(book, s.currentUser.wallet, referral)
+        : m.sponsor;
+      fail(s);
+      if (shouldBind) {
+        m.sponsor = sponsor;
+        m.bound = true;
+        m.promotionEnabled = false;
+      } else if (!m.bound) m.promotionEnabled = false;
+
       m.lots.push({
         id: `LOT-${String(s.sequence).padStart(8, "0")}`,
         wallet: m.wallet,
@@ -650,7 +690,7 @@ export function operatingActions(
         book,
         { ...s.exactBalances, [asset]: (50000n * UNIT).toString() },
         "LIFECYCLE",
-        "演示用户情景已加载",
+        "参与与资产记录已更新",
       );
       set({ sequence: get().sequence + amounts.length });
       if (preset === "contribution") get().seedNetwork(key);

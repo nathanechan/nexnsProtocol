@@ -15,6 +15,8 @@ export interface ProtocolMember {
   wallet: Address;
   sponsor: Address | null;
   bound: boolean;
+  /** Absent in legacy snapshots: bound members retain their previous invitation access. */
+  promotionEnabled?: boolean;
   staked: string;
   lots: PositionLot[];
   claimable: string;
@@ -57,6 +59,7 @@ export interface ClaimRecord {
   status: "COMPLETED";
 }
 export interface OperatingBook {
+  presentationClock?: { elapsedMs: number; updatedAt: number };
   publicResults?: {
     id: string;
     timestamp: string;

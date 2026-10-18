@@ -1,0 +1,419 @@
+/* One control row; no negative margins or absolute search placement. */
+.terminal-v3.token-terminal .terminal-actions .button.primary:disabled {
+  background: var(--nexns-surface-soft);
+  color: var(--nexns-muted);
+  border: 1px solid var(--nexns-line);
+  opacity: 1;
+  box-shadow: none;
+}
+.terminal-v3.token-terminal .recharts-cartesian-grid line {
+  stroke: var(--nexns-line);
+}
+.terminal-v3.token-terminal .recharts-cartesian-axis text {
+  fill: var(--nexns-muted);
+}
+.discovery-surface[data-market-v3][data-nexns-ui="v2"] .market-toolbar {
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+}
+.discovery-surface[data-market-v3][data-nexns-ui="v2"] .market-control-bar {
+  display: grid;
+  grid-template-columns: auto 1fr minmax(230px, 290px);
+  gap: 28px;
+  align-items: center;
+  margin: 8px 0 22px;
+}
+.discovery-surface[data-market-v3][data-nexns-ui="v2"] .market-stage-switch {
+  grid-column: 1;
+  grid-row: 1;
+  margin: 0;
+  min-height: 44px;
+  gap: 22px;
+}
+.discovery-surface[data-market-v3][data-nexns-ui="v2"] .discovery-tabs {
+  grid-column: 2;
+  grid-row: 1;
+  margin: 0;
+  padding: 0;
+  justify-self: start;
+}
+.discovery-surface[data-market-v3][data-nexns-ui="v2"]
+  label.market-local-search {
+  grid-column: 3;
+  grid-row: 1;
+  position: static;
+  top: auto;
+  right: auto;
+  width: 100%;
+  margin: 0;
+}
+@media (max-width: 1050px) {
+  .discovery-surface[data-market-v3][data-nexns-ui="v2"] .market-control-bar {
+    grid-template-columns: auto 1fr;
+    gap: 12px 20px;
+  }
+  .discovery-surface[data-market-v3][data-nexns-ui="v2"]
+    label.market-local-search {
+    grid-column: 2;
+  }
+  .discovery-surface[data-market-v3][data-nexns-ui="v2"] .discovery-tabs {
+    grid-column: 1 / 3;
+    grid-row: 2;
+  }
+}
+@media (max-width: 700px) {
+  .discovery-surface[data-market-v3][data-nexns-ui="v2"] .market-control-bar {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .discovery-surface[data-market-v3][data-nexns-ui="v2"] .market-stage-switch {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .discovery-surface[data-market-v3][data-nexns-ui="v2"]
+    label.market-local-search {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .discovery-surface[data-market-v3][data-nexns-ui="v2"] .discovery-tabs {
+    grid-column: 1;
+    grid-row: 3;
+    width: 100%;
+  }
+}
+:is(
+  .terminal-v3.token-terminal,
+  .terminal-v3.token-terminal.terminal-flagship
+) {
+  padding-top: 16px;
+}
+.terminal-v3.token-terminal .terminal-navigation {
+  margin-bottom: 14px;
+  font-size: 11px;
+}
+.terminal-v3.token-terminal .terminal-header {
+  padding: 0 0 18px;
+  gap: 12px;
+}
+.terminal-v3.token-terminal .terminal-identity h1 {
+  font-size: 25px;
+  line-height: 1.2;
+  color: var(--nexns-ink);
+}
+.terminal-v3.token-terminal .terminal-price strong {
+  font:
+    28px ui-monospace,
+    Consolas,
+    monospace;
+  color: var(--nexns-ink);
+  letter-spacing: -1px;
+}
+.terminal-v3.token-terminal .terminal-logo {
+  width: 42px;
+  height: 42px;
+}
+.terminal-v3.token-terminal .terminal-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 352px;
+  grid-template-areas: "metrics actions" "workspace actions";
+  gap: 14px 20px;
+  align-items: start;
+}
+.terminal-v3.token-terminal .terminal-market-strip {
+  grid-area: metrics;
+  background: var(--nexns-surface);
+  border: 1px solid var(--nexns-line);
+  border-radius: 9px;
+  margin: 0;
+  padding: 16px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  box-shadow: none;
+}
+.terminal-v3.token-terminal.terminal-curve .terminal-market-strip {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.terminal-v3.token-terminal .terminal-market-strip > div {
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.terminal-v3.token-terminal .terminal-market-strip dd {
+  color: var(--nexns-ink);
+  font:
+    15px ui-monospace,
+    monospace;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.terminal-v3.token-terminal .terminal-workspace {
+  grid-area: workspace;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.terminal-v3.token-terminal .terminal-actions {
+  grid-area: actions;
+  background: var(--nexns-surface);
+  border: 1px solid var(--nexns-line);
+  border-radius: 9px;
+  padding: 18px;
+  position: sticky;
+  top: 82px;
+  box-shadow: none;
+}
+.terminal-v3.token-terminal
+  :is(.terminal-chart, .terminal-details, .terminal-migration, .card) {
+  background: var(--nexns-surface);
+  color: var(--nexns-ink);
+  border-color: var(--nexns-line);
+  box-shadow: none;
+}
+.terminal-v3.token-terminal .terminal-chart {
+  padding: 18px;
+  border: 1px solid var(--nexns-line);
+  border-radius: 9px;
+}
+.terminal-v3.token-terminal .terminal-progress {
+  margin-bottom: 20px;
+}
+.terminal-v3.token-terminal .terminal-progress > div {
+  background: var(--nexns-line);
+}
+.terminal-v3.token-terminal .terminal-progress i {
+  background: linear-gradient(90deg, #2464eb, #47c9de);
+}
+.terminal-v3.token-terminal .terminal-actions .card {
+  border: 0;
+  padding: 0;
+  border-radius: 0;
+}
+.terminal-v3.token-terminal .terminal-actions .card > h3 {
+  display: none;
+}
+:is(.terminal-v3.token-terminal, .terminal-v3.token-terminal.terminal-flagship)
+  .terminal-actions
+  .product-tablist {
+  display: flex;
+  gap: 4px;
+  background: var(--nexns-surface-soft);
+  padding: 4px;
+  border: 1px solid var(--nexns-line);
+  border-radius: 8px;
+  margin: 0 0 18px;
+  position: static;
+}
+:is(.terminal-v3.token-terminal, .terminal-v3.token-terminal.terminal-flagship)
+  .terminal-actions
+  .product-tablist
+  button {
+  flex: 1;
+  border: 0;
+  border-radius: 5px;
+  padding: 9px 8px;
+  color: var(--nexns-secondary);
+  background: none;
+  min-height: 36px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+:is(.terminal-v3.token-terminal, .terminal-v3.token-terminal.terminal-flagship)
+  .terminal-actions
+  .product-tablist
+  button[aria-selected="true"] {
+  background: #2464eb;
+  color: #fff;
+  border: 0;
+  box-shadow: none;
+}
+:is(.terminal-v3.token-terminal, .terminal-v3.token-terminal.terminal-flagship)
+  .terminal-actions
+  .input {
+  background: var(--nexns-surface-soft);
+  color: var(--nexns-ink);
+  border: 1px solid var(--nexns-control-line);
+  font:
+    28px ui-monospace,
+    monospace;
+  min-height: 68px;
+  padding: 14px 12px;
+}
+.terminal-v3.token-terminal .terminal-actions .trade-available {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--nexns-secondary);
+  margin: 8px 0 12px;
+}
+.terminal-v3.token-terminal .terminal-actions .trade-available .button {
+  font-size: 11px;
+  color: var(--nexns-accent);
+  padding: 4px 8px;
+  min-height: 30px;
+}
+.terminal-v3.token-terminal .terminal-actions .button.primary {
+  width: 100%;
+  min-height: 46px;
+  background: #2464eb;
+  color: #fff;
+  border: 0;
+  border-radius: 8px;
+}
+.terminal-v3.token-terminal .terminal-personal {
+  border-top: 1px solid var(--nexns-line);
+  padding-top: 14px;
+  margin-top: 18px;
+  font-size: 12px;
+  color: var(--nexns-secondary);
+}
+.terminal-personal summary {
+  cursor: pointer;
+}
+.terminal-v3.token-terminal .terminal-user-state {
+  padding: 14px 0 0;
+  margin: 0;
+  gap: 16px;
+  background: none;
+  border: 0;
+}
+.terminal-v3.token-terminal .terminal-user-state dd {
+  color: var(--nexns-ink);
+  font:
+    13px ui-monospace,
+    monospace;
+}
+.terminal-v3.token-terminal
+  :is(.curve-chart figcaption, .key-values, .trend-heading strong) {
+  color: var(--nexns-ink);
+}
+.terminal-v3.token-terminal .key-values > div {
+  border-color: var(--nexns-line);
+}
+.terminal-v3.token-terminal
+  .terminal-actions
+  > .product-tabs
+  > [role="tabpanel"] {
+  min-height: 0;
+}
+.curve-chart-switch {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 18px;
+}
+.curve-chart-switch button {
+  padding: 7px 11px;
+  font-size: 12px;
+  border-radius: 6px;
+  color: var(--nexns-muted);
+  background: none;
+  border: 0;
+}
+.curve-chart-switch button[aria-pressed="true"] {
+  background: var(--nexns-accent-soft);
+  color: var(--nexns-accent);
+}
+.quote-history {
+  margin: 0;
+}
+.quote-history figcaption {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+}
+.quote-history figcaption strong {
+  font:
+    24px ui-monospace,
+    monospace;
+}
+.quote-history figcaption span {
+  font-size: 10px;
+  color: var(--nexns-muted);
+}
+.quote-history svg {
+  width: 100%;
+  height: 280px;
+  display: block;
+  margin-top: 20px;
+}
+.quote-empty {
+  min-height: 240px;
+  display: grid;
+  place-items: center;
+  color: var(--nexns-muted);
+  font-size: 13px;
+}
+.quote-history-scale {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--nexns-muted);
+}
+@media (max-width: 900px) {
+  .terminal-v3.token-terminal .terminal-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .terminal-v3.token-terminal .terminal-workspace {
+    display: contents;
+  }
+  .terminal-v3.token-terminal .terminal-actions {
+    order: 0;
+    position: static;
+    width: 100%;
+    padding: 16px;
+  }
+  .terminal-v3.token-terminal .terminal-market-strip {
+    order: 1;
+    width: 100%;
+    padding: 14px;
+  }
+  .terminal-v3.token-terminal .terminal-chart {
+    order: 2;
+    width: 100%;
+    padding: 16px;
+  }
+  .terminal-v3.token-terminal .terminal-details {
+    order: 3;
+    width: 100%;
+  }
+  .terminal-v3.token-terminal .terminal-header {
+    padding-bottom: 16px;
+  }
+  .terminal-v3.token-terminal .terminal-price strong {
+    font-size: 23px;
+  }
+  .terminal-v3.token-terminal .terminal-identity h1 {
+    font-size: 22px;
+  }
+  .terminal-v3.token-terminal .terminal-market-strip dd {
+    font-size: 12px;
+  }
+  .terminal-v3.token-terminal .terminal-header-meta {
+    font-size: 9px;
+  }
+  .terminal-v3.token-terminal .terminal-header-actions .dex-link {
+    display: none;
+  }
+  .terminal-v3.token-terminal .terminal-navigation {
+    margin-bottom: 12px;
+  }
+  .terminal-v3.token-terminal .terminal-actions .field-error:empty {
+    display: none;
+  }
+  .terminal-v3.token-terminal .terminal-actions .operating-form {
+    gap: 10px;
+  }
+  .terminal-v3.token-terminal .terminal-actions .product-tablist {
+    margin-bottom: 14px;
+  }
+  .quote-history svg {
+    height: 220px;
+  }
+  .terminal-v3.token-terminal .terminal-migration {
+    order: 0;
+    width: 100%;
+  }
+}

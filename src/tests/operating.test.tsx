@@ -166,7 +166,75 @@ describe("coverage and contribution economics", () => {
   });
 });
 describe("Operating state actions", () => {
-  it("independent lots, capacity, balance, active principal and root binding", () => {
+  it("invited first participation binds atomically without enabling promotion", () => {
+    const s = initialize();
+    const wallet = s.getState().currentUser.wallet;
+    const root = s.getState().projects[key].creatorWallet;
+    const code = referralCode(key, root);
+    s.getState().setOperatingFailure();
+    expect(() => s.getState().participate(key, "10", code)).toThrow();
+    expect(
+      s.getState().operatingBooks[key]?.members[wallet]?.bound ?? false,
+    ).toBe(false);
+    s.getState().participate(key, "10", code);
+    const m = s.getState().operatingBooks[key].members[wallet];
+    expect(m.sponsor).toBe(root);
+    expect(m.bound).toBe(true);
+    expect(m.promotionEnabled).toBe(false);
+    s.getState().participate(key, "10", "unrelated-invalid-link");
+    expect(s.getState().operatingBooks[key].members[wallet].sponsor).toBe(root);
+    persistSnapshot(s.getState(), localStorage);
+    const restored = createSimulationStore();
+    restored.getState().hydrate(localStorage);
+    expect(
+      restored.getState().operatingBooks[key].members[wallet].promotionEnabled,
+    ).toBe(false);
+    const before = structuredClone(s.getState().exactBalances);
+    s.getState().enablePromotion(key, "");
+    expect(
+      s.getState().operatingBooks[key].members[wallet].promotionEnabled,
+    ).toBe(true);
+    expect(s.getState().exactBalances).toEqual(before);
+  });
+  it("invalid first invitations cannot change balances or create a position", () => {
+    const s = initialize();
+    const before = structuredClone(s.getState().exactBalances);
+    expect(() => s.getState().participate(key, "10", "invalid")).toThrow();
+    expect(s.getState().exactBalances).toEqual(before);
+    const wallet = s.getState().currentUser.wallet;
+    expect(
+      s.getState().operatingBooks[key]?.members[wallet]?.lots ?? [],
+    ).toHaveLength(0);
+    s.getState().participate(key, "10");
+    s.getState().participate(
+      key,
+      "10",
+      referralCode(key, s.getState().projects[key].creatorWallet),
+    );
+    expect(s.getState().operatingBooks[key].members[wallet].bound).toBe(false);
+  });
+
+  it("promotion is explicit, requires an inviter and preserves financial state", () => {
+    const s = initialize();
+    s.getState().participate(key, "100");
+    const wallet = s.getState().currentUser.wallet;
+    const balances = structuredClone(s.getState().exactBalances);
+    const lots = structuredClone(
+      s.getState().operatingBooks[key].members[wallet].lots,
+    );
+    expect(s.getState().operatingBooks[key].members[wallet].bound).toBe(false);
+    expect(() => s.getState().enablePromotion(key, "")).toThrow();
+    const root = s.getState().projects[key].creatorWallet;
+    s.getState().enablePromotion(key, referralCode(key, root));
+    expect(s.getState().operatingBooks[key].members[wallet].bound).toBe(true);
+    expect(s.getState().operatingBooks[key].members[wallet].sponsor).toBe(root);
+    expect(s.getState().exactBalances).toEqual(balances);
+    expect(s.getState().operatingBooks[key].members[wallet].lots).toEqual(lots);
+    s.getState().participate(key, "50");
+    expect(s.getState().operatingBooks[key].members[wallet].sponsor).toBe(root);
+  });
+
+  it("independent participation leaves invitation relationship unbound", () => {
     const s = initialize();
     s.getState().participate(key, "1000");
     s.getState().participate(key, "2000");
@@ -180,7 +248,8 @@ describe("Operating state actions", () => {
     expect(m.lots[0].id).not.toBe(m.lots[1].id);
     expect(activePrincipal(m)).toBe(3000n * UNIT);
     expect(BigInt(s.getState().exactBalances["56:usdt"])).toBe(7000n * UNIT);
-    expect(m.sponsor).toBe(s.getState().projects[key].creatorWallet);
+    expect(m.sponsor).toBeNull();
+    expect(m.bound).toBe(false);
     expect(s.getState().projects[key].operating?.activePositionValue).toBe(
       3000,
     );
@@ -190,14 +259,18 @@ describe("Operating state actions", () => {
     const s = initialize();
     const wallet = s.getState().currentUser.wallet;
     expect(() =>
-      s.getState().participate(key, "10", referralCode(key, wallet)),
+      s.getState().enablePromotion(key, referralCode(key, wallet)),
     ).toThrow(/自己/);
     expect(() =>
       s
         .getState()
-        .participate(key, "10", referralCode(projectKey(56, addr(5)), wallet)),
+        .enablePromotion(key, referralCode(projectKey(56, addr(5)), wallet)),
     ).toThrow(/当前项目/);
     s.getState().participate(key, "10");
+    s.getState().enablePromotion(
+      key,
+      referralCode(key, s.getState().projects[key].creatorWallet),
+    );
     s.getState().seedNetwork(key);
     const other = Object.values(s.getState().operatingBooks[key].members).find(
       (m) =>
@@ -205,13 +278,13 @@ describe("Operating state actions", () => {
         m.wallet !== s.getState().projects[key].creatorWallet,
     )!;
     expect(() =>
-      s.getState().participate(key, "10", referralCode(key, other.wallet)),
+      s.getState().enablePromotion(key, referralCode(key, other.wallet)),
     ).toThrow(/不能更换/);
   });
   it("accepts project referral and creator root participates without a parent", () => {
     const s = initialize();
     const root = s.getState().projects[key].creatorWallet;
-    s.getState().participate(key, "10", referralCode(key, root));
+    s.getState().enablePromotion(key, referralCode(key, root));
     expect(
       s.getState().operatingBooks[key].members[s.getState().currentUser.wallet]
         .sponsor,

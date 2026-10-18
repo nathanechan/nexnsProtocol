@@ -308,7 +308,7 @@ describe("shared live market adapter", () => {
       state.projects[key].operating!.totalStaked,
     );
   });
-  it("clock ticks preserve unchanged user, Curve and activity references", () => {
+  it("clock ticks preserve user and Curve while emitting market activity", () => {
     const store = setup();
     store.getState().advanceMarket(epoch + 8 * 3600000);
     const before = marketDataAdapter(store.getState());
@@ -316,7 +316,10 @@ describe("shared live market adapter", () => {
     const after = marketDataAdapter(store.getState());
     expect(after.currentUser).toBe(before.currentUser);
     expect(after.exactBalances).toBe(before.exactBalances);
-    expect(after.activities).toBe(before.activities);
+    expect(after.activities).not.toBe(before.activities);
+    expect(
+      after.activities.filter((a) => !a.id.startsWith("background-")),
+    ).toEqual(before.activities.filter((a) => !a.id.startsWith("background-")));
     const curve = projectKey(56, "0x" + "1".repeat(40));
     expect(after.projects[curve]).toBe(before.projects[curve]);
   });

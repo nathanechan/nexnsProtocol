@@ -1,5 +1,4 @@
 "use client";
-import { projectName } from "../product/metadata";
 import { useLocale } from "../i18n/locale";
 import Link from "next/link";
 import type { Activity, Project } from "../domain/models";
@@ -18,7 +17,6 @@ import {
 } from "./ui";
 import { ProjectLogo } from "./project-logo";
 export function EconomyLink({ p, tab }: { p: Project; tab?: string }) {
-  const { locale } = useLocale();
   return (
     <Link
       className="text-link"
@@ -31,11 +29,7 @@ export function EconomyLink({ p, tab }: { p: Project; tab?: string }) {
           platform={p.isPlatformToken}
         />
       </span>
-      <span data-user-text>
-        {p.symbol}
-        {p.name !== p.symbol && <> · {projectName(p, locale)}</>}
-      </span>{" "}
-      ↗
+      <span data-user-text>{p.symbol}</span> ↗
     </Link>
   );
 }

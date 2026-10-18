@@ -13,7 +13,7 @@ export function GlobalSearch() {
   const [query, setQuery] = useState("");
   useEffect(() => {
     const legacyQuery = new URLSearchParams(window.location.search).get("q");
-    if (legacyQuery) {
+    if (legacyQuery && pathname !== "/launch" && pathname !== "/live") {
       setQuery(legacyQuery);
       setOpen(true);
     }
@@ -40,7 +40,11 @@ export function GlobalSearch() {
       title={t("搜索")}
       description={t("合约地址、项目 ID、符号、名称或创建者钱包")}
       trigger={
-        <Button variant="ghost" aria-label={t("搜索")}>
+        <Button
+          className="global-search-trigger"
+          variant="ghost"
+          aria-label={t("搜索")}
+        >
           <Search size={18} />
           <span className="desktop-only">{t("搜索")}</span>
         </Button>

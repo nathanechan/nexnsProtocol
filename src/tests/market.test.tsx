@@ -137,7 +137,7 @@ describe("market read models", () => {
 });
 describe("market presentation", () => {
   it.each(["zh-CN", "en"] as const)(
-    "shows five comparison columns without detail metrics in %s",
+    "shows comparison columns with price trend without detail metrics in %s",
     async (locale) => {
       const { container } = show("live", undefined, locale);
       await waitFor(() =>
@@ -151,8 +151,8 @@ describe("market presentation", () => {
         ),
       ).toEqual(
         locale === "en"
-          ? ["Token", "Price", "Change", "Staked", "Users"]
-          : ["项目", "价格", "涨跌", "质押", "人数"],
+          ? ["Token", "Trend", "Price", "Change", "Staked", "Addresses"]
+          : ["项目", "走势", "价格", "涨跌", "质押", "地址"],
       );
       expect(
         container
@@ -166,11 +166,8 @@ describe("market presentation", () => {
         expect(row.querySelector("[data-token-symbol]")?.textContent).toBe(
           source!.symbol,
         );
-        if (!source!.isPlatformToken)
-          expect(row.querySelector("[data-token-name]")?.textContent).toBe(
-            source!.name,
-          );
-        expect(row.children).toHaveLength(5);
+        expect(row.querySelector("[data-token-name]")).toBeNull();
+        expect(row.children).toHaveLength(6);
         expect(
           row.querySelector(
             ".market-metric,.market-volume,.market-liquidity,.stake-sparkline",
@@ -205,7 +202,7 @@ describe("market presentation", () => {
           scroll: false,
         });
       } else {
-        expect(screen.queryByRole("combobox")).toBeNull();
+        expect(screen.getByRole("combobox")).toBeTruthy();
         fireEvent.click(screen.getByRole("button", { name: "Price" }));
         expect(routing.replace).toHaveBeenCalledWith(
           `/${section}?sort=price&dir=desc`,

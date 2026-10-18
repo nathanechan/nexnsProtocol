@@ -6,7 +6,6 @@ import {
   within,
   cleanup,
   act,
-  waitFor,
 } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { ProjectShell } from "../components/project-shell";
@@ -130,7 +129,7 @@ describe("brand metadata", () => {
   });
 });
 describe("token terminal", () => {
-  it("opens Positions and switches the market selector to Live after in-place migration", async () => {
+  it("opens Positions without redundant navigation after in-place migration", async () => {
     show(0);
     act(() =>
       simulationStore
@@ -145,21 +144,7 @@ describe("token terminal", () => {
         .getByRole("tab", { name: "Positions" })
         .getAttribute("aria-selected"),
     ).toBe("true");
-    fireEvent.click(
-      screen.getByRole("button", { name: "Switch project", exact: true }),
-    );
-    const selector = screen.getByLabelText("Token switcher");
-    expect(
-      within(selector)
-        .getByRole("tab", { name: "Live" })
-        .getAttribute("aria-selected"),
-    ).toBe("true");
-    expect(document.querySelector(".terminal-history")).toBeNull();
-    await waitFor(() =>
-      expect(document.querySelectorAll(".switcher-row").length).toBeGreaterThan(
-        0,
-      ),
-    );
+    expect(screen.queryByRole("button", { name: /^Search$/ })).toBeNull();
   });
   it("keeps explicit secondary deep links when hydration changes lifecycle", () => {
     window.history.replaceState({}, "", "/?tab=rewards");
@@ -212,14 +197,18 @@ describe("token terminal", () => {
     expect(document.querySelector("h1 [data-token-symbol]")?.textContent).toBe(
       mockProjects[0].symbol,
     );
-    expect(document.querySelector("h1 [data-token-name]")?.textContent).toBe(
-      mockProjects[0].name,
-    );
+    expect(document.querySelector("h1 [data-token-name]")).toBeNull();
     expect(screen.getByRole("heading", { level: 1 }).textContent).toContain(
-      "Velqen",
+      mockProjects[0].symbol,
     );
     expect(screen.getByRole("tab", { name: "Buy" })).toBeDefined();
     expect(screen.getByRole("tab", { name: "Sell" })).toBeDefined();
+    expect(
+      screen
+        .getByRole("button", { name: "Price history" })
+        .getAttribute("aria-pressed"),
+    ).toBe("true");
+    fireEvent.click(screen.getByRole("button", { name: "Issuance curve" }));
     expect(screen.getByText("Curve derived chart")).toBeDefined();
   });
   it("Operating keeps exactly three action tabs and no executable DEX controls", () => {
@@ -230,11 +219,7 @@ describe("token terminal", () => {
         .getAllByRole("tab")
         .map((t) => t.textContent),
     ).toEqual(["Participate", "Stake", "Claim"]);
-    expect(
-      screen
-        .getByRole("button", { name: "Trade on DEX ↗" })
-        .hasAttribute("disabled"),
-    ).toBe(true);
+    expect(screen.queryByRole("button", { name: "Trade on DEX ↗" })).toBeNull();
     expect(document.querySelector(".terminal-header")?.textContent).not.toMatch(
       /Price valid|Operating|Migration completed/,
     );
@@ -260,24 +245,9 @@ describe("token terminal", () => {
       ).toBeNull();
     },
   );
-  it("quick-switch search triggers the existing global modal entry", async () => {
+  it("does not duplicate global search within the Curve terminal", () => {
     show(0);
-    const listen = vi.fn();
-    window.addEventListener("nexns-open-search", listen);
-    fireEvent.click(
-      screen.getByRole("button", { name: "Switch project", exact: true }),
-    );
-    await waitFor(() =>
-      expect(document.querySelectorAll(".switcher-row").length).toBeGreaterThan(
-        0,
-      ),
-    );
-    fireEvent.click(
-      within(screen.getByLabelText("Token switcher")).getByRole("button", {
-        name: "Search",
-      }),
-    );
-    await waitFor(() => expect(listen).toHaveBeenCalledTimes(1));
-    window.removeEventListener("nexns-open-search", listen);
+    expect(document.querySelector(".terminal-navigation")).toBeNull();
+    expect(screen.queryByRole("button", { name: /^Search$/ })).toBeNull();
   });
 });

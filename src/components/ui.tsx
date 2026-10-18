@@ -141,9 +141,11 @@ export function PageHeader({
   return (
     <header className="page-header">
       <div>
-        <div className="eyebrow">{t(eyebrow)}</div>
+        {eyebrow && eyebrow !== title && (
+          <div className="eyebrow">{t(eyebrow)}</div>
+        )}
         <h1>{t(title)}</h1>
-        <p>{t(description)}</p>
+        {description && <p>{t(description)}</p>}
       </div>
       {t(action)}
     </header>
@@ -211,7 +213,7 @@ export function StatusCard({
 
   return (
     <DetailCard title={t(title)}>
-      <p>{t(description)}</p>
+      {description && <p>{t(description)}</p>}
     </DetailCard>
   );
 }
@@ -382,7 +384,7 @@ export function EmptyState({
         ◇
       </div>
       <h3>{t(title)}</h3>
-      <p>{t(description)}</p>
+      {description && <p>{t(description)}</p>}
       {t(action)}
     </div>
   );

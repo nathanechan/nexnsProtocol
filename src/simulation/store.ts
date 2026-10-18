@@ -1,8 +1,10 @@
 import {
   reconcileLive,
+  LIVE_CADENCE,
   marketDataAdapter,
   type LiveState,
 } from "./live-market";
+import { actorTrade } from "./market-actor";
 import {
   makeBook,
   operatingActions,
@@ -105,6 +107,7 @@ export interface SimulationState extends SimulationData, OperatingActions {
   hydrate: (storage: Storage) => void;
   refreshVolumes: () => void;
   advanceMarket: (timestamp?: number) => void;
+  advanceActivity: (timestamp?: number) => void;
 }
 const now = () => new Date().toISOString();
 function projectWithCurve(project: Project, ledger: CurveLedger): Project {
@@ -281,8 +284,67 @@ export function createSimulationStore() {
     advanceMarket: (timestamp = Date.now()) => {
       const state = get();
       if (!Number.isFinite(timestamp)) return;
-      if (state.liveMarket && timestamp < state.liveMarket.now + 30000) return;
+      if (state.liveMarket && timestamp < state.liveMarket.now + LIVE_CADENCE)
+        return;
       set({ liveMarket: reconcileLive(state, timestamp) });
+    },
+    advanceActivity: (timestamp = Date.now()) => {
+      const state = get();
+      const projects = { ...state.projects },
+        curves = { ...state.curves };
+      const events: Activity[] = [];
+      for (const [key, p] of Object.entries(state.projects)) {
+        const ledger = state.curves[key as ProjectKey];
+        if (!ledger) continue;
+        const result = actorTrade(p, ledger, timestamp);
+        if (!result) continue;
+        const { quote, side, wallet } = result;
+        const nextLedger = {
+          ...result.ledger,
+          creatorRevenue: (
+            creatorCurveRevenue(state, key as ProjectKey) +
+            quote.fee / 2n
+          ).toString(),
+        };
+        curves[key as ProjectKey] = nextLedger;
+        projects[key as ProjectKey] = projectWithCurve(p, nextLedger);
+        events.push({
+          id: `FLOW-${key}-${nextLedger.marketActor!.sequence}`,
+          projectKey: key as ProjectKey,
+          projectId: p.projectId,
+          wallet,
+          type: side === "buy" ? "BUY" : "SELL",
+          timestamp: new Date(timestamp).toISOString(),
+          displayValues: {
+            summary: `${side === "buy" ? "买入" : "卖出"} ${displayAmount(quote.tokenAmount, 4)} ${p.symbol}`,
+            amount: decimal(
+              side === "buy" ? quote.accepted : quote.tokenAmount,
+            ),
+            received: decimal(quote.receive),
+            fee: decimal(quote.fee),
+            paidAsset: side === "buy" ? "USDT" : p.symbol,
+            receivedAsset: side === "buy" ? p.symbol : "USDT",
+            priceBefore: decimal(priceAtSold(ledgerState(ledger).sold)),
+            priceAfter: decimal(quote.newPrice),
+          },
+        });
+      }
+      if (!events.length) return;
+      const existing = state.activities.filter(
+        (a) => !a.id.startsWith("FLOW-"),
+      );
+      const background = [
+        ...events,
+        ...state.activities.filter((a) => a.id.startsWith("FLOW-")),
+      ].slice(0, 384);
+      set({
+        projects,
+        curves,
+        activities: [...existing, ...background].sort(
+          (a, b) => Date.parse(b.timestamp) - Date.parse(a.timestamp),
+        ),
+        revision: state.revision + 1,
+      });
     },
     createProject: (input) => {
       const errors = {
@@ -453,6 +515,8 @@ export function createSimulationStore() {
           fee: decimal(quote.fee),
           paidAsset: side === "buy" ? "USDT" : p.symbol,
           receivedAsset: side === "buy" ? p.symbol : "USDT",
+          priceBefore: decimal(priceAtSold(ledgerState(ledger).sold)),
+          priceAfter: decimal(quote.newPrice),
         },
       );
       const activities = [activity, ...state.activities];

@@ -7,6 +7,12 @@ export const RESERVE_TARGET = 100000n * UNIT;
 const A3 = 3200000n * UNIT;
 const B3 = 100000n * UNIT;
 export interface CurveLedger {
+  marketActor?: {
+    usdt: string;
+    tokens: string;
+    sequence: number;
+    updatedAt: number;
+  };
   creatorRevenue?: string;
   reserve: string;
   sold: string;

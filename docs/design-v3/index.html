@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>NEXNS · 市场终端设计评审</title>
+    <link rel="stylesheet" href="preview.css" />
+  </head>
+  <body>
+    <aside class="review">
+      <span><b>NEXNS</b></span
+      ><button id="theme" aria-label="切换明暗主题">浅色模式 ◐</button>
+    </aside>
+    <header class="nav">
+      <a href="#market" class="brand"
+        ><svg viewBox="230 145 880 980" aria-hidden="true">
+          <image href="logo.png" width="1306" height="1205" /></svg
+        >NEXNS</a
+      >
+      <nav aria-label="主导航">
+        <button data-page="market" class="selected">市场</button
+        ><button data-page="terminal">交易终端</button>
+      </nav>
+      <div class="nav-right">
+        <span class="chain">● BNB Chain</span
+        ><button class="wallet" id="wallet">钱包</button>
+      </div>
+    </header>
+    <div class="market-pulse" aria-label="市场动态">
+      <span class="pulse-label"><i></i> 市场动态</span>
+      <div class="pulse-items">
+        <button data-pulse="0">
+          <b>FIELD</b><span class="up">买入 125 USDT</span
+          ><small>发行 91.26%</small>
+        </button>
+        <button data-pulse="3">
+          <b>ISLE</b><span class="up">+12.67%</span><small>24H</small>
+        </button>
+        <button data-pulse="1">
+          <b>ORIG</b><span class="up">买入 260 USDT</span
+          ><small>发行 85.79%</small>
+        </button>
+        <button data-pulse="2">
+          <b>TIDE</b><span class="negative">−2.34%</span><small>24H</small>
+        </button>
+      </div>
+    </div>
+    <main>
+      <section id="market">
+        <div class="page-heading">
+          <div>
+            <p class="eyebrow">DISCOVER YOUR NEXT ECONOMY</p>
+            <h1>发现代币<span class="heading-mark">↗</span></h1>
+          </div>
+        </div>
+        <div class="stage-row">
+          <div class="stage-tabs" role="group" aria-label="市场阶段">
+            <button class="active" data-stage="curve">
+              发行 <span>Curve</span></button
+            ><button data-stage="operating">运行 <span>Operating</span></button>
+          </div>
+        </div>
+        <div class="market-toolbar">
+          <div class="filters" role="group" aria-label="列表排序">
+            <button class="active" data-sort="hot">
+              <span class="hot-icon">↗</span> 热门</button
+            ><button data-sort="new">最新</button
+            ><button data-sort="near">接近完成</button
+            ><button data-sort="favorite">
+              自选 <span id="fav-count">0</span>
+            </button>
+          </div>
+          <label class="search"
+            ><svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="10.5" cy="10.5" r="6.5" />
+              <path d="m16 16 4 4" /></svg
+            ><input
+              id="search"
+              placeholder="搜索简称、名称或合约"
+              aria-label="搜索代币"
+            /><kbd>/</kbd></label
+          >
+        </div>
+        <div class="market-table">
+          <div class="table-head market-grid">
+            <span>项目</span><span>价格走势 <small>24H</small></span
+            ><span>价格</span><span>24H 涨跌</span
+            ><span id="stage-column">发行进度</span><span>参与人数</span
+            ><span></span>
+          </div>
+          <div id="rows"></div>
+          <p id="empty" hidden>未找到相关代币</p>
+        </div>
+      </section>
+      <section id="terminal" hidden>
+        <button class="back" data-page="market">← 返回市场</button>
+        <div class="token-header">
+          <div class="identity">
+            <div class="coin hero" id="terminal-avatar">F</div>
+            <div>
+              <div class="token-title">
+                <h1 id="symbol">FIELD</h1>
+                <span class="badge" id="lifecycle">发行中</span>
+              </div>
+              <button class="contract" id="contract">
+                BNB · 0x9a00…2c23 ⧉
+              </button>
+            </div>
+          </div>
+          <div class="quote">
+            <strong id="price">$0.4366</strong
+            ><span class="up">↗ +8.42% <small>24H</small></span>
+          </div>
+        </div>
+        <div class="terminal-layout">
+          <section class="chart-panel surface" aria-label="行情图表">
+            <div class="chart-top">
+              <div class="chart-switch" role="group" aria-label="图表类型">
+                <button class="active" data-chart="price">价格走势</button
+                ><button data-chart="curve">发行曲线</button>
+              </div>
+              <span class="chart-unit">USDT</span>
+            </div>
+            <div class="chart-readout">
+              <b id="chart-value">0.4366</b
+              ><span id="chart-caption">24H 价格走势</span>
+            </div>
+            <div class="chart-frame">
+              <svg
+                id="chart"
+                viewBox="0 0 800 280"
+                role="img"
+                aria-label="价格走势"
+              >
+                <defs>
+                  <linearGradient id="area" x2="0" y2="1">
+                    <stop stop-color="var(--blue)" stop-opacity=".26" />
+                    <stop
+                      offset="1"
+                      stop-color="var(--blue)"
+                      stop-opacity="0"
+                    />
+                  </linearGradient>
+                </defs>
+                <g class="grid">
+                  <path d="M0 30H740M0 90H740M0 150H740M0 210H740M0 270H740" />
+                </g>
+                <g class="axis">
+                  <text x="752" y="34">0.48</text>
+                  <text x="752" y="94">0.42</text>
+                  <text x="752" y="154">0.36</text>
+                  <text x="752" y="214">0.30</text>
+                </g>
+                <path id="area-path" fill="url(#area)" />
+                <path
+                  id="line-path"
+                  fill="none"
+                  stroke="var(--blue)"
+                  stroke-width="2.5"
+                />
+                <circle
+                  cx="740"
+                  cy="74"
+                  r="4"
+                  fill="var(--blue)"
+                  id="endpoint"
+                />
+              </svg>
+              <div class="time-axis" id="time-axis">
+                <span>00:00</span><span>06:00</span><span>12:00</span
+                ><span>18:00</span><span>现在</span>
+              </div>
+            </div>
+            <div class="chart-footer">
+              <div class="ranges" role="group" aria-label="图表范围">
+                <button data-range="1H">1H</button
+                ><button data-range="6H">6H</button
+                ><button class="active" data-range="24H">24H</button>
+              </div>
+            </div>
+            <div class="funding">
+              <div>
+                <span id="funding-label">发行进度</span
+                ><strong id="funding-value">91.26%</strong>
+              </div>
+              <div class="progress"><i style="width: 91.26%"></i></div>
+              <p id="funding-caption">
+                距离发行完成 <b>8,737.30 USDT</b
+                ><span>91,262.70 / 100,000 USDT</span>
+              </p>
+            </div>
+          </section>
+          <section class="trade surface" aria-label="交易操作">
+            <div class="trade-tabs" role="group" aria-label="操作类型">
+              <button class="active" data-action="buy">买入</button
+              ><button data-action="sell">卖出</button>
+            </div>
+            <div class="amount-label">
+              <label for="amount" id="amount-label">支付金额</label
+              ><span id="amount-unit">USDT</span>
+            </div>
+            <div class="amount-box">
+              <input
+                id="amount"
+                inputmode="decimal"
+                type="text"
+                placeholder="0.00"
+                autocomplete="off"
+                aria-describedby="trade-message"
+              /><button id="max">MAX</button>
+            </div>
+            <div class="balance">
+              可用 <span id="balance">5,000.00 USDT</span>
+            </div>
+            <div class="quick" role="group" aria-label="快捷金额">
+              <button data-amount="25">25</button
+              ><button data-amount="100">100</button
+              ><button data-amount="250">250</button
+              ><button data-amount="500">500</button>
+            </div>
+            <div class="estimate">
+              <span>预计收到</span><strong id="receive">— FIELD</strong>
+            </div>
+            <p id="trade-message">输入金额，查看预计收到。</p>
+            <button id="submit" class="primary" disabled>买入</button>
+
+            <details class="personal">
+              <summary>我的资产 <span>展开</span></summary>
+              <div>
+                <span>代币余额</span><b id="personal-balance">1,280 FIELD</b>
+              </div>
+              <div><span>可用 USDT</span><b>5,000.00</b></div>
+            </details>
+          </section>
+          <section class="activity surface">
+            <div class="detail-tabs" role="group" aria-label="项目详情">
+              <button class="active" data-detail="activity">最近交易</button
+              ><button data-detail="position">我的持仓</button
+              ><button data-detail="about">项目资料</button>
+            </div>
+            <div id="detail-content"></div>
+          </section>
+        </div>
+      </section>
+    </main>
+    <footer class="footer"><span>NEXNS</span><span></span></footer>
+    <dialog id="confirm">
+      <form method="dialog">
+        <div class="dialog-heading">
+          <h2>确认操作</h2>
+          <button aria-label="关闭">×</button>
+        </div>
+        <p>请核对代币、金额与预计收到。</p>
+        <div class="confirm-result" id="confirm-result"></div>
+        <p class="sub">BNB Chain · 0x9a00…2c23</p>
+        <button class="primary">返回操作</button>
+      </form>
+    </dialog>
+    <div id="toast" role="status"></div>
+    <script src="preview.js"></script>
+  </body>
+</html>

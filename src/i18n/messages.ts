@@ -352,6 +352,7 @@ export const messages: Record<string, string> = {
   全部生命周期: "All lifecycle stages",
   曲线发行中: "Curve Stage",
   参与人数: "Participants",
+  参与地址: "Participating addresses",
   "项目参与关系合计，非去重钱包": "Project participation connections",
   "USDT · 曲线与市场成交": "USDT · Curve and market volume",
   总资金规模: "Total value locked",
@@ -503,6 +504,15 @@ export const messages: Record<string, string> = {
   生态角色: "Ecosystem role",
   "NEXNS 平台代币遵循与普通项目相同的曲线发行和奖励规则。其交易池使用 NEXNS / USDT。":
     "NEXNS follows the same issuance and reward rules as other projects. Its trading pair is NEXNS/USDT.",
+  项目信息: "Project details",
+  暂无项目链接: "No project links",
+  项目链接: "Project links",
+  "关于 NEXNS": "About NEXNS",
+  "NEXNS 核心资产与生态概览。": "NEXNS core asset and ecosystem overview.",
+  "NEXNS 是平台的核心代币，连接项目发行、协议参与与生态流动性。":
+    "NEXNS is the platform's core token, connecting project launches, protocol participation and ecosystem liquidity.",
+  "在此查看 NEXNS 的供应、销毁、流动性及已建立的项目连接。":
+    "Explore NEXNS supply, burns, liquidity and established project connections.",
   "普通项目可通过项目代币 / NEXNS 交易池连接NEXNS。":
     "Projects connect through token/NEXNS pools.",
   已建立生态连接: "Ecosystem connections",

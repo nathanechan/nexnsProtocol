@@ -5,7 +5,7 @@ import {
   type StakePoint,
 } from "../product/staking-history";
 import type { SimulationData } from "./store";
-export const LIVE_CADENCE = 30_000;
+export const LIVE_CADENCE = 4_000;
 export type LiveProject = {
   operatingStart: string;
   epoch: number;
@@ -19,6 +19,14 @@ export type LiveProject = {
 export type LiveState = { now: number; projects: Record<string, LiveProject> };
 const day = 86_400_000;
 const safe = (n: number) => (Number.isFinite(n) ? Math.max(0, n) : 0);
+function priceNoise(key: string, time: number, windowMs: number) {
+  const bucket = Math.floor(time / windowMs),
+    fraction = (time % windowMs) / windowMs;
+  const smooth = fraction * fraction * (3 - 2 * fraction);
+  const sample = (n: number) =>
+    (identitySeed(`${key}:${windowMs}:${n}`) % 100001) / 50000 - 1;
+  return sample(bucket) * (1 - smooth) + sample(bucket + 1) * smooth;
+}
 export function referencePrice(source: LiveProject, key: string, time: number) {
   if (source.basePrice == null) return null;
   const seed = identitySeed(key),
@@ -30,7 +38,10 @@ export function referencePrice(source: LiveProject, key: string, time: number) {
     source.basePrice *
       (1 +
         amplitude * Math.sin(hours / (5 + (seed % 9))) +
-        amplitude * 0.25 * Math.sin(hours / 2.5)),
+        amplitude * 0.25 * Math.sin(hours / 2.5) +
+        0.004 * priceNoise(key, time, 120000) +
+        0.006 * priceNoise(key, time, 900000) +
+        0.0003 * priceNoise(key, time, 10000)),
   );
 }
 export function backgroundStake(
@@ -42,7 +53,7 @@ export function backgroundStake(
   const profile = identitySeed(key) % 4;
   const drift =
     [0.02, 0.002, 0.007, -0.012][profile] * (1 - Math.exp(-hours / 96));
-  return source.baseStake * drift;
+  return source.baseStake * (drift + 0.0015 * Math.sin((hours * 3600) / 31));
 }
 export const stakedValue = (staked: number, price: number | null) =>
   price == null || !Number.isFinite(price)
@@ -180,7 +191,7 @@ export function projectLive(p: Project, live: LiveState | null): Project {
         p.operating.activeParticipants +
         Math.floor(
           Math.max(0, live.now - source.epoch) /
-            ((3 + (identitySeed(key) % 4)) * 3_600_000),
+            ((3 + (identitySeed(key) % 4)) * 8_000),
         ),
       change24h: price != null && previous ? price / previous - 1 : null,
     },
@@ -190,7 +201,7 @@ export function ecosystemActivity(p: Project, live: LiveState): Activity[] {
   const key = `${p.chainId}:${p.tokenContract.toLowerCase()}` as ProjectKey;
   const source = live.projects[key];
   if (!source) return [];
-  const interval = (3 + (identitySeed(key) % 4)) * 3_600_000;
+  const interval = (3 + (identitySeed(key) % 4)) * 8_000;
   const count = Math.floor(Math.max(0, live.now - source.epoch) / interval);
   return Array.from({ length: Math.min(count, 3) }, (_, index) => {
     const event = count - index;

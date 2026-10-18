@@ -1,0 +1,347 @@
+/* Public info and action forms share one product typeface. */
+.terminal-v3.token-terminal .terminal-detail-content {
+  display: grid;
+  gap: 16px;
+  width: 100%;
+  min-width: 0;
+  font-family: var(--product-font);
+}
+.terminal-v3.token-terminal
+  .terminal-detail-content
+  :is(.card, .terminal-history) {
+  padding: 20px;
+  background: var(--theme-surface);
+  border: 1px solid var(--theme-line);
+  border-radius: 10px;
+  min-width: 0;
+  max-width: 100%;
+  box-shadow: none;
+  margin: 0;
+}
+.terminal-v3.token-terminal .terminal-detail-content .card > h3,
+.terminal-v3.token-terminal .terminal-history > h3 {
+  margin: 0 0 16px;
+  padding: 0 0 14px;
+  border-bottom: 1px solid var(--theme-line);
+  font-size: 15px;
+  line-height: 1.5;
+}
+.terminal-v3.token-terminal .terminal-detail-content .key-values {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+}
+.terminal-v3.token-terminal .terminal-detail-content .key-values > div {
+  display: grid;
+  grid-template-columns: minmax(100px, 0.45fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--theme-line);
+}
+.terminal-v3.token-terminal .terminal-detail-content .key-values dt {
+  font: 12px/1.7 var(--product-font);
+  color: var(--theme-muted);
+}
+.terminal-v3.token-terminal .terminal-detail-content .key-values dd {
+  font: 13px/1.7 var(--product-font);
+  color: var(--theme-ink);
+  margin: 0;
+  text-align: right;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+.terminal-v3.token-terminal
+  .terminal-detail-content
+  :is(.operating-layout, .responsive-grid) {
+  min-width: 0;
+  max-width: 100%;
+  gap: 16px;
+}
+.terminal-v3.token-terminal .terminal-detail-content .project-metrics {
+  padding: 18px;
+  background: var(--theme-surface);
+  border: 1px solid var(--theme-line);
+  border-radius: 10px;
+  margin: 0;
+  gap: 16px;
+}
+.terminal-v3.token-terminal .terminal-detail-content .project-metrics .metric {
+  padding: 0;
+  border: 0;
+  background: none;
+  min-width: 0;
+}
+.terminal-v3.token-terminal .terminal-detail-content .metric strong {
+  font-family: var(--product-font);
+  overflow-wrap: anywhere;
+  color: var(--theme-ink);
+}
+.terminal-v3.token-terminal
+  .terminal-detail-content
+  :is(.activity-feed, .lot-list) {
+  margin: 0;
+  min-width: 0;
+  padding-left: 0;
+}
+.terminal-v3.token-terminal .terminal-detail-content .activity-feed li {
+  padding: 14px 0;
+  border-color: var(--theme-line);
+}
+.terminal-v3.token-terminal
+  .terminal-detail-content
+  .activity-feed
+  :is(li, li > div) {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.terminal-v3.token-terminal .terminal-detail-content .public-links a {
+  overflow-wrap: anywhere;
+}
+.terminal-v3.token-terminal .terminal-detail-content .empty {
+  text-align: left;
+  align-items: flex-start;
+}
+.terminal-v3.token-terminal .terminal-detail-content .terminal-history {
+  margin-top: 0;
+}
+@media (max-width: 600px) {
+  .terminal-v3.token-terminal
+    .terminal-detail-content
+    :is(.card, .terminal-history) {
+    padding: 16px;
+  }
+  .terminal-v3.token-terminal .terminal-detail-content .key-values > div {
+    grid-template-columns: 86px minmax(0, 1fr);
+    gap: 10px;
+    padding: 12px 0;
+  }
+  .terminal-v3.token-terminal .terminal-detail-content .key-values dd {
+    font-size: 12px;
+  }
+  .terminal-v3.token-terminal .terminal-detail-content .project-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 16px;
+  }
+}
+:root {
+  --product-font: Arial, "Microsoft YaHei", "PingFang SC", sans-serif;
+}
+.terminal-v3.token-terminal .project-public-info {
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  font-family: var(--product-font);
+}
+.terminal-v3.token-terminal .project-public-info > .card {
+  padding: 20px;
+  background: var(--theme-surface);
+  border: 1px solid var(--theme-line);
+  border-radius: 10px;
+  overflow: visible;
+  min-width: 0;
+}
+.terminal-v3.token-terminal .project-public-info .card > h3 {
+  margin: 0 0 16px;
+  padding: 0 0 14px;
+  border-bottom: 1px solid var(--theme-line);
+  font-size: 15px;
+  line-height: 1.5;
+}
+.terminal-v3.token-terminal .project-public-info .project-description {
+  margin: 0 0 18px;
+  color: var(--theme-muted);
+  font-size: 13px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.terminal-v3.token-terminal .project-public-info .key-values {
+  width: 100%;
+  margin: 0;
+}
+.terminal-v3.token-terminal .project-public-info .key-values > div {
+  display: grid;
+  grid-template-columns: minmax(100px, 0.45fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--theme-line);
+}
+.terminal-v3.token-terminal .project-public-info .key-values dt {
+  font-family: var(--product-font);
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--theme-muted);
+}
+.terminal-v3.token-terminal .project-public-info .key-values dd {
+  min-width: 0;
+  max-width: 100%;
+  margin: 0;
+  text-align: right;
+  font-family: var(--product-font);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.7;
+  color: var(--theme-ink);
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+.terminal-v3.token-terminal
+  .project-public-info
+  .key-values
+  dd
+  :is(span, button) {
+  max-width: 100%;
+}
+.terminal-v3.token-terminal .project-public-info > .card > .text-link {
+  display: inline-flex;
+  margin-top: 16px;
+  font-size: 12px;
+}
+.terminal-v3.token-terminal .project-public-info .public-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  margin-top: 16px;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--theme-muted);
+  overflow-wrap: anywhere;
+}
+:is(.terminal-v3.token-terminal, .terminal-v3.token-terminal.terminal-flagship)
+  .terminal-actions,
+:is(.terminal-v3.token-terminal, .terminal-v3.token-terminal.terminal-flagship)
+  .terminal-actions
+  :is(
+    .input,
+    input,
+    button,
+    label,
+    .key-values dd,
+    .trade-available,
+    .trade-status
+  ) {
+  font-family: var(--product-font);
+}
+.terminal-v3.token-terminal
+  :is(
+    .terminal-price strong,
+    .terminal-market-strip dd,
+    .terminal-user-state dd,
+    .quote-history figcaption strong
+  ) {
+  font-family: var(--product-font);
+}
+@media (max-width: 600px) {
+  .terminal-v3.token-terminal .project-public-info > .card {
+    padding: 16px;
+  }
+  .terminal-v3.token-terminal .project-public-info .key-values > div {
+    grid-template-columns: 86px minmax(0, 1fr);
+    gap: 10px;
+    padding: 12px 0;
+  }
+  .terminal-v3.token-terminal .project-public-info .key-values dd {
+    font-size: 12px;
+  }
+}
+.professional-price-chart figcaption > div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.professional-price-chart figcaption strong {
+  font-size: 24px;
+  font-variant-numeric: tabular-nums;
+}
+.price-chart-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 16px 0;
+  color: var(--theme-muted);
+  font-size: 11px;
+}
+.price-chart-toolbar [role="group"] {
+  display: flex;
+  gap: 4px;
+}
+.price-chart-toolbar button {
+  border: 0;
+  background: transparent;
+  color: var(--theme-muted);
+  border-radius: 6px;
+  padding: 7px 10px;
+  cursor: pointer;
+}
+.price-chart-toolbar button[aria-pressed="true"] {
+  background: var(--theme-soft);
+  color: var(--theme-ink);
+}
+.price-chart-toolbar button:focus-visible {
+  outline: 2px solid #2464eb;
+  outline-offset: 2px;
+}
+.price-history-canvas {
+  height: 340px;
+  min-width: 0;
+  width: 100%;
+}
+@media (max-width: 600px) {
+  .price-history-canvas {
+    height: 280px;
+  }
+  .price-chart-toolbar {
+    gap: 8px;
+  }
+  .professional-price-chart figcaption strong {
+    font-size: 22px;
+  }
+}
+.trading-canvas {
+  height: 360px;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+.candle-readout {
+  font: 11px/1.8 monospace;
+  color: var(--theme-muted);
+  min-height: 22px;
+  overflow-wrap: anywhere;
+}
+.chart-attribution {
+  display: block;
+  color: var(--theme-muted);
+  font-size: 9px;
+  margin-top: 8px;
+}
+.professional-trading-chart {
+  min-width: 0;
+  width: 100%;
+}
+.operating-chart-views > .staking-chart {
+  border: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+.live-reward-preview {
+  padding: 14px 16px;
+  border: 1px solid var(--theme-line);
+  border-radius: 10px;
+  background: var(--theme-surface);
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 12px;
+}
+.live-reward-preview strong {
+  font-variant-numeric: tabular-nums;
+  color: var(--theme-ink);
+}

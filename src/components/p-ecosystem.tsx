@@ -2,7 +2,7 @@
 import { ProjectLogo } from "./project-logo";
 import { useLocale } from "../i18n/locale";
 import { useSimulation } from "../simulation/store";
-import { projectKey, projectRoute } from "../domain/identity";
+import { projectKey } from "../domain/identity";
 import { price, money } from "../product/format";
 import {
   ContractAddress,
@@ -16,7 +16,6 @@ import {
 import { EconomyLink } from "./result-views";
 import { supplyResult } from "../product/read-model";
 import { displayAmount } from "../domain/economics/amount";
-import Link from "next/link";
 export function PEcosystem() {
   const { t } = useLocale();
 
@@ -35,7 +34,7 @@ export function PEcosystem() {
       <PageHeader
         eyebrow={t("NEXNS")}
         title={t("NEXNS")}
-        description={t("NEXNS 平台代币与协议项目的公开连接。")}
+        description={t("NEXNS 核心资产与生态概览。")}
       />
       {t(
         !p ? (
@@ -95,17 +94,16 @@ export function PEcosystem() {
                     },
                   ]}
                 />
-                <Link className="button primary" href={projectRoute(p)}>
-                  {t("进入 NEXNS 终端 ↗")}
-                </Link>
               </DetailCard>
-              <DetailCard title={t("生态角色")}>
+              <DetailCard title={t("关于 NEXNS")}>
                 <p>
                   {t(
-                    "NEXNS 平台代币遵循与普通项目相同的曲线发行和奖励规则。其交易池使用 NEXNS / USDT。",
+                    "NEXNS 是平台的核心代币，连接项目发行、协议参与与生态流动性。",
                   )}
                 </p>
-                <p>{t("普通项目可通过项目代币 / NEXNS 交易池连接NEXNS。")}</p>
+                <p>
+                  {t("在此查看 NEXNS 的供应、销毁、流动性及已建立的项目连接。")}
+                </p>
               </DetailCard>
             </div>
             <DetailCard title={t("已建立生态连接")}>

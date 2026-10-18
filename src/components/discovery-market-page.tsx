@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   discoverRows,
@@ -20,7 +20,8 @@ import { marketDataAdapter } from "../simulation/live-market";
 import { useResource } from "../product/use-resource";
 import { useLocale } from "../i18n/locale";
 import { marketCopy } from "../i18n/market";
-import { projectName } from "../product/metadata";
+import { marketHistory } from "../product/market-history";
+import { Search, TrendingUp } from "lucide-react";
 import { compactMarketNumber, marketChange } from "../product/market-format";
 import { curvePercent } from "../product/format";
 import { AnimatedAmount } from "./animated-amount";
@@ -31,13 +32,23 @@ function DiscoveryRow({
   initial,
   favorite,
   toggle,
+  rank,
 }: {
   initial: MarketRow;
   favorite: boolean;
   toggle: () => void;
+  rank: number;
 }) {
   const project = useSimulation((s) => s.projects[initial.key]);
   const row = project ? marketRow(project) : initial;
+  const activities = useSimulation((s) => s.activities);
+  const live = useSimulation((s) => s.liveMarket);
+  const history = useMemo(
+    () => (project ? marketHistory(project, activities, live) : []),
+    [project, activities, live],
+  );
+  if (row.stage === "CURVE_OPEN" && history.length >= 2)
+    row.change = history.at(-1)! / history[0] - 1;
   const { locale } = useLocale();
   const c = marketCopy[locale];
   const change = (
@@ -63,6 +74,7 @@ function DiscoveryRow({
         data-stage={row.stage}
       >
         <span className="market-identity">
+          <span className="market-rank">{rank}</span>
           <span className="market-logo" aria-hidden="true">
             <ProjectLogo
               logo={row.logo}
@@ -79,17 +91,19 @@ function DiscoveryRow({
             >
               {row.symbol}
             </strong>
-            {!row.platform && (
-              <small
-                className="live-token-symbol"
-                data-token-name
-                data-user-text
-                title={projectName(row, locale)}
-              >
-                {projectName(row, locale)}
+            {row.stage === "CURVE_OPEN" && (row.progress ?? 0) >= 0.9 && (
+              <small className="completion-label">
+                {locale === "en" ? "Near completion" : "临近完成"} ↗
               </small>
             )}
           </span>
+        </span>
+        <span className="market-trend">
+          {history.length < 2 ? (
+            <small>{locale === "en" ? "No history yet" : "暂无走势"}</small>
+          ) : (
+            <MarketSpark values={history} label={row.symbol} />
+          )}
         </span>
         <span className="market-cell market-price reference-price">
           <span className="market-value">
@@ -209,8 +223,19 @@ export function DiscoveryMarketPage({
         )
       : undefined,
   );
+  const marketProjects = useSimulation((s) => s.projects);
+  const marketActivities = useSimulation((s) => s.activities);
+  const marketLive = useSimulation((s) => s.liveMarket);
+  const enriched = (state.data ?? []).map((row) => {
+    const project = marketProjects[row.key];
+    if (!project || row.stage !== "CURVE_OPEN") return row;
+    const history = marketHistory(project, marketActivities, marketLive);
+    return history.length >= 2
+      ? { ...row, change: history.at(-1)! / history[0] - 1 }
+      : row;
+  });
   const rows = discoverRows(
-    state.data ?? [],
+    enriched,
     section,
     tab,
     favorites,
@@ -234,6 +259,7 @@ export function DiscoveryMarketPage({
   };
   const columns = [
     { label: c.liveToken, sort: null },
+    { label: locale === "en" ? "Trend" : "走势", sort: null },
     { label: c.price, sort: "price" },
     { label: c.listChange, sort: "change" },
     {
@@ -246,32 +272,63 @@ export function DiscoveryMarketPage({
     <section
       className={`market-page market-surface discovery-surface ${section}`}
       data-nexns-ui="v2"
+      data-market-v3
     >
       <div className="market-toolbar">
-        <h1>{c[section]}</h1>
-        <span className="market-stage-label">
-          {section === "launch"
-            ? locale === "en"
-              ? "Curve Stage"
-              : "曲线阶段"
-            : locale === "en"
-              ? "Operating Stage"
-              : "运行阶段"}
-        </span>
+        <h1 className="sr-only">{c[section]}</h1>
       </div>
-      <div className="discovery-tabs" role="tablist" aria-label={c.discovery}>
-        {(["watchlist", "hot", "new", "all"] as const).map((value) => (
-          <button
-            key={value}
-            role="tab"
-            aria-selected={tab === value}
-            onClick={() => update("tab", value)}
-          >
-            {c[value]}
-          </button>
-        ))}
+      <div className="market-control-bar">
+        <label className="market-local-search">
+          <Search size={16} />
+          <input
+            aria-label={locale === "en" ? "Search tokens" : "搜索代币"}
+            placeholder={
+              locale === "en"
+                ? "Symbol, name or contract"
+                : "搜索简称、名称或合约"
+            }
+            defaultValue={params.get("q") ?? ""}
+            onChange={(e) => update("q", e.target.value)}
+          />
+        </label>
+        <div className="discovery-tabs" role="tablist" aria-label={c.discovery}>
+          {(["watchlist", "hot", "new", "all"] as const).map((value) => (
+            <button
+              key={value}
+              role="tab"
+              aria-selected={tab === value}
+              onClick={() => update("tab", value)}
+            >
+              {value === "hot" && <TrendingUp size={15} />} {c[value]}
+            </button>
+          ))}
+        </div>
       </div>
       <div className="market-list" aria-label={c.list}>
+        <div className="market-mobile-sort">
+          <label>
+            {c.sort}
+            <select
+              aria-label={c.sort}
+              value={sort}
+              onChange={(e) => update("sort", e.target.value)}
+            >
+              {columns
+                .filter((column) => column.sort)
+                .map((column) => (
+                  <option key={column.sort} value={column.sort!}>
+                    {column.label}
+                  </option>
+                ))}
+            </select>
+          </label>
+          <button
+            aria-label={locale === "en" ? "Reverse sort" : "切换排序方向"}
+            onClick={() => update("sort", sort)}
+          >
+            {direction === "asc" ? "↑" : "↓"}
+          </button>
+        </div>
         <div className="market-columns" role="row">
           {columns.map((column, i) => (
             <span
@@ -322,10 +379,11 @@ export function DiscoveryMarketPage({
           </div>
         ) : (
           <ul aria-label={c.list}>
-            {rows.map((row) => (
+            {rows.map((row, index) => (
               <DiscoveryRow
                 key={row.key}
                 initial={row}
+                rank={index + 1}
                 favorite={favorites.includes(row.key)}
                 toggle={() => toggle(row.key)}
               />
@@ -334,5 +392,37 @@ export function DiscoveryMarketPage({
         )}
       </div>
     </section>
+  );
+}
+
+function MarketSpark({ values, label }: { values: number[]; label: string }) {
+  const min = Math.min(...values),
+    max = Math.max(...values),
+    spread = max - min || max * 0.01 || 1;
+  const points = values
+    .map(
+      (v, i) =>
+        `${(i * 120) / (values.length - 1)},${30 - ((v - min) / spread) * 24}`,
+    )
+    .join(" ");
+  return (
+    <svg
+      viewBox="0 0 120 36"
+      role="img"
+      aria-label={label}
+      className={values.at(-1)! >= values[0] ? "positive" : "negative"}
+    >
+      <polygon
+        points={`0,36 ${points} 120,36`}
+        fill="currentColor"
+        opacity=".1"
+      />
+      <polyline
+        points={points}
+        stroke="currentColor"
+        fill="none"
+        strokeWidth="1.7"
+      />
+    </svg>
   );
 }

@@ -1,4 +1,5 @@
 "use client";
+import { pendingPresentationReward } from "../simulation/presentation-runtime";
 import { localTime } from "../product/format";
 import { useLocale } from "../i18n/locale";
 import { useId, useMemo, useState } from "react";
@@ -12,8 +13,8 @@ import {
 } from "../simulation/store";
 import {
   makeBook,
-  bindSponsor,
   referralCode,
+  bindSponsor,
 } from "../simulation/operating-actions";
 import {
   activePrincipal,
@@ -166,7 +167,12 @@ export function OperatingActionForm({
   const state = useOperating(project);
   const params = useSearchParams();
   const referral =
-    kind === "participate" ? (params.get("ref") ?? undefined) : undefined;
+    kind === "participate" &&
+    !state.member.bound &&
+    state.member.lots.length === 0 &&
+    state.user.wallet !== state.book.root
+      ? (params.get("ref") ?? undefined)
+      : undefined;
   const [input, setInput] = useState("");
   const [open, setOpen] = useState(false);
   const [processing, setProcessing] = useState(false);
@@ -201,12 +207,13 @@ export function OperatingActionForm({
   let quote: ReturnType<typeof operatingQuote> | null = null;
   let sponsor: string | null = null;
   try {
-    if (kind === "participate")
-      sponsor = bindSponsor(
-        { ...state.book, projectIdentity: state.key },
-        state.user.wallet,
-        referral,
-      );
+    sponsor = referral
+      ? bindSponsor(
+          { ...state.book, projectIdentity: state.key },
+          state.user.wallet,
+          referral,
+        )
+      : state.member.sponsor;
     if (input.trim())
       quote = operatingQuote(
         kind,
@@ -356,10 +363,11 @@ export function OperatingActionForm({
           )}
           <Button
             variant="ghost"
+            aria-label={t("使用全部")}
             onClick={() => setInput(decimal(available))}
             disabled={available === 0n || processing}
           >
-            {t("使用全部")}
+            MAX
           </Button>
         </div>
         <p
@@ -462,7 +470,7 @@ export function ParticipatePanel({ project }: { project: Project }) {
                     "创建者根身份"
                   )
                 ) : (
-                  "首次参与时绑定项目根关系"
+                  "未绑定 · 可自由参与"
                 ),
               },
             ]}
@@ -604,12 +612,19 @@ export function StakePanel({
   );
 }
 export function ContributionPanel({ project }: { project: Project }) {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
 
   const s = useOperating(project);
   const [message, setMessage] = useState("");
+  const params = useSearchParams();
+  const [invitation, setInvitation] = useState(params.get("ref") ?? "");
+  const [confirming, setConfirming] = useState(false);
+  const [promotionOpen, setPromotionOpen] = useState(false);
   const c = s.contribution;
   const code = referralCode(s.key, s.user.wallet);
+  const canInvite =
+    s.user.wallet === s.book.root ||
+    (s.member.promotionEnabled ?? s.member.bound);
   return (
     <>
       <div className="project-metrics">
@@ -637,15 +652,105 @@ export function ContributionPanel({ project }: { project: Project }) {
                 ) : s.user.wallet === s.book.root ? (
                   "创建者根身份"
                 ) : (
-                  "首次参与时确定"
+                  "未绑定 · 可自由参与"
                 ),
               },
             ]}
           />
         </DetailCard>
         <DetailCard title={t("邀请")}>
+          {!canInvite && !s.member.bound && s.user.wallet !== s.book.root && (
+            <>
+              <p>
+                {locale === "en"
+                  ? "Participation is open without an inviter. Bind an inviter only to promote this project."
+                  : "无需绑定即可参与；开启推广前需先绑定邀请关系。"}
+              </p>
+              <Button onClick={() => setPromotionOpen(true)}>
+                {locale === "en" ? "Enable promotion" : "开启推广"}
+              </Button>
+              {promotionOpen && (
+                <div className="operating-form">
+                  <label>
+                    {locale === "en"
+                      ? "Invitation link or code"
+                      : "邀请链接或邀请码"}
+                    <Input
+                      value={invitation}
+                      onChange={(e) => {
+                        setInvitation(e.target.value);
+                        setMessage("");
+                      }}
+                    />
+                  </label>
+                  <Button
+                    disabled={!invitation.trim()}
+                    onClick={() => setConfirming(true)}
+                  >
+                    {locale === "en" ? "Review relationship" : "确认邀请关系"}
+                  </Button>
+                </div>
+              )}
+              <Modal
+                open={confirming}
+                onOpenChange={setConfirming}
+                trigger={null}
+                description=""
+                title={locale === "en" ? "Confirm inviter" : "确认绑定邀请关系"}
+              >
+                <p>
+                  {locale === "en"
+                    ? "Binding unlocks your invitation link. Your inviter cannot be changed afterward."
+                    : "绑定后将开启推广及专属邀请链接，邀请关系不可更换。"}
+                </p>
+                <p style={{ overflowWrap: "anywhere" }}>{invitation}</p>
+                <Button
+                  onClick={() => {
+                    try {
+                      let code = invitation.trim();
+                      if (code.includes("?"))
+                        code = new URL(code).searchParams.get("ref") ?? code;
+                      simulationStore.getState().enablePromotion(s.key, code);
+                      setConfirming(false);
+                      setMessage(
+                        locale === "en" ? "Promotion enabled" : "推广已开启",
+                      );
+                    } catch (e) {
+                      setConfirming(false);
+                      setMessage(e instanceof Error ? e.message : "绑定失败");
+                    }
+                  }}
+                >
+                  {locale === "en" ? "Confirm & enable" : "确认绑定并开启推广"}
+                </Button>
+              </Modal>
+            </>
+          )}
+          {!canInvite && s.member.bound && (
+            <>
+              <p>
+                {locale === "en"
+                  ? "Your inviter is bound. Promotion is optional."
+                  : "邀请关系已绑定，是否推广由你选择。"}
+              </p>
+              <Button
+                onClick={() => {
+                  try {
+                    simulationStore.getState().enablePromotion(s.key, "");
+                    setMessage(
+                      locale === "en" ? "Promotion enabled" : "推广已开启",
+                    );
+                  } catch (e) {
+                    setMessage(e instanceof Error ? e.message : "开启失败");
+                  }
+                }}
+              >
+                {locale === "en" ? "Enable promotion" : "开启推广"}
+              </Button>
+            </>
+          )}
           <Button
-            disabled={!s.member.bound && s.user.wallet !== s.book.root}
+            disabled={!canInvite}
             onClick={async () => {
               try {
                 await navigator.clipboard.writeText(
@@ -659,11 +764,7 @@ export function ContributionPanel({ project }: { project: Project }) {
           >
             {t("复制链接")}
           </Button>
-          {t(
-            (s.member.bound || s.user.wallet === s.book.root) && (
-              <p className="referral-code">{t(code)}</p>
-            ),
-          )}
+          {t(canInvite && <p className="referral-code">{t(code)}</p>)}
           <p role="status">{t(message)}</p>
         </DetailCard>
       </ResponsiveGrid>
@@ -685,7 +786,7 @@ export function RewardsPanel({
   project: Project;
   resultOnly?: boolean;
 }) {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
 
   const s = useOperating(project);
   const latest = s.book.settlements[0]?.members[s.user.wallet];
@@ -700,6 +801,21 @@ export function RewardsPanel({
   return (
     <>
       <div className="project-metrics">
+        <div
+          title={
+            locale === "en"
+              ? "Estimated reward; claimable after settlement."
+              : "收益为实时预估，结算后可领取。"
+          }
+        >
+          <MetricCard
+            label={locale === "en" ? "Live rewards" : "实时收益"}
+            value={amount(
+              pendingPresentationReward(s.book, s.user.wallet),
+              project.symbol,
+            )}
+          />
+        </div>
         <MetricCard
           label={t("昨日收益")}
           value={amount(yesterday?.gross ?? "0", project.symbol)}
@@ -869,7 +985,6 @@ export function AssetsPanel({ project }: { project: Project }) {
 }
 export function OperatingActivity({ project }: { project: Project }) {
   const { t, locale } = useLocale();
-  const wallet = useSimulation((s) => s.currentUser.wallet);
 
   const key = projectKey(project.chainId, project.tokenContract);
   const activities = useSimulation((s) => s.activities);
@@ -882,11 +997,9 @@ export function OperatingActivity({ project }: { project: Project }) {
               activities
                 .filter((a) => a.projectKey === key)
                 .sort(
-                  (a, b) =>
-                    Number(b.wallet === wallet) - Number(a.wallet === wallet) ||
-                    Date.parse(b.timestamp) - Date.parse(a.timestamp),
+                  (a, b) => Date.parse(b.timestamp) - Date.parse(a.timestamp),
                 )
-                .slice(0, 100)
+                .slice(0, 50)
                 .map((a) => (
                   <li key={a.id}>
                     <div>

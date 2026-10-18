@@ -8,7 +8,11 @@ import {
   simulationStore,
   useSimulation,
 } from "../simulation/store";
-import { displayAmount, displayNumber } from "../domain/economics/amount";
+import {
+  displayAmount,
+  displayNumber,
+  decimal,
+} from "../domain/economics/amount";
 import {
   ledgerState,
   quoteBuy,
@@ -206,6 +210,16 @@ export function TradePanel({ project }: { project: Project }) {
             {t(displayAmount(available))}
             {t(" ")}
             {side === "buy" ? "USDT" : project.symbol}
+            <Button
+              variant="ghost"
+              disabled={processing || available === 0n}
+              onClick={() => {
+                setInput(decimal(available));
+                setMessage("");
+              }}
+            >
+              MAX
+            </Button>
           </div>
           <p
             id={`${id}-error`}
@@ -227,9 +241,7 @@ export function TradePanel({ project }: { project: Project }) {
                   ].includes(v.label),
                 )}
               />
-            ) : (
-              <p className="small-note">{t("输入金额，查看预计成交结果。")}</p>
-            ),
+            ) : null,
           )}
           {t(
             quote?.unused ? (

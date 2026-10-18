@@ -1,4 +1,8 @@
 "use client";
+import {
+  preparePresentation,
+  advancePresentation,
+} from "../simulation/presentation-runtime";
 import { useEffect } from "react";
 import {
   simulationStore,
@@ -20,8 +24,10 @@ export function SimulationProvider({
     };
     try {
       simulationStore.getState().hydrate(localStorage);
+      preparePresentation(simulationStore);
       simulationStore.getState().refreshVolumes();
       simulationStore.getState().advanceMarket();
+      simulationStore.getState().advanceActivity();
       index();
       persistSnapshot(simulationStore.getState(), localStorage);
     } catch {
@@ -50,18 +56,27 @@ export function SimulationProvider({
     };
     window.addEventListener("storage", onStorage);
     const timer = window.setInterval(() => {
+      if (document.visibilityState === "hidden") return;
       simulationStore.getState().advanceMarket();
+      simulationStore.getState().advanceActivity();
       simulationStore.getState().refreshVolumes();
-    }, 30000);
+    }, 4000);
+    const rewardTimer = window.setInterval(() => {
+      if (document.visibilityState !== "hidden")
+        advancePresentation(simulationStore);
+    }, 1000);
     const resume = () => {
-      if (document.visibilityState === "visible")
+      if (document.visibilityState === "visible") {
         simulationStore.getState().advanceMarket();
+        simulationStore.getState().advanceActivity();
+      }
     };
     document.addEventListener("visibilitychange", resume);
     return () => {
       document.removeEventListener("visibilitychange", resume);
       stop();
       window.clearInterval(timer);
+      window.clearInterval(rewardTimer);
       window.removeEventListener("storage", onStorage);
     };
   }, []);
