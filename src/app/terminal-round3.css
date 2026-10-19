@@ -1,4 +1,114 @@
 /* Round 3: stronger trading hierarchy, deliberate action feedback. */
+/* Action forms size to their content, including nested Stake tabs. */
+body[data-nexns-app]
+  .terminal-v3.token-terminal
+  .terminal-actions
+  :is(.card, .product-tabs, .operating-layout, .operating-form) {
+  min-height: 0;
+  height: auto;
+  flex: none;
+  min-width: 0;
+  max-width: 100%;
+}
+body[data-nexns-app]
+  .terminal-v3.token-terminal
+  .terminal-actions
+  .product-tabs
+  > [role="tabpanel"] {
+  display: block;
+  min-height: 0;
+  height: auto;
+  flex: none;
+  padding-bottom: 0;
+}
+body[data-nexns-app]
+  .terminal-v3.token-terminal
+  .terminal-actions
+  .operating-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+}
+body[data-nexns-app]
+  .terminal-v3.token-terminal
+  .terminal-actions
+  .operating-form
+  .operation-confirm {
+  position: static;
+  inset: auto;
+  margin-top: 4px;
+}
+body[data-nexns-app] .terminal-v3.token-terminal .terminal-actions .key-values {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  margin: 10px 0 16px;
+  padding: 12px;
+}
+body[data-nexns-app]
+  .terminal-v3.token-terminal
+  .terminal-actions
+  .key-values
+  > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+  align-items: start;
+  gap: 12px;
+  padding: 9px 0;
+  min-width: 0;
+}
+body[data-nexns-app]
+  .terminal-v3.token-terminal
+  .terminal-actions
+  .key-values
+  :is(dt, dd) {
+  min-width: 0;
+  max-width: 100%;
+  margin: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.5;
+}
+body[data-nexns-app]
+  .terminal-v3.token-terminal
+  .terminal-actions
+  .key-values
+  dd {
+  text-align: right;
+  color: var(--theme-ink);
+}
+body[data-nexns-app]
+  .terminal-v3.token-terminal
+  .terminal-actions
+  .key-values
+  dt {
+  color: var(--theme-muted);
+}
+body[data-nexns-app]
+  .terminal-v3.token-terminal
+  .terminal-actions
+  .button.primary,
+body[data-nexns-app]
+  .terminal-v3.token-terminal
+  .terminal-actions
+  .button.primary:not(:disabled) {
+  background: #2464eb;
+  color: #fff;
+  border: 1px solid #2464eb;
+}
+body[data-nexns-app]
+  .terminal-v3.token-terminal
+  .terminal-actions
+  .button.primary:disabled {
+  background: #2464eb;
+  color: #fff;
+  border-color: #2464eb;
+  opacity: 0.42;
+  box-shadow: none;
+  cursor: not-allowed;
+}
 .terminal-v3.token-terminal .terminal-price strong .amount-tick,
 .terminal-v3.token-terminal .terminal-price strong .amount-tick > span {
   font: inherit;
